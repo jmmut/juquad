@@ -98,6 +98,18 @@ impl TextRect {
     }
 }
 
+/// A nice combo is:
+/// ```
+/// use macroquad::prelude::BLACK;
+/// use juquad::widgets::anchor::Anchor;
+/// use juquad::widgets::text::{draw_text_lines, wrap_or_hide_text};
+///
+/// let text = "long, potentially multiline\ntext.";
+/// let line_height = 20.0;
+/// let font_size = 16.0;
+/// let lines = wrap_or_hide_text(text, font_size, line_height, 150.0, 100.0);
+/// draw_text_lines(lines, Anchor::center(300.0, 50.0), font_size, line_height, BLACK)
+/// ```
 pub fn draw_text_lines(
     text_lines: Vec<String>,
     mut position: Anchor,
