@@ -9,11 +9,12 @@ After you set up a project (`cargo new hello_juquad && cd hello_juquad`), add th
 juquad = { git = "https://github.com/jmmut/juquad.git" }
 macroquad = "0.3.24"
 ```
+(I recommend adding a tag `juquad = { git = "https://github.com/jmmut/juquad.git", tag = "0.1.0" }` for a particular version. Note that I won't respect semver until this lib has more than 1 user, so expect breaking changes regardless of the type of the version bump I do.)
 
 and then put this in your main.rs:
 ```rust
 use macroquad::prelude::{
-    clear_background, next_frame, screen_height, screen_width, FileError, Vec2, BLACK, WHITE,
+    clear_background, next_frame, screen_height, screen_width, FileError, BLACK, WHITE,
 };
 
 use juquad::widgets::anchor::Anchor;
