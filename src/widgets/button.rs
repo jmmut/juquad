@@ -1,6 +1,7 @@
+use crate::draw::draw_rect;
 use macroquad::prelude::{
-    draw_line, draw_rectangle, is_mouse_button_down, is_mouse_button_released, mouse_position,
-    Color, MouseButton, Rect, Vec2, BLACK, DARKGRAY, GRAY, LIGHTGRAY, WHITE,
+    draw_line, is_mouse_button_down, is_mouse_button_released, mouse_position, Color, MouseButton,
+    Rect, Vec2, BLACK, DARKGRAY, GRAY, LIGHTGRAY, WHITE,
 };
 
 use crate::widgets::anchor::Anchor;
@@ -34,7 +35,9 @@ impl Interaction {
 
 pub struct Button {
     pub text_rect: TextRect,
-    color: Option<Color>,
+    pub color: Color,
+    pub color_hovered: Color,
+    pub color_pressed: Color,
     interaction: Interaction,
 }
 
@@ -42,7 +45,9 @@ impl Button {
     pub fn new(text: &str, position_pixels: Anchor, font_size: f32) -> Self {
         Self {
             text_rect: TextRect::new(text, position_pixels, font_size),
-            color: None,
+            color: LIGHTGRAY,
+            color_hovered: WHITE,
+            color_pressed: GRAY,
             interaction: Interaction::Pressing,
         }
     }
@@ -64,18 +69,14 @@ impl Button {
         };
         self.interaction
     }
-    pub fn set_color(&mut self, color: Color) -> &mut Self {
-        self.color = Some(color);
-        self
-    }
     pub fn render(&self) {
         let color = match self.interaction {
-            Interaction::Clicked | Interaction::Pressing => GRAY,
-            Interaction::Hovered => WHITE,
-            Interaction::None => self.color.unwrap_or(LIGHTGRAY),
+            Interaction::Clicked | Interaction::Pressing => self.color_pressed,
+            Interaction::Hovered => self.color_hovered,
+            Interaction::None => self.color,
         };
         let rect = self.text_rect.rect;
-        draw_rectangle(rect.x, rect.y, rect.w, rect.h, color);
+        draw_rect(rect, color);
         draw_panel_border(rect, self.interaction);
         self.text_rect.render_text(BLACK);
     }
