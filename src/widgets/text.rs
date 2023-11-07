@@ -38,10 +38,10 @@ pub const TEXT_PANEL_COLOR: Color = Color::new(1.0, 0.97, 0.8, 1.00);
 ///     text_rect.render_text(BLACK);
 /// }
 /// ```
+#[derive(Clone)]
 pub struct TextRect {
     pub text: String,
     pub rect: Rect,
-    pub text_dimensions: TextDimensions,
     pub font_size: f32,
     pub pad: Vec2,
 }
@@ -69,7 +69,6 @@ impl TextRect {
         Self {
             text: text.to_string(),
             rect,
-            text_dimensions,
             font_size,
             pad,
         }
@@ -96,22 +95,6 @@ impl TextRect {
             self.font_size,
             color,
         );
-    }
-}
-
-impl Clone for TextRect {
-    fn clone(&self) -> Self {
-        Self {
-            text: self.text.clone(),
-            rect: self.rect,
-            text_dimensions: TextDimensions {
-                width: self.text_dimensions.width,
-                height: self.text_dimensions.height,
-                offset_y: self.text_dimensions.offset_y,
-            },
-            font_size: self.font_size,
-            pad: self.pad,
-        }
     }
 }
 

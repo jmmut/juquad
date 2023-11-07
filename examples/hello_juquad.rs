@@ -4,25 +4,27 @@
 //! - How to reuse a [`Button`] created once at the beginning.
 //! - How to reposition stuff when the window is resized.
 
+use macroquad::prelude::{
+    clear_background, draw_texture_ex, next_frame, screen_height, screen_width, DrawTextureParams,
+    FileError, Vec2, DARKGRAY, WHITE,
+};
+
 use juquad::draw::draw_rect;
 use juquad::texture_loader::TextureLoader;
 use juquad::widgets::anchor::Anchor;
-use juquad::widgets::button::Button;
+use juquad::widgets::button::{Button, Style};
 use juquad::widgets::text::TextRect;
-use macroquad::prelude::{
-    clear_background, draw_texture_ex, next_frame, screen_height, screen_width, DrawTextureParams,
-    FileError, Vec2, BLACK, WHITE,
-};
 
 #[macroquad::main("Hello juquad")]
 async fn main() -> Result<(), FileError> {
+    let style: Style = Style::new();
     let mut loader = TextureLoader::new(&["assets/ferris.png"]);
     let mut textures_opt = None;
     let mut frame = 0;
     let mut button = Button::new("Reload", Anchor::top_left(0.0, 0.0), 16.0);
     loop {
         frame += 1;
-        clear_background(BLACK);
+        clear_background(DARKGRAY);
         let center = Vec2::new(screen_width() * 0.5, screen_height() * 0.5);
         match &textures_opt {
             None => {
@@ -55,7 +57,7 @@ async fn main() -> Result<(), FileError> {
                 if button.interact().is_clicked() {
                     textures_opt = None
                 }
-                button.render();
+                button.render(&style);
             }
         }
         next_frame().await
