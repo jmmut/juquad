@@ -1,14 +1,8 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
+pub mod widgets {
+    pub mod anchor;
+    pub mod button;
+    pub mod text;
+    pub mod texture_button;
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+pub mod draw;
+pub mod texture_loader;
