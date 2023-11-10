@@ -15,7 +15,7 @@ use juquad::widgets::text::TextRect;
 #[macroquad::main("Hello juquad")]
 async fn main() -> Result<(), FileError> {
     let style: Style = Style::new();
-    let mut loader = TextureLoader::<Texture2D>::new(&["assets/ferris.png"]);
+    let mut loader = TextureLoader::new_from_image(&["assets/ferris.png"]);
     let mut textures_opt = None;
     let mut frame = 0;
     let mut button = Button::new("Reload", Anchor::top_left(0.0, 0.0), 16.0);

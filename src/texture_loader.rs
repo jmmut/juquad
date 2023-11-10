@@ -35,7 +35,6 @@ fn pinned_load_image(path :&str) -> Pin<Box<dyn Future<Output=Result<Image, File
 }
 
 impl TextureLoader<Texture2D> {
-
     pub fn new(texture_paths: &'static [&'static str]) -> Self {
         Self {
             texture_paths,
@@ -46,7 +45,7 @@ impl TextureLoader<Texture2D> {
     }
 }
 impl TextureLoader<Image> {
-    pub fn new(texture_paths: &'static [&'static str]) -> Self {
+    pub fn new_from_image(texture_paths: &'static [&'static str]) -> Self {
         Self {
             texture_paths,
             textures: Vec::new(),
