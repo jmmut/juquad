@@ -2,7 +2,7 @@ use std::future::Future;
 use std::pin::Pin;
 use std::task::{Poll, RawWaker, RawWakerVTable, Waker};
 
-use macroquad::prelude::{load_texture, FileError, Texture2D};
+use macroquad::prelude::{load_texture, FileError, load_image, Texture2D, Image};
 
 /// Loads textures semi-asynchronously, so that you can render a loading screen.
 ///
@@ -15,10 +15,11 @@ use macroquad::prelude::{load_texture, FileError, Texture2D};
 ///
 /// See [`examples/hello_juquad.rs:36`] for an example of how to do a loading screen while waiting
 /// for this to load.
-pub struct TextureLoader {
+pub struct TextureLoader<T> {
     texture_paths: &'static [&'static str], // TODO: if I make these non-static, it doesn't compile because the struct must outlive the in_progress pin ???
-    textures: Vec<Texture2D>,
-    in_progress: Option<Pin<Box<dyn Future<Output = Result<Texture2D, FileError>>>>>,
+    textures: Vec<T>,
+    in_progress: Option<Pin<Box<dyn Future<Output = Result<T, FileError>>>>>,
+    load_func: fn(&str) -> Pin<Box<dyn Future<Output = Result<T, FileError>> + '_>> ,
 }
 
 pub struct Progress {
@@ -26,14 +27,35 @@ pub struct Progress {
     pub total_to_load: usize,
 }
 
-impl TextureLoader {
+fn pinned_load_texture(path :&str) -> Pin<Box<dyn Future<Output=Result<Texture2D, FileError>> + '_>>  {
+    Box::pin(load_texture(path))
+}
+fn pinned_load_image(path :&str) -> Pin<Box<dyn Future<Output=Result<Image, FileError>> + '_>>  {
+    Box::pin(load_image(path))
+}
+
+impl TextureLoader<Texture2D> {
+
     pub fn new(texture_paths: &'static [&'static str]) -> Self {
         Self {
             texture_paths,
             textures: Vec::new(),
             in_progress: None,
+            load_func: pinned_load_texture,
         }
     }
+}
+impl TextureLoader<Image> {
+    pub fn new(texture_paths: &'static [&'static str]) -> Self {
+        Self {
+            texture_paths,
+            textures: Vec::new(),
+            in_progress: None,
+            load_func: pinned_load_image,
+        }
+    }
+}
+impl<T: 'static> TextureLoader<T> {
 
     pub fn get_progress(&self) -> Progress {
         Progress {
@@ -44,7 +66,7 @@ impl TextureLoader {
 
     /// returns Ok(None) until all textures are loaded, and then returns Ok(Some(textures))
     /// returns Err() if a file couldn't be read for any reason
-    pub fn get_textures(&mut self) -> Result<Option<Vec<Texture2D>>, FileError> {
+    pub fn get_textures(&mut self) -> Result<Option<Vec<T>>, FileError> {
         if self.textures.len() < self.texture_paths.len() {
             // more textures to load
             let next_unloaded_index = self.textures.len();
@@ -63,7 +85,7 @@ impl TextureLoader {
                 }
             } else {
                 // no texture is loading
-                let texture_fut = load_texture(&self.texture_paths[next_unloaded_index]);
+                let texture_fut = (self.load_func)(&self.texture_paths[next_unloaded_index]);
                 let texture_pin = Box::pin(texture_fut);
                 self.in_progress = Some(texture_pin);
             }

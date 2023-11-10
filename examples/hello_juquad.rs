@@ -4,10 +4,7 @@
 //! - How to reuse a [`Button`] created once at the beginning.
 //! - How to reposition stuff when the window is resized.
 
-use macroquad::prelude::{
-    clear_background, draw_texture_ex, next_frame, screen_height, screen_width, DrawTextureParams,
-    FileError, Vec2, DARKGRAY, WHITE,
-};
+use macroquad::prelude::{clear_background, draw_texture_ex, next_frame, screen_height, screen_width, DrawTextureParams, FileError, Vec2, DARKGRAY, WHITE, Texture2D};
 
 use juquad::draw::draw_rect;
 use juquad::texture_loader::TextureLoader;
@@ -18,7 +15,7 @@ use juquad::widgets::text::TextRect;
 #[macroquad::main("Hello juquad")]
 async fn main() -> Result<(), FileError> {
     let style: Style = Style::new();
-    let mut loader = TextureLoader::new(&["assets/ferris.png"]);
+    let mut loader = TextureLoader::<Texture2D>::new(&["assets/ferris.png"]);
     let mut textures_opt = None;
     let mut frame = 0;
     let mut button = Button::new("Reload", Anchor::top_left(0.0, 0.0), 16.0);
