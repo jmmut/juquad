@@ -1,3 +1,4 @@
+use macroquad::math::Rect;
 use macroquad::prelude::Vec2;
 
 #[derive(Copy, Clone)]
@@ -61,5 +62,11 @@ impl Anchor {
             Anchor::BottomLeft { x, y } => Vec2::new(x, y - size.y),
             Anchor::BottomRight { x, y } => Vec2::new(x - size.x, y - size.y),
         }
+    }
+    pub fn from_below(other: Rect, x_diff: f32, y_diff: f32) -> Anchor {
+        Anchor::top_left(other.x + x_diff, other.y + other.h + y_diff)
+    }
+    pub fn from_right(other: Rect, x_diff: f32, y_diff: f32) -> Anchor {
+        Anchor::top_left(other.x + other.w + x_diff, other.y+ y_diff)
     }
 }
