@@ -12,7 +12,7 @@ pub const TEXT_PANEL_COLOR: Color = Color::new(1.0, 0.97, 0.8, 1.00);
 /// Renders some text in some anchor position.
 ///
 /// The anchor position allows specifying what the position means. For example,
-/// ```rust,ignore
+/// ```no_run
 /// use macroquad::prelude::{Vec2, BLACK};
 /// use juquad::widgets::{anchor::Anchor, text::TextRect};
 ///
@@ -22,7 +22,7 @@ pub const TEXT_PANEL_COLOR: Color = Color::new(1.0, 0.97, 0.8, 1.00);
 ///
 /// The struct also provides the text rectangle so that you can do buttons or frames manually,
 /// or just know how big it is, possibly creating it only once:
-/// ```rust,ignore
+/// ```no_run
 /// use macroquad::prelude::{Vec2, LIGHTGRAY, DARKGRAY, BLACK};
 /// use juquad::widgets::{anchor::Anchor, text::TextRect};
 /// use juquad::draw::{draw_rect, draw_rect_lines};
@@ -99,7 +99,7 @@ impl TextRect {
 }
 
 /// A nice combo is:
-/// ```
+/// ```no_run
 /// use macroquad::prelude::BLACK;
 /// use juquad::widgets::anchor::Anchor;
 /// use juquad::widgets::text::{draw_text_lines, wrap_or_hide_text};
