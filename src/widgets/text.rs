@@ -1,6 +1,6 @@
 use std::ops::AddAssign;
 
-use macroquad::prelude::{draw_text, measure_text, Color, Font, Rect, TextDimensions, Vec2};
+use macroquad::prelude::{Color, Font, Rect, TextDimensions, Vec2};
 
 use crate::widgets::anchor::Anchor;
 
@@ -9,7 +9,9 @@ pub type Pixels = f32;
 pub const ALERT_COLOR: Color = Color::new(0.98, 0.95, 0.3, 1.00);
 pub const TEXT_PANEL_COLOR: Color = Color::new(1.0, 0.97, 0.8, 1.00);
 
-pub type DrawText = fn (text: &str, x: f32, y: f32, font_size: f32, color: Color);
+pub type DrawText = fn(text: &str, x: f32, y: f32, font_size: f32, color: Color);
+pub type MeasureText =
+    fn(text: &str, font: Option<Font>, font_size: u16, font_scale: f32) -> TextDimensions;
 
 /// Renders some text in some anchor position.
 ///
@@ -49,21 +51,36 @@ pub struct TextRect {
     pub draw_text: DrawText,
 }
 impl TextRect {
+    #[cfg(not(test))]
     pub fn new(text: &str, position_pixels: Anchor, font_size: f32) -> Self {
         let draw_text = macroquad::prelude::draw_text;
-        Self::new_generic(text, position_pixels, font_size, draw_text)
+        let measure_text = macroquad::prelude::measure_text;
+        Self::new_generic(text, position_pixels, font_size, draw_text, measure_text)
     }
-    pub fn new_generic(text: &str, position_pixels: Anchor, font_size: f32, draw_text: DrawText) -> Self {
-        #[cfg(not(test))]
-        let text_dimensions = measure_text(text, None, font_size as u16, 1.0);
 
-        // this will allow running any test that creates buttons. Button::render() will panic, though.
-        #[cfg(test)]
-        let text_dimensions = TextDimensions {
-            width: text.len() as f32 * font_size * 0.5,
-            height: font_size,
-            offset_y: font_size * 0.75,
+    /// this will allow running any test that creates TextRect or Button
+    #[cfg(test)]
+    pub fn new(text: &str, position_pixels: Anchor, font_size: f32) -> Self {
+        let draw_text = |text: &str, x: f32, y: f32, font_size: f32, color: Color| {};
+        let measure_text = |text: &str, font: Option<Font>, font_size: u16, font_scale: f32| {
+            let font_size = font_size as f32;
+            TextDimensions {
+                width: text.len() as f32 * font_size * 0.5,
+                height: font_size,
+                offset_y: font_size * 0.75,
+            }
         };
+        Self::new_generic(text, position_pixels, font_size, draw_text, measure_text)
+    }
+
+    pub fn new_generic(
+        text: &str,
+        position_pixels: Anchor,
+        font_size: f32,
+        draw_text: DrawText,
+        measure_text: MeasureText,
+    ) -> Self {
+        let text_dimensions = measure_text(text, None, font_size as u16, 1.0);
 
         let pad = Vec2::new(font_size, font_size * 0.25);
         let size = Vec2::new(
@@ -78,7 +95,7 @@ impl TextRect {
             rect,
             font_size,
             pad,
-            draw_text
+            draw_text,
         }
     }
 
@@ -144,7 +161,7 @@ pub fn wrap_or_hide_text(
         line_height,
         panel_width,
         panel_height,
-        &measure_text,
+        &macroquad::prelude::measure_text,
     )
 }
 

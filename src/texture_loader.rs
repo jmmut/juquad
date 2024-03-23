@@ -2,7 +2,7 @@ use std::future::Future;
 use std::pin::Pin;
 use std::task::{Poll, RawWaker, RawWakerVTable, Waker};
 
-use macroquad::prelude::{load_texture, FileError, load_image, Texture2D, Image};
+use macroquad::prelude::{load_image, load_texture, FileError, Image, Texture2D};
 
 /// Loads textures semi-asynchronously, so that you can render a loading screen.
 ///
@@ -19,7 +19,7 @@ pub struct TextureLoader<T> {
     texture_paths: &'static [&'static str], // TODO: if I make these non-static, it doesn't compile because the struct must outlive the in_progress pin ???
     textures: Vec<T>,
     in_progress: Option<Pin<Box<dyn Future<Output = Result<T, FileError>>>>>,
-    load_func: fn(&str) -> Pin<Box<dyn Future<Output = Result<T, FileError>> + '_>> ,
+    load_func: fn(&str) -> Pin<Box<dyn Future<Output = Result<T, FileError>> + '_>>,
 }
 
 pub struct Progress {
@@ -27,10 +27,12 @@ pub struct Progress {
     pub total_to_load: usize,
 }
 
-fn pinned_load_texture(path :&str) -> Pin<Box<dyn Future<Output=Result<Texture2D, FileError>> + '_>>  {
+fn pinned_load_texture(
+    path: &str,
+) -> Pin<Box<dyn Future<Output = Result<Texture2D, FileError>> + '_>> {
     Box::pin(load_texture(path))
 }
-fn pinned_load_image(path :&str) -> Pin<Box<dyn Future<Output=Result<Image, FileError>> + '_>>  {
+fn pinned_load_image(path: &str) -> Pin<Box<dyn Future<Output = Result<Image, FileError>> + '_>> {
     Box::pin(load_image(path))
 }
 
@@ -55,7 +57,6 @@ impl TextureLoader<Image> {
     }
 }
 impl<T: 'static> TextureLoader<T> {
-
     pub fn get_progress(&self) -> Progress {
         Progress {
             loaded: self.textures.len(),

@@ -67,6 +67,6 @@ impl Anchor {
         Anchor::top_left(other.x + x_diff, other.y + other.h + y_diff)
     }
     pub fn from_right(other: Rect, x_diff: f32, y_diff: f32) -> Anchor {
-        Anchor::top_left(other.x + other.w + x_diff, other.y+ y_diff)
+        Anchor::top_left(other.x + other.w + x_diff, other.y + y_diff)
     }
 }

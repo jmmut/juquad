@@ -4,7 +4,10 @@
 //! - How to reuse a [`Button`] created once at the beginning.
 //! - How to reposition stuff when the window is resized.
 
-use macroquad::prelude::{clear_background, draw_texture_ex, next_frame, screen_height, screen_width, DrawTextureParams, FileError, Vec2, DARKGRAY, WHITE, Texture2D};
+use macroquad::prelude::{
+    clear_background, draw_texture_ex, next_frame, screen_height, screen_width, DrawTextureParams,
+    FileError, Texture2D, Vec2, DARKGRAY, WHITE,
+};
 
 use juquad::draw::draw_rect;
 use juquad::texture_loader::TextureLoader;
