@@ -9,6 +9,8 @@ pub type Pixels = f32;
 pub const ALERT_COLOR: Color = Color::new(0.98, 0.95, 0.3, 1.00);
 pub const TEXT_PANEL_COLOR: Color = Color::new(1.0, 0.97, 0.8, 1.00);
 
+pub type DrawText = fn (text: &str, x: f32, y: f32, font_size: f32, color: Color);
+
 /// Renders some text in some anchor position.
 ///
 /// The anchor position allows specifying what the position means. For example,
@@ -44,9 +46,14 @@ pub struct TextRect {
     pub rect: Rect,
     pub font_size: f32,
     pub pad: Vec2,
+    pub draw_text: DrawText,
 }
 impl TextRect {
     pub fn new(text: &str, position_pixels: Anchor, font_size: f32) -> Self {
+        let draw_text = macroquad::prelude::draw_text;
+        Self::new_generic(text, position_pixels, font_size, draw_text)
+    }
+    pub fn new_generic(text: &str, position_pixels: Anchor, font_size: f32, draw_text: DrawText) -> Self {
         #[cfg(not(test))]
         let text_dimensions = measure_text(text, None, font_size as u16, 1.0);
 
@@ -71,6 +78,7 @@ impl TextRect {
             rect,
             font_size,
             pad,
+            draw_text
         }
     }
 
@@ -88,7 +96,7 @@ impl TextRect {
         // so I prefer an approximate distance that makes all buttons at the same baseline
         let approx_height_from_baseline_to_top = 0.75 * self.font_size;
 
-        draw_text(
+        (self.draw_text)(
             &self.text,
             (self.rect.x + self.pad.x).round(),
             (self.rect.y + self.pad.y + approx_height_from_baseline_to_top).round(),
