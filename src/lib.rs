@@ -6,3 +6,4 @@ pub mod widgets {
 }
 pub mod draw;
 pub mod texture_loader;
+pub mod fps;
