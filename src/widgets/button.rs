@@ -1,9 +1,11 @@
 use macroquad::prelude::{
-    draw_line, is_mouse_button_down, is_mouse_button_released, mouse_position, Color, MouseButton,
+    draw_line, Color, MouseButton,
     Rect, Vec2, BLACK, DARKGRAY, GRAY, LIGHTGRAY, WHITE,
 };
 
 use crate::draw::draw_rect;
+use crate::input::input_trait::InputTrait;
+use crate::input::input_macroquad::InputMacroquad;
 use crate::widgets::anchor::Anchor;
 use crate::widgets::text::{DrawText, MeasureText, TextRect};
 
@@ -78,24 +80,28 @@ pub struct Button {
     pub text_rect: TextRect,
     interaction: Interaction,
     render_button: RenderButton,
+    input: Box<dyn InputTrait>,
 }
 
 impl Button {
     pub fn new(text: &str, position_pixels: Anchor, font_size: f32) -> Self {
+        static INPUT :InputMacroquad = InputMacroquad;
         Self::new_generic(text, position_pixels,
                           font_size,
                           macroquad::prelude::measure_text,
                           macroquad::prelude::draw_text,
-        render_button)
+        render_button, Box::new(InputMacroquad))
     }
     pub fn new_generic(text: &str, position_pixels: Anchor, font_size: f32,
                        measure_text: MeasureText, draw_text: DrawText,
         render_button: RenderButton,
+        input: Box<dyn InputTrait>,
     ) -> Self {
         Self {
             text_rect: TextRect::new_generic(text, position_pixels, font_size, measure_text, draw_text),
             interaction: Interaction::None,
             render_button,
+            input,
         }
     }
 
@@ -103,10 +109,10 @@ impl Button {
         self.text_rect.rect
     }
     pub fn interact(&mut self) -> Interaction {
-        self.interaction = if self.text_rect.rect.contains(Vec2::from(mouse_position())) {
-            if is_mouse_button_down(MouseButton::Left) {
+        self.interaction = if self.text_rect.rect.contains(Vec2::from(self.input.mouse_position())) {
+            if self.input.is_mouse_button_down(MouseButton::Left) {
                 Interaction::Pressing
-            } else if is_mouse_button_released(MouseButton::Left) {
+            } else if self.input.is_mouse_button_released(MouseButton::Left) {
                 Interaction::Clicked
             } else {
                 Interaction::Hovered
