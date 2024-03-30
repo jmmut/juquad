@@ -71,19 +71,31 @@ impl Default for Style {
         Self::new()
     }
 }
+
+pub type RenderButton = fn(interaction: Interaction, text_rect: &TextRect, style: &Style);
+
 pub struct Button {
     pub text_rect: TextRect,
     interaction: Interaction,
+    render_button: RenderButton,
 }
 
 impl Button {
     pub fn new(text: &str, position_pixels: Anchor, font_size: f32) -> Self {
-        Self::new_generic(text, position_pixels, font_size, macroquad::prelude::measure_text, macroquad::prelude::draw_text)
+        Self::new_generic(text, position_pixels,
+                          font_size,
+                          macroquad::prelude::measure_text,
+                          macroquad::prelude::draw_text,
+        render_button)
     }
-    pub fn new_generic(text: &str, position_pixels: Anchor, font_size: f32, measure_text: MeasureText, draw_text: DrawText) -> Self {
+    pub fn new_generic(text: &str, position_pixels: Anchor, font_size: f32,
+                       measure_text: MeasureText, draw_text: DrawText,
+        render_button: RenderButton,
+    ) -> Self {
         Self {
             text_rect: TextRect::new_generic(text, position_pixels, font_size, measure_text, draw_text),
             interaction: Interaction::None,
+            render_button,
         }
     }
 
@@ -108,18 +120,22 @@ impl Button {
         self.interaction
     }
     pub fn render(&self, style: &Style) {
-        let (bg_color, text_color) = match self.interaction {
-            Interaction::Clicked | Interaction::Pressing => {
-                (style.bg_color.pressed, style.text_color.pressed)
-            }
-            Interaction::Hovered => (style.bg_color.hovered, style.text_color.hovered),
-            Interaction::None => (style.bg_color.at_rest, style.text_color.at_rest),
-        };
-        let rect = self.text_rect.rect;
-        draw_rect(rect, bg_color);
-        draw_panel_border(rect, self.interaction, &style.border_color);
-        self.text_rect.render_text(text_color);
+        (self.render_button)(self.interaction, &self.text_rect, style)
     }
+}
+
+pub fn render_button(interaction: Interaction, text_rect: &TextRect, style: &Style) {
+    let (bg_color, text_color) = match interaction {
+        Interaction::Clicked | Interaction::Pressing => {
+            (style.bg_color.pressed, style.text_color.pressed)
+        }
+        Interaction::Hovered => (style.bg_color.hovered, style.text_color.hovered),
+        Interaction::None => (style.bg_color.at_rest, style.text_color.at_rest),
+    };
+    let rect = text_rect.rect;
+    draw_rect(rect, bg_color);
+    draw_panel_border(rect, interaction, &style.border_color);
+    text_rect.render_text(text_color);
 }
 
 pub fn draw_panel_border(rect: Rect, interaction: Interaction, style: &InteractionStyle) {
