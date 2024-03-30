@@ -6,7 +6,7 @@
 
 use macroquad::prelude::{
     clear_background, draw_texture_ex, next_frame, screen_height, screen_width, DrawTextureParams,
-    FileError, Texture2D, Vec2, DARKGRAY, WHITE,
+    FileError, Vec2, DARKGRAY, WHITE,
 };
 
 use juquad::draw::draw_rect;

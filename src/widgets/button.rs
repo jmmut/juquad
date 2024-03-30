@@ -5,7 +5,7 @@ use macroquad::prelude::{
 
 use crate::draw::draw_rect;
 use crate::widgets::anchor::Anchor;
-use crate::widgets::text::TextRect;
+use crate::widgets::text::{DrawText, MeasureText, TextRect};
 
 #[derive(Eq, PartialEq, Copy, Clone)]
 pub enum Interaction {
@@ -78,9 +78,12 @@ pub struct Button {
 
 impl Button {
     pub fn new(text: &str, position_pixels: Anchor, font_size: f32) -> Self {
+        Self::new_generic(text, position_pixels, font_size, macroquad::prelude::measure_text, macroquad::prelude::draw_text)
+    }
+    pub fn new_generic(text: &str, position_pixels: Anchor, font_size: f32, measure_text: MeasureText, draw_text: DrawText) -> Self {
         Self {
-            text_rect: TextRect::new(text, position_pixels, font_size),
-            interaction: Interaction::Pressing,
+            text_rect: TextRect::new_generic(text, position_pixels, font_size, measure_text, draw_text),
+            interaction: Interaction::None,
         }
     }
 

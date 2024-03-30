@@ -55,14 +55,14 @@ impl TextRect {
     pub fn new(text: &str, position_pixels: Anchor, font_size: f32) -> Self {
         let draw_text = macroquad::prelude::draw_text;
         let measure_text = macroquad::prelude::measure_text;
-        Self::new_generic(text, position_pixels, font_size, draw_text, measure_text)
+        Self::new_generic(text, position_pixels, font_size, measure_text, draw_text)
     }
 
     /// this will allow running any test that creates TextRect or Button
     #[cfg(test)]
     pub fn new(text: &str, position_pixels: Anchor, font_size: f32) -> Self {
-        let draw_text = |text: &str, x: f32, y: f32, font_size: f32, color: Color| {};
-        let measure_text = |text: &str, font: Option<Font>, font_size: u16, font_scale: f32| {
+        let draw_text = |_text: &str, _x: f32, _y: f32, _font_size: f32, _color: Color| {};
+        let measure_text = |text: &str, _font: Option<Font>, font_size: u16, _font_scale: f32| {
             let font_size = font_size as f32;
             TextDimensions {
                 width: text.len() as f32 * font_size * 0.5,
@@ -70,15 +70,15 @@ impl TextRect {
                 offset_y: font_size * 0.75,
             }
         };
-        Self::new_generic(text, position_pixels, font_size, draw_text, measure_text)
+        Self::new_generic(text, position_pixels, font_size, measure_text, draw_text)
     }
 
     pub fn new_generic(
         text: &str,
         position_pixels: Anchor,
         font_size: f32,
-        draw_text: DrawText,
         measure_text: MeasureText,
+        draw_text: DrawText,
     ) -> Self {
         let text_dimensions = measure_text(text, None, font_size as u16, 1.0);
 
