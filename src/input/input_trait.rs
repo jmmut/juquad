@@ -1,6 +1,5 @@
 use macroquad::prelude::{KeyCode, MouseButton, Vec2};
 
-
 pub trait InputTrait {
     fn is_key_down(&self, key: KeyCode) -> bool;
     fn is_key_pressed(&self, key: KeyCode) -> bool;

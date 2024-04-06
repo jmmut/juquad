@@ -1,5 +1,8 @@
-use macroquad::prelude::{is_key_down, is_key_pressed, is_mouse_button_down, is_mouse_button_pressed, is_mouse_button_released, KeyCode, mouse_position, MouseButton, Vec2};
 use crate::input::input_trait::InputTrait;
+use macroquad::prelude::{
+    is_key_down, is_key_pressed, is_mouse_button_down, is_mouse_button_pressed,
+    is_mouse_button_released, mouse_position, KeyCode, MouseButton, Vec2,
+};
 
 pub struct InputMacroquad;
 
