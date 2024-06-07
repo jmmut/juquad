@@ -7,10 +7,10 @@
 use macroquad::miniquad::date::now;
 use macroquad::prelude::{
     clear_background, draw_texture_ex, next_frame, screen_height, screen_width, DrawTextureParams,
-    FileError, Vec2, BLACK, DARKGRAY, WHITE,
+    FileError, Vec2, DARKGRAY, WHITE,
 };
 
-use juquad::draw::{draw_rect, draw_rect_lines};
+use juquad::draw::draw_rect;
 use juquad::fps::Seconds;
 use juquad::texture_loader::TextureLoader;
 use juquad::widgets::anchor::Anchor;
@@ -68,7 +68,7 @@ async fn main() -> Result<(), FileError> {
 
                 let fps_pos = Anchor::center_below(button.rect(), 0.0, 0.0);
                 let text_rect = TextRect::new(&format!("FPS: {:.1}", fps), fps_pos, FONT_SIZE);
-                // draw_rect_lines(text_rect.rect, 2.0, BLACK);
+                // juquad::draw::draw_rect_lines(text_rect.rect, 2.0, macroquad::prelude::BLACK);
                 text_rect.render_text(WHITE);
             }
         }
