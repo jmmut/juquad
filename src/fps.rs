@@ -19,7 +19,7 @@ pub async fn sleep_until_next_frame(previous_time: &mut Seconds) {
             // this is a blocking sleep on purpose. My current understanding is that macroquad
             // relies on OS or GPU drivers to limit the FPS to ~60 on non-wasm, which doesn't always
             // work. I was experiencing ~8000 FPS and this is the only way I know to limit them.
-            // This may not work in web.
+            // This probably doesn't work in web, that's why it's disabled by cfg.
             std::thread::sleep(std::time::Duration::from_secs_f64(sleep_secs));
         }
     }

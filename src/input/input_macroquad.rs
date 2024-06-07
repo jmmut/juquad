@@ -1,7 +1,8 @@
 use crate::input::input_trait::InputTrait;
+use crate::PixelPosition;
 use macroquad::prelude::{
     is_key_down, is_key_pressed, is_mouse_button_down, is_mouse_button_pressed,
-    is_mouse_button_released, mouse_position, KeyCode, MouseButton, Vec2,
+    is_mouse_button_released, mouse_position, mouse_wheel, KeyCode, MouseButton,
 };
 
 pub struct InputMacroquad;
@@ -27,8 +28,12 @@ impl InputTrait for InputMacroquad {
         is_mouse_button_released(button)
     }
 
-    fn mouse_position(&self) -> Vec2 {
-        Vec2::from(mouse_position())
+    fn mouse_position(&self) -> PixelPosition {
+        PixelPosition::from(mouse_position())
+    }
+
+    fn mouse_wheel(&self) -> PixelPosition {
+        PixelPosition::from(mouse_wheel())
     }
 
     fn clone(&self) -> Box<dyn InputTrait> {

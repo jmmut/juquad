@@ -4,16 +4,20 @@
 //! - How to reuse a [`Button`] created once at the beginning.
 //! - How to reposition stuff when the window is resized.
 
+use macroquad::miniquad::date::now;
 use macroquad::prelude::{
     clear_background, draw_texture_ex, next_frame, screen_height, screen_width, DrawTextureParams,
-    FileError, Vec2, DARKGRAY, WHITE,
+    FileError, Vec2, BLACK, DARKGRAY, WHITE,
 };
 
-use juquad::draw::draw_rect;
+use juquad::draw::{draw_rect, draw_rect_lines};
+use juquad::fps::Seconds;
 use juquad::texture_loader::TextureLoader;
 use juquad::widgets::anchor::Anchor;
 use juquad::widgets::button::{Button, Style};
 use juquad::widgets::text::TextRect;
+
+const FONT_SIZE: f32 = 32.0;
 
 #[macroquad::main("Hello juquad")]
 async fn main() -> Result<(), FileError> {
@@ -22,8 +26,11 @@ async fn main() -> Result<(), FileError> {
     let mut textures_opt = None;
     let mut frame = 0;
     let mut button = Button::new("Reload", Anchor::top_left(0.0, 0.0), 16.0);
+    let mut previous_time: Seconds = now();
     loop {
         frame += 1;
+        let fps = calculate_fps(&mut previous_time);
+
         clear_background(DARKGRAY);
         let center = Vec2::new(screen_width() * 0.5, screen_height() * 0.5);
         match &textures_opt {
@@ -58,8 +65,21 @@ async fn main() -> Result<(), FileError> {
                     textures_opt = None
                 }
                 button.render(&style);
+
+                let fps_pos = Anchor::center_below(button.rect(), 0.0, 0.0);
+                let text_rect = TextRect::new(&format!("FPS: {:.1}", fps), fps_pos, FONT_SIZE);
+                // draw_rect_lines(text_rect.rect, 2.0, BLACK);
+                text_rect.render_text(WHITE);
             }
         }
         next_frame().await
     }
+}
+
+fn calculate_fps(previous_time: &mut Seconds) -> Seconds {
+    let current_time: Seconds = now();
+    let frame_time: Seconds = current_time - *previous_time;
+    *previous_time = current_time;
+    let fps = 1.0 / frame_time;
+    fps
 }

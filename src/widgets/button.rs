@@ -84,7 +84,6 @@ pub struct Button {
 
 impl Button {
     pub fn new(text: &str, position_pixels: Anchor, font_size: f32) -> Self {
-        static INPUT: InputMacroquad = InputMacroquad;
         Self::new_generic(
             text,
             position_pixels,
