@@ -51,27 +51,11 @@ pub struct TextRect {
     pub draw_text: DrawText,
 }
 impl TextRect {
-    #[cfg(not(test))]
     pub fn new(text: &str, position_pixels: Anchor, font_size: f32) -> Self {
         let draw_text = macroquad::prelude::draw_text;
         let measure_text = macroquad::prelude::measure_text;
         Self::new_generic(text, position_pixels, font_size, measure_text, draw_text)
     }
-
-    // /// this will allow running any test that creates TextRect or Button
-    // #[cfg(test)]
-    // pub fn new(text: &str, position_pixels: Anchor, font_size: f32) -> Self {
-    //     let draw_text = |_text: &str, _x: f32, _y: f32, _font_size: f32, _color: Color| {};
-    //     let measure_text = |text: &str, _font: Option<Font>, font_size: u16, _font_scale: f32| {
-    //         let font_size = font_size as f32;
-    //         TextDimensions {
-    //             width: text.len() as f32 * font_size * 0.5,
-    //             height: font_size,
-    //             offset_y: font_size * 0.75,
-    //         }
-    //     };
-    //     Self::new_generic(text, position_pixels, font_size, measure_text, draw_text)
-    // }
 
     pub fn new_generic(
         text: &str,
