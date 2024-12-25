@@ -75,6 +75,9 @@ impl Anchor {
             }
         }
     }
+    pub fn offset_v(&mut self, diff: SizeInPixels) {
+        self.offset(diff.x, diff.y)
+    }
     pub fn get_top_left_pixel(&self, size: SizeInPixels) -> PixelPosition {
         match *self {
             Anchor::Center { x, y } => PixelPosition::new(x - size.x * 0.5, y - size.y * 0.5),
@@ -97,5 +100,11 @@ impl Anchor {
 
     pub fn center_below(other: Rect, x_diff: f32, y_diff: f32) -> Anchor {
         Anchor::top_center(other.x + other.w * 0.5 + x_diff, other.y + other.h + y_diff)
+    }
+}
+
+impl Default for Anchor {
+    fn default() -> Self {
+        Anchor::top_left(0.0, 0.0)
     }
 }
