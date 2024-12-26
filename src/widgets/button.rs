@@ -120,6 +120,9 @@ impl Button {
     pub fn rect(&self) -> Rect {
         self.text_rect.rect
     }
+    pub fn rect_mut(&mut self) -> &mut Rect {
+        &mut self.text_rect.rect
+    }
     pub fn interact(&mut self) -> Interaction {
         self.interaction = if self
             .text_rect
