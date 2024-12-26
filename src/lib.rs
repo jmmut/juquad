@@ -1,9 +1,9 @@
 use macroquad::prelude::Vec2;
 
-pub mod widgets;
 pub mod draw;
 pub mod fps;
 pub mod texture_loader;
+pub mod widgets;
 
 pub mod input {
     pub mod input_macroquad;

@@ -1,11 +1,11 @@
-use macroquad::math::Rect;
 use crate::PixelPosition;
+use macroquad::math::Rect;
 
 #[derive(Copy, Clone)]
 pub enum Alignment {
     Left,
     Center,
-    Right
+    Right,
 }
 #[derive(Copy, Clone)]
 pub enum Direction {
@@ -16,7 +16,7 @@ pub enum Direction {
 
 pub struct Anchorer {
     current: PixelPosition,
-    direction: Direction
+    direction: Direction,
 }
 impl Anchorer {
     pub fn new(direction: Direction) -> Self {
@@ -34,7 +34,7 @@ impl Anchorer {
             Direction::Down(Alignment::Center) => {
                 self.current.x = rect.x + rect.w * 0.5;
                 self.current.y = rect.y + rect.h;
-            },
+            }
             Direction::Down(Alignment::Right) => todo!(),
             Direction::Right => {
                 self.current.x = rect.x + rect.w;
@@ -42,23 +42,24 @@ impl Anchorer {
             }
         }
     }
-    pub fn move_and_modify(&mut self, rect :&mut Rect) {
+    pub fn move_and_modify(&mut self, rect: &mut Rect) {
         let new_pos = match self.direction {
             Direction::Down(Alignment::Left) => self.current,
             Direction::Down(Alignment::Center) => {
                 let mut pos = self.current;
                 pos.x -= rect.w * 0.5;
                 pos
-            }.round(),
+            }
+            .round(),
             Direction::Down(Alignment::Right) => {
                 let mut pos = self.current;
                 pos.x -= rect.w;
                 pos
-            }.round(),
+            }
+            .round(),
             Direction::Right => self.current, // TODO
         };
         rect.move_to(new_pos);
         self.move_after(*rect);
     }
 }
-

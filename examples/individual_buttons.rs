@@ -1,10 +1,10 @@
-use macroquad::prelude::{Color, next_frame, Rect, screen_height, screen_width};
-use juquad::{PixelPosition, SizeInPixels};
 use juquad::widgets::anchor::Anchor;
 use juquad::widgets::anchorer::{Alignment, Anchorer, Direction};
 use juquad::widgets::button::{Button, InteractionStyle, Style};
 use juquad::widgets::button_group::ButtonGroup;
 use juquad::widgets::Widget;
+use juquad::{PixelPosition, SizeInPixels};
+use macroquad::prelude::{next_frame, screen_height, screen_width, Color, Rect};
 
 const FONT_SIZE: f32 = 16.0;
 const STYLE: Style = Style::new();

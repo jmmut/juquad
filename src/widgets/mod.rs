@@ -1,14 +1,14 @@
-use macroquad::math::Rect;
 use crate::widgets::button::Button;
 use crate::widgets::button_group::ButtonGroup;
 use crate::widgets::text::TextRect;
+use macroquad::math::Rect;
 
 pub mod anchor;
+pub mod anchorer;
 pub mod button;
+pub mod button_group;
 pub mod text;
 pub mod texture_button;
-pub mod button_group;
-pub mod anchorer;
 
 pub enum Widget {
     Text(TextRect),
