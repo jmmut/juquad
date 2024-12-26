@@ -103,14 +103,34 @@ impl Button {
         render_button: RenderButton,
         input: Box<dyn InputTrait>,
     ) -> Self {
-        Self {
-            text_rect: TextRect::new_generic(
+        Self::new_from_text_rect_generic(
+            TextRect::new_generic(
                 text,
                 position_pixels,
                 font_size,
                 measure_text,
                 draw_text,
             ),
+            render_button,
+            input,
+        )
+    }
+    pub fn new_from_text_rect(
+        text_rect: TextRect,
+    ) -> Self {
+        Self::new_from_text_rect_generic(
+            text_rect,
+            render_button,
+            Box::new(InputMacroquad),
+        )    
+    }
+    pub fn new_from_text_rect_generic(
+        text_rect: TextRect,
+        render_button: RenderButton,
+        input: Box<dyn InputTrait>,
+    ) -> Self {
+        Self {
+            text_rect,
             interaction: Interaction::None,
             render_button,
             input,
