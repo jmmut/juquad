@@ -21,7 +21,12 @@ async fn main() {
         Anchor::top_center(screen_width() * 0.5, screen_height() * 0.25),
     );
 
-    let mut buttons: Buttons = button_group.create_T();
+    let mut buttons: Buttons = button_group.create_generic([
+        "some button",
+        "some long long long button",
+        "another button",
+        // "UPPER CASE BUTTON",
+    ]);
 
     let mut show_button3 = false;
     loop {

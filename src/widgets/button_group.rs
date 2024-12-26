@@ -30,13 +30,17 @@ impl ButtonGroup {
     //     ButtonGroup
     // }
 
-    pub fn create_T<T>(&mut self) -> T {
-        let array = self.create([
-            "some button",
-            "some long long long button",
-            "another button",
-            "UPPER CASE BUTTON",
-        ]);
+    pub fn create_generic<T, S: AsRef<str>, const N: usize>(&mut self, texts: [S; N]) -> T {
+        assert_eq!(
+            size_of::<T>(),
+            N * size_of::<Button>(),
+            "{} strings were specified but {} contains {} buttons",
+            N,
+            std::any::type_name::<T>(),
+            size_of::<T>() / size_of::<Button>()
+        );
+
+        let array = self.create(texts);
         let mut buttons_u = ButtonUnion {
             v: ManuallyDrop::new(array),
         };
