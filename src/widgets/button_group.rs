@@ -1,10 +1,11 @@
-use macroquad::math::Vec2;
-use macroquad::prelude::{draw_text, measure_text, Rect, TextDimensions};
-use crate::SizeInPixels;
 use crate::widgets::anchor::Anchor;
 use crate::widgets::button::Button;
 use crate::widgets::text::TextRect;
 use crate::widgets::Widget;
+use crate::SizeInPixels;
+use macroquad::math::Vec2;
+use macroquad::prelude::{draw_text, measure_text, Rect, TextDimensions};
+use std::mem::ManuallyDrop;
 
 pub struct ButtonGroup {
     font_size: f32,
@@ -12,13 +13,36 @@ pub struct ButtonGroup {
     widest: f32,
 }
 
+union ButtonUnion<T, const N: usize> {
+    b: ManuallyDrop<T>,
+    v: ManuallyDrop<[Button; N]>,
+}
+
 impl ButtonGroup {
     pub fn new(font_size: f32, anchor: Anchor) -> Self {
-        Self { font_size, anchor , widest: 0.0}
+        Self {
+            font_size,
+            anchor,
+            widest: 0.0,
+        }
     }
     // pub fn new_(widgets: Vec<Widget>) -> Self {
     //     ButtonGroup
     // }
+
+    pub fn create_T<T>(&mut self) -> T {
+        let array = self.create([
+            "some button",
+            "some long long long button",
+            "another button",
+            "UPPER CASE BUTTON",
+        ]);
+        let mut buttons_u = ButtonUnion {
+            v: ManuallyDrop::new(array),
+        };
+        unsafe { ManuallyDrop::take(&mut buttons_u.b) }
+    }
+
     pub fn create<S: AsRef<str>, const N: usize>(&self, texts: [S; N]) -> [Button; N] {
         let mut buttons = Vec::new();
         let mut max_width = 0.0;
@@ -51,7 +75,9 @@ impl ButtonGroup {
             buttons.push(Button::new_from_text_rect(text_rect));
             top_left.y += size.y + 1.0;
         }
-        buttons.try_into().unwrap_or_else(|v: Vec<_>| panic!("Expected a Vec of length {} but it was {}", N, v.len()))
+        buttons.try_into().unwrap_or_else(|v: Vec<_>| {
+            panic!("Expected a Vec of length {} but it was {}", N, v.len())
+        })
     }
     /*
     pub fn add(&mut self, text: &str) -> Button {
