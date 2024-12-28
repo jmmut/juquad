@@ -1,8 +1,9 @@
 use juquad::widgets::anchor::Anchor;
 use juquad::widgets::button::{Button, Style};
 use juquad::widgets::button_group::ButtonGroup;
-use macroquad::prelude::{clear_background, next_frame, screen_height, screen_width, BLUE};
-use std::mem::ManuallyDrop;
+use macroquad::prelude::{
+    clear_background, next_frame, screen_height, screen_width, BLUE, LIGHTGRAY,
+};
 
 const FONT_SIZE: f32 = 16.0;
 const STYLE: Style = Style::new();
@@ -25,12 +26,12 @@ async fn main() {
         "some button",
         "some long long long button",
         "another button",
-        // "UPPER CASE BUTTON",
+        "UPPER CASE BUTTON",
     ]);
 
     let mut show_button3 = false;
     loop {
-        clear_background(BLUE);
+        clear_background(LIGHTGRAY);
         if buttons.button1.interact().is_clicked() {
             show_button3 = !show_button3;
         }

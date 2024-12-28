@@ -1,16 +1,13 @@
 use crate::widgets::anchor::Anchor;
 use crate::widgets::button::Button;
 use crate::widgets::text::TextRect;
-use crate::widgets::Widget;
-use crate::SizeInPixels;
 use macroquad::math::Vec2;
-use macroquad::prelude::{draw_text, measure_text, Rect, TextDimensions};
+use macroquad::prelude::{draw_text, measure_text, Rect};
 use std::mem::ManuallyDrop;
 
 pub struct ButtonGroup {
     font_size: f32,
     anchor: Anchor,
-    widest: f32,
 }
 
 union ButtonUnion<T, const N: usize> {
@@ -20,11 +17,7 @@ union ButtonUnion<T, const N: usize> {
 
 impl ButtonGroup {
     pub fn new(font_size: f32, anchor: Anchor) -> Self {
-        Self {
-            font_size,
-            anchor,
-            widest: 0.0,
-        }
+        Self { font_size, anchor }
     }
     // pub fn new_(widgets: Vec<Widget>) -> Self {
     //     ButtonGroup
