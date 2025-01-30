@@ -1,12 +1,15 @@
 use crate::widgets::anchor::Anchor;
 use crate::widgets::button::Button;
-use crate::widgets::text::TextRect;
+use crate::widgets::text::{draw_text, TextRect};
 use macroquad::math::Vec2;
-use macroquad::prelude::{draw_text, measure_text, Rect};
+use macroquad::prelude::{measure_text, Rect};
+use macroquad::text::Font;
 use std::mem::ManuallyDrop;
 
 pub struct ButtonGroup {
     font_size: f32,
+    font: Option<Font>,
+    pad: Vec2,
     anchor: Anchor,
 }
 
@@ -17,7 +20,16 @@ union ButtonUnion<T, const N: usize> {
 
 impl ButtonGroup {
     pub fn new(font_size: f32, anchor: Anchor) -> Self {
-        Self { font_size, anchor }
+        let pad = Vec2::new(font_size, font_size * 0.25);
+        Self::new_with_font(font_size, None, pad, anchor)
+    }
+    pub fn new_with_font(font_size: f32, font: Option<Font>, pad: Vec2, anchor: Anchor) -> Self {
+        Self {
+            font_size,
+            font,
+            pad,
+            anchor,
+        }
     }
     // pub fn new_(widgets: Vec<Widget>) -> Self {
     //     ButtonGroup
@@ -46,16 +58,15 @@ impl ButtonGroup {
         let mut dimensions = Vec::new();
         for text in texts {
             let text = text.as_ref().to_string();
-            let text_dimensions = measure_text(&text, None, self.font_size as u16, 1.0);
+            let text_dimensions = measure_text(&text, self.font, self.font_size as u16, 1.0);
             if text_dimensions.width > max_width {
                 max_width = text_dimensions.width;
             }
             dimensions.push((text, text_dimensions));
         }
-        let pad = Vec2::new(self.font_size, self.font_size * 0.25);
         let size = Vec2::new(
-            (max_width + pad.x * 2.0).round(),
-            (self.font_size + pad.y * 2.0).round(),
+            (max_width + self.pad.x * 2.0).round(),
+            (self.font_size + self.pad.y * 2.0).round(),
         );
         let mut top_left = self.anchor.get_top_left_pixel(size);
 
@@ -66,8 +77,9 @@ impl ButtonGroup {
                 text,
                 rect,
                 font_size: self.font_size,
-                pad: Vec2::new((size.x - dimension.width) * 0.5, pad.y),
-                draw_text: draw_text,
+                font: self.font,
+                pad: Vec2::new((size.x - dimension.width) * 0.5, self.pad.y),
+                draw_text,
             };
             buttons.push(Button::new_from_text_rect(text_rect));
             top_left.y += size.y + 1.0;

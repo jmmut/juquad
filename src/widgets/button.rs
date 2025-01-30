@@ -1,12 +1,12 @@
-use macroquad::prelude::{
-    draw_line, Color, MouseButton, Rect, Vec2, BLACK, DARKGRAY, GRAY, LIGHTGRAY, WHITE,
-};
-
 use crate::draw::draw_rect;
 use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
 use crate::widgets::anchor::Anchor;
-use crate::widgets::text::{DrawText, MeasureText, TextRect};
+use crate::widgets::text::{draw_text, DrawText, MeasureText, TextRect};
+use macroquad::prelude::{
+    draw_line, Color, MouseButton, Rect, Vec2, BLACK, DARKGRAY, GRAY, LIGHTGRAY, WHITE,
+};
+use macroquad::text::Font;
 
 #[derive(Eq, PartialEq, Copy, Clone)]
 pub enum Interaction {
@@ -88,8 +88,9 @@ impl Button {
             text,
             position_pixels,
             font_size,
+            None,
             macroquad::prelude::measure_text,
-            macroquad::prelude::draw_text,
+            draw_text,
             render_button,
             Box::new(InputMacroquad),
         )
@@ -98,13 +99,21 @@ impl Button {
         text: &str,
         position_pixels: Anchor,
         font_size: f32,
+        font: Option<Font>,
         measure_text: MeasureText,
         draw_text: DrawText,
         render_button: RenderButton,
         input: Box<dyn InputTrait>,
     ) -> Self {
         Self::new_from_text_rect_generic(
-            TextRect::new_generic(text, position_pixels, font_size, measure_text, draw_text),
+            TextRect::new_generic(
+                text,
+                position_pixels,
+                font_size,
+                font,
+                measure_text,
+                draw_text,
+            ),
             render_button,
             input,
         )
