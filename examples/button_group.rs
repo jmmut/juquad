@@ -20,6 +20,7 @@ struct Buttons {
 async fn main() {
     let mut font_size: f32 = 16.0;
     let font_bytes = include_bytes!("../assets/Roboto-Regular.ttf");
+    // let font_bytes = include_bytes!("../assets/Roboto-Light.ttf");
     let font = load_ttf_font_from_bytes(font_bytes).unwrap();
     let mut custom_font = false;
 

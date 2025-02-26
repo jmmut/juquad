@@ -79,6 +79,9 @@ impl ButtonGroup {
                 font_size: self.font_size,
                 font: self.font,
                 pad: Vec2::new((size.x - dimension.width) * 0.5, self.pad.y),
+                offset_y: dimension.offset_y,
+                text_width: dimension.width,
+                text_height: dimension.height,
                 draw_text,
             };
             buttons.push(Button::new_from_text_rect(text_rect));

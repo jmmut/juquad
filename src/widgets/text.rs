@@ -1,8 +1,9 @@
-use std::ops::AddAssign;
-
+use crate::draw::draw_rect_lines;
 use crate::widgets::anchor::Anchor;
+use macroquad::color::BLUE;
 use macroquad::prelude::{Color, Font, Rect, TextDimensions, Vec2};
 use macroquad::text::TextParams;
+use std::ops::AddAssign;
 
 pub type Pixels = f32;
 
@@ -50,6 +51,9 @@ pub struct TextRect {
     pub font_size: f32,
     pub font: Option<Font>,
     pub pad: Vec2,
+    pub offset_y: f32,
+    pub text_width: f32,
+    pub text_height: f32,
     pub draw_text: DrawText,
 }
 impl TextRect {
@@ -82,13 +86,16 @@ impl TextRect {
         );
         let top_left = position_pixels.get_top_left_pixel(size);
 
-        let rect = Rect::new(top_left.x.round(), top_left.y.round(), size.x, size.y);
+        let rect = Rect::new(top_left.x, top_left.y, size.x, size.y);
         Self {
             text: text.to_string(),
             rect,
             font_size,
             font,
             pad,
+            offset_y: text_dimensions.offset_y,
+            text_width: text_dimensions.width,
+            text_height: text_dimensions.height,
             draw_text,
         }
     }
