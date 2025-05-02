@@ -1,5 +1,7 @@
+use crate::input::input_macroquad::InputMacroquad;
+use crate::input::input_trait::InputTrait;
 use crate::widgets::anchor::Anchor;
-use crate::widgets::button::Button;
+use crate::widgets::button::{render_button, Button, RenderButton};
 use crate::widgets::text::{draw_text, TextRect};
 use macroquad::math::Vec2;
 use macroquad::prelude::{measure_text, Rect};
@@ -7,6 +9,12 @@ use macroquad::text::Font;
 use std::mem::ManuallyDrop;
 
 pub struct ButtonGroup {
+    label_group: LabelGroup,
+    pub render: RenderButton,
+    pub input: Box<dyn InputTrait>,
+}
+
+pub struct LabelGroup {
     font_size: f32,
     font: Option<Font>,
     pad: Vec2,
@@ -20,15 +28,16 @@ union ButtonUnion<T, const N: usize> {
 
 impl ButtonGroup {
     pub fn new(font_size: f32, anchor: Anchor) -> Self {
-        let pad = Vec2::new(font_size, font_size * 0.25);
-        Self::new_with_font(font_size, None, pad, anchor)
+        Self::new_with_labels(LabelGroup::new(font_size, anchor))
     }
     pub fn new_with_font(font_size: f32, font: Option<Font>, pad: Vec2, anchor: Anchor) -> Self {
+        Self::new_with_labels(LabelGroup::new_with_font(font_size, font, pad, anchor))
+    }
+    pub fn new_with_labels(label_group: LabelGroup) -> Self {
         Self {
-            font_size,
-            font,
-            pad,
-            anchor,
+            label_group,
+            render: render_button,
+            input: Box::new(InputMacroquad),
         }
     }
     // pub fn new_(widgets: Vec<Widget>) -> Self {
@@ -51,9 +60,37 @@ impl ButtonGroup {
         };
         unsafe { ManuallyDrop::take(&mut buttons_u.b) }
     }
-
     pub fn create<S: AsRef<str>, const N: usize>(&self, texts: [S; N]) -> [Button; N] {
+        let text_rects = self.label_group.create(texts);
         let mut buttons = Vec::new();
+        for text_rect in text_rects {
+            buttons.push(Button::new_from_text_rect_generic(
+                text_rect,
+                self.render,
+                self.input.clone(),
+            ));
+        }
+        buttons.try_into().unwrap_or_else(|v: Vec<_>| {
+            panic!("Expected a Vec of length {} but it was {}", N, v.len())
+        })
+    }
+}
+
+impl LabelGroup {
+    pub fn new(font_size: f32, anchor: Anchor) -> Self {
+        let pad = Vec2::new(font_size, font_size * 0.25);
+        Self::new_with_font(font_size, None, pad, anchor)
+    }
+    pub fn new_with_font(font_size: f32, font: Option<Font>, pad: Vec2, anchor: Anchor) -> Self {
+        Self {
+            font_size,
+            font,
+            pad,
+            anchor,
+        }
+    }
+    pub fn create<S: AsRef<str>, const N: usize>(&self, texts: [S; N]) -> [TextRect; N] {
+        let mut text_rects = Vec::new();
         let mut max_width = 0.0;
         let mut dimensions = Vec::new();
         for text in texts {
@@ -84,10 +121,12 @@ impl ButtonGroup {
                 text_height: dimension.height,
                 draw_text,
             };
-            buttons.push(Button::new_from_text_rect(text_rect));
-            top_left.y += size.y + 1.0;
+            text_rects.push(text_rect);
+            top_left.y += size.y
+                // + 1.0
+            ;
         }
-        buttons.try_into().unwrap_or_else(|v: Vec<_>| {
+        text_rects.try_into().unwrap_or_else(|v: Vec<_>| {
             panic!("Expected a Vec of length {} but it was {}", N, v.len())
         })
     }

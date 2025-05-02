@@ -1,6 +1,4 @@
-use crate::draw::draw_rect_lines;
 use crate::widgets::anchor::Anchor;
-use macroquad::color::BLUE;
 use macroquad::prelude::{Color, Font, Rect, TextDimensions, Vec2};
 use macroquad::text::TextParams;
 use std::ops::AddAssign;

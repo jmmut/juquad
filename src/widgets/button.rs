@@ -192,9 +192,9 @@ pub fn draw_windows_95_border(rect: Rect, interaction: Interaction, style: &Inte
     } else {
         (style.hovered, style.pressed)
     };
-    let left = rect.x;
+    let left = rect.x + 1.0;
     let right = rect.x + rect.w;
-    let top = rect.y;
+    let top = rect.y + 1.0;
     let bottom = rect.y + rect.h;
     let thickness = 1.0;
     draw_line(left, top, right, top, thickness, border_color_high);
