@@ -10,16 +10,18 @@ const STYLE: Style = Style::new();
 
 struct Buttons {
     expand: Button,
-    button2: Button,
+    increase_font: Button,
+    decrease_font: Button,
     change_font: Button,
-    button4: Button,
     exit: Button,
 }
 
 #[macroquad::main("juquad button group")]
 async fn main() {
     let mut font_size: f32 = 16.0;
-    let font_bytes = include_bytes!("../assets/Roboto-Regular.ttf");
+    // let font_bytes = include_bytes!("../assets/Roboto-Regular.ttf");
+    let font_bytes = include_bytes!("../assets/ZenDots-Regular.ttf");
+    let font_bytes = include_bytes!("../assets/Saira-Regular.ttf");
     // let font_bytes = include_bytes!("../assets/Roboto-Light.ttf");
     let font = load_ttf_font_from_bytes(font_bytes).unwrap();
     let mut custom_font = false;
@@ -40,11 +42,11 @@ async fn main() {
         if buttons.expand.interact().is_clicked() {
             show_button3 = !show_button3;
         }
-        if buttons.button2.interact().is_clicked() {
+        if buttons.increase_font.interact().is_clicked() {
             font_size += 1.0;
             update_buttons = true;
         }
-        if buttons.button4.interact().is_clicked() {
+        if buttons.decrease_font.interact().is_clicked() {
             font_size -= 1.0;
             update_buttons = true;
         }
@@ -57,10 +59,10 @@ async fn main() {
         }
 
         buttons.expand.render(&STYLE);
-        buttons.button2.render(&STYLE);
+        buttons.increase_font.render(&STYLE);
         if show_button3 {
             buttons.change_font.render(&STYLE);
-            buttons.button4.render(&STYLE);
+            buttons.decrease_font.render(&STYLE);
             buttons.exit.render(&STYLE);
         }
         if update_buttons {
@@ -87,9 +89,9 @@ fn create_button_group(font: Option<Font>, font_size: f32) -> Buttons {
 
     let buttons: Buttons = button_group.create_generic([
         "some button to expand",
-        "some long long long button",
-        "change font",
-        "UPPER CASE BUTTON",
+        "long button to increase font size",
+        "decrease font size",
+        "CHANGE FONT",
         "exit",
     ]);
     buttons
