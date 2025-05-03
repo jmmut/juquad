@@ -17,7 +17,6 @@ pub struct ButtonGroup {
 pub struct LabelGroup {
     font_size: f32,
     font: Option<Font>,
-    pad: Vec2,
     anchor: Anchor,
 }
 
@@ -30,8 +29,8 @@ impl ButtonGroup {
     pub fn new(font_size: f32, anchor: Anchor) -> Self {
         Self::new_with_labels(LabelGroup::new(font_size, anchor))
     }
-    pub fn new_with_font(font_size: f32, font: Option<Font>, pad: Vec2, anchor: Anchor) -> Self {
-        Self::new_with_labels(LabelGroup::new_with_font(font_size, font, pad, anchor))
+    pub fn new_with_font(font_size: f32, font: Option<Font>, anchor: Anchor) -> Self {
+        Self::new_with_labels(LabelGroup::new_with_font(font_size, font, anchor))
     }
     pub fn new_with_labels(label_group: LabelGroup) -> Self {
         Self {
@@ -78,14 +77,12 @@ impl ButtonGroup {
 
 impl LabelGroup {
     pub fn new(font_size: f32, anchor: Anchor) -> Self {
-        let pad = Vec2::new(font_size, font_size * 0.25);
-        Self::new_with_font(font_size, None, pad, anchor)
+        Self::new_with_font(font_size, None, anchor)
     }
-    pub fn new_with_font(font_size: f32, font: Option<Font>, pad: Vec2, anchor: Anchor) -> Self {
+    pub fn new_with_font(font_size: f32, font: Option<Font>, anchor: Anchor) -> Self {
         Self {
             font_size,
             font,
-            pad,
             anchor,
         }
     }
@@ -93,6 +90,20 @@ impl LabelGroup {
         let mut text_rects = Vec::new();
         let mut max_width = 0.0;
         let mut dimensions = Vec::new();
+        // font_size doesn't seem to be in pixels across fonts
+        let reference_size = measure_text("Odp", self.font, self.font_size as u16, 1.0);
+        // let reference_size1 = measure_text("O", self.font, self.font_size as u16, 1.0);
+        // let reference_size2 = measure_text(
+        //     "some button to expand",
+        //     self.font,
+        //     self.font_size as u16,
+        //     1.0,
+        // );
+        // let reference_size3 = measure_text("pd", self.font, self.font_size as u16, 1.0);
+
+        let reference_height = reference_size.height;
+        let pad = Vec2::new(reference_height, reference_height * 0.75);
+
         for text in texts {
             let text = text.as_ref().to_string();
             let text_dimensions = measure_text(&text, self.font, self.font_size as u16, 1.0);
@@ -101,28 +112,36 @@ impl LabelGroup {
             }
             dimensions.push((text, text_dimensions));
         }
-        let size = Vec2::new(
-            (max_width + self.pad.x * 2.0).round(),
-            (self.font_size + self.pad.y * 2.0).round(),
+        let elem_size = Vec2::new(
+            (max_width + pad.x * 2.0).round(),
+            (reference_height + pad.y * 2.0).round(),
         );
-        let mut top_left = self.anchor.get_top_left_pixel(size);
+        let mut top_left = self
+            .anchor
+            .get_top_left_pixel(elem_size * Vec2::new(1.0, N as f32));
 
         for (text, dimension) in dimensions {
-            let rect = Rect::new(top_left.x.round(), top_left.y.round(), size.x, size.y);
+            let rect = Rect::new(
+                top_left.x.round(),
+                top_left.y.round(),
+                elem_size.x,
+                elem_size.y,
+            );
 
             let text_rect = TextRect {
                 text,
                 rect,
                 font_size: self.font_size,
                 font: self.font,
-                pad: Vec2::new((size.x - dimension.width) * 0.5, self.pad.y),
+                pad: Vec2::new((elem_size.x - dimension.width) * 0.5, pad.y),
                 offset_y: dimension.offset_y,
                 text_width: dimension.width,
                 text_height: dimension.height,
+                reference_height,
                 draw_text,
             };
             text_rects.push(text_rect);
-            top_left.y += size.y
+            top_left.y += elem_size.y
                 // + 1.0
             ;
         }

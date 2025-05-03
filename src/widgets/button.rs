@@ -194,8 +194,8 @@ pub fn draw_windows_95_border(rect: Rect, interaction: Interaction, style: &Inte
     };
     let left = rect.x + 1.0;
     let right = rect.x + rect.w;
-    let top = rect.y + 1.0;
-    let bottom = rect.y + rect.h;
+    let top = rect.y;
+    let bottom = rect.y + rect.h - 1.0;
     let thickness = 1.0;
     draw_line(left, top, right, top, thickness, border_color_high);
     draw_line(left, top, left, bottom, thickness, border_color_high);
