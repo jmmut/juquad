@@ -3,6 +3,7 @@ use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
 use crate::widgets::anchor::Anchor;
 use crate::widgets::text::{DrawText, MeasureText, TextRect};
+use crate::widgets::Widget;
 use macroquad::prelude::{
     draw_line, Color, MouseButton, Rect, Vec2, BLACK, DARKGRAY, GRAY, LIGHTGRAY, WHITE,
 };
@@ -80,6 +81,14 @@ pub struct Button {
     interaction: Interaction,
     render_button: RenderButton,
     input: Box<dyn InputTrait>,
+}
+impl Widget for Button {
+    fn rect(&self) -> Rect {
+        Button::rect(self)
+    }
+    fn rect_mut(&mut self) -> &mut Rect {
+        Button::rect_mut(self)
+    }
 }
 
 impl Button {

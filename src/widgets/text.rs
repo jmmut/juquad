@@ -1,5 +1,6 @@
 use crate::widgets::anchor::Anchor;
 use crate::widgets::button::Style;
+use crate::widgets::Widget;
 use macroquad::prelude::{Color, Font, Rect, TextDimensions, Vec2};
 use macroquad::text::TextParams;
 use std::ops::AddAssign;
@@ -56,6 +57,16 @@ pub struct TextRect {
     pub reference_height: f32,
     pub draw_text: DrawText,
 }
+
+impl Widget for TextRect {
+    fn rect(&self) -> Rect {
+        TextRect::rect(self)
+    }
+    fn rect_mut(&mut self) -> &mut Rect {
+        TextRect::rect_mut(self)
+    }
+}
+
 impl TextRect {
     pub fn new(text: &str, position_pixels: Anchor, font_size: f32) -> Self {
         Self::new_generic(
@@ -130,6 +141,12 @@ impl TextRect {
             &style,
             self.font,
         );
+    }
+    fn rect(&self) -> Rect {
+        self.rect
+    }
+    fn rect_mut(&mut self) -> &mut Rect {
+        &mut self.rect
     }
 }
 

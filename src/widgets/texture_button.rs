@@ -5,10 +5,20 @@ use macroquad::prelude::{
 
 use crate::widgets::anchor::Anchor;
 use crate::widgets::button::Interaction;
+use crate::widgets::Widget;
 
 pub struct TextureButton {
     pub rect: Rect,
     interaction: Interaction,
+}
+
+impl Widget for TextureButton {
+    fn rect(&self) -> Rect {
+        self.rect
+    }
+    fn rect_mut(&mut self) -> &mut Rect {
+        &mut self.rect
+    }
 }
 
 impl TextureButton {

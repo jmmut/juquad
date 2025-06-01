@@ -1,5 +1,7 @@
 use crate::widgets::anchor::{Anchor, Layout};
 use crate::widgets::button::Button;
+use crate::widgets::text::TextRect;
+use crate::widgets::Widget;
 use crate::PixelPosition;
 use macroquad::math::Rect;
 
@@ -26,15 +28,15 @@ impl Anchorer {
     }
 
     pub fn new_button(&mut self, text: &str, font_size: f32) -> Button {
-        let anchor = Anchor::next_to(self.current, self.layout, 0.0);
-        let button = Button::new(text, anchor, font_size);
-        self.current = button.rect();
-        button
+        self.new_widget(|anchor| Button::new(text, anchor, font_size))
     }
-    // pub fn new_widget(&mut self, text: &str, font_size: f32) -> Button {
-    //     let anchor = Anchor::next_to(self.current, self.layout, 0.0);
-    //     let button = Button::new(text, anchor, font_size);
-    //     self.current = button.rect();
-    //     button
-    // }
+    pub fn new_text(&mut self, text: &str, font_size: f32) -> TextRect {
+        self.new_widget(|anchor| TextRect::new(text, anchor, font_size))
+    }
+    pub fn new_widget<W: Widget>(&mut self, f: impl Fn(Anchor) -> W) -> W {
+        let anchor = Anchor::next_to(self.current, self.layout, 0.0);
+        let widget = f(anchor);
+        self.current = widget.rect();
+        widget
+    }
 }
