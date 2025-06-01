@@ -173,15 +173,17 @@ impl Default for Anchor {
     }
 }
 impl Layout {
-    pub fn vertical(
-        direction: Vertical,
-        alignment: Horizontal,) -> Self {
-        Self::Vertical{direction, alignment}
+    pub fn vertical(direction: Vertical, alignment: Horizontal) -> Self {
+        Self::Vertical {
+            direction,
+            alignment,
+        }
     }
-    pub fn horizontal(
-        direction: Horizontal,
-        alignment: Vertical,) -> Self {
-        Self::Horizontal { direction, alignment }
+    pub fn horizontal(direction: Horizontal, alignment: Vertical) -> Self {
+        Self::Horizontal {
+            direction,
+            alignment,
+        }
     }
 }
 impl Horizontal {

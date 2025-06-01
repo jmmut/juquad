@@ -58,13 +58,12 @@ pub struct TextRect {
 }
 impl TextRect {
     pub fn new(text: &str, position_pixels: Anchor, font_size: f32) -> Self {
-        let measure_text = macroquad::prelude::measure_text;
         Self::new_generic(
             text,
             position_pixels,
             font_size,
             None,
-            measure_text,
+            macroquad::prelude::measure_text,
             draw_text,
         )
     }

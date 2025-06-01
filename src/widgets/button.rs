@@ -2,7 +2,7 @@ use crate::draw::draw_rect;
 use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
 use crate::widgets::anchor::Anchor;
-use crate::widgets::text::{draw_text, DrawText, MeasureText, TextRect};
+use crate::widgets::text::{DrawText, MeasureText, TextRect};
 use macroquad::prelude::{
     draw_line, Color, MouseButton, Rect, Vec2, BLACK, DARKGRAY, GRAY, LIGHTGRAY, WHITE,
 };
@@ -84,16 +84,7 @@ pub struct Button {
 
 impl Button {
     pub fn new(text: &str, position_pixels: Anchor, font_size: f32) -> Self {
-        Self::new_generic(
-            text,
-            position_pixels,
-            font_size,
-            None,
-            macroquad::prelude::measure_text,
-            draw_text,
-            render_button,
-            Box::new(InputMacroquad),
-        )
+        Self::new_from_text_rect(TextRect::new(text, position_pixels, font_size))
     }
     pub fn new_generic(
         text: &str,
