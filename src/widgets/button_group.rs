@@ -43,7 +43,9 @@ impl ButtonGroup {
     //     ButtonGroup
     // }
 
-    pub fn create_generic<T, S: AsRef<str>, const N: usize>(&mut self, texts: [S; N]) -> T {
+    /// This is unsafe because Rust is allowed to reorganize the fields inside T.
+    /// Marking T as repr(C) is safer but maybe still not worth it.
+    pub unsafe fn create_generic<T, S: AsRef<str>, const N: usize>(&mut self, texts: [S; N]) -> T {
         assert_eq!(
             size_of::<T>(),
             N * size_of::<Button>(),
