@@ -13,7 +13,7 @@ use macroquad::prelude::{
 use juquad::draw::draw_rect;
 use juquad::fps::Seconds;
 use juquad::texture_loader::TextureLoader;
-use juquad::widgets::anchor::Anchor;
+use juquad::widgets::anchor2::{Anchor, Horizontal};
 use juquad::widgets::button::{Button, Style};
 use juquad::widgets::text::TextRect;
 
@@ -66,7 +66,7 @@ async fn main() -> Result<(), FileError> {
                 }
                 button.render(&style);
 
-                let fps_pos = Anchor::center_below(button.rect(), 0.0, 0.0);
+                let fps_pos = Anchor::below(button.rect(), Horizontal::Center, 0.0);
                 let text_rect = TextRect::new(&format!("FPS: {:.1}", fps), fps_pos, FONT_SIZE);
                 // juquad::draw::draw_rect_lines(text_rect.rect, 2.0, macroquad::prelude::BLACK);
                 text_rect.render_text(WHITE);

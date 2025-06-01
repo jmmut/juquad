@@ -4,6 +4,7 @@ use crate::widgets::text::TextRect;
 use macroquad::math::Rect;
 
 pub mod anchor;
+pub mod anchor2;
 pub mod anchorer;
 pub mod button;
 pub mod button_group;

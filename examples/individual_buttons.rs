@@ -1,4 +1,4 @@
-use juquad::widgets::anchor::Anchor;
+use juquad::widgets::anchor2::Anchor;
 use juquad::widgets::anchorer::{Alignment, Anchorer, Direction};
 use juquad::widgets::button::{Button, Style};
 use macroquad::prelude::{next_frame, screen_height, screen_width};

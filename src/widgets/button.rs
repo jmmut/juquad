@@ -1,7 +1,7 @@
 use crate::draw::draw_rect;
 use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
-use crate::widgets::anchor::Anchor;
+use crate::widgets::anchor2::Anchor;
 use crate::widgets::text::{draw_text, DrawText, MeasureText, TextRect};
 use macroquad::prelude::{
     draw_line, Color, MouseButton, Rect, Vec2, BLACK, DARKGRAY, GRAY, LIGHTGRAY, WHITE,

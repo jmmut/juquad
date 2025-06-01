@@ -91,6 +91,10 @@ impl Anchor {
             Anchor::BottomCenter { x, y } => PixelPosition::new(x - size.x * 0.5, y - size.y),
         }
     }
+    pub fn get_rect(&self, size: SizeInPixels) -> Rect {
+        let pos = self.get_top_left_pixel(size);
+        Rect::new(pos.x, pos.y, size.x, size.y)
+    }
     pub fn from_below(other: Rect, x_diff: f32, y_diff: f32) -> Anchor {
         Anchor::top_left(other.x + x_diff, other.y + other.h + y_diff)
     }
