@@ -1,4 +1,4 @@
-use crate::widgets::anchor2::Anchor;
+use crate::widgets::anchor::Anchor;
 use crate::widgets::button::Style;
 use macroquad::prelude::{Color, Font, Rect, TextDimensions, Vec2};
 use macroquad::text::TextParams;
@@ -19,7 +19,7 @@ pub type MeasureText =
 /// The anchor position allows specifying what the position means. For example,
 /// ```no_run
 /// use macroquad::prelude::{Vec2, BLACK};
-/// use juquad::widgets::{anchor2::Anchor, text::TextRect};
+/// use juquad::widgets::{anchor::Anchor, text::TextRect};
 ///
 /// // the text will be rendered so that its center is at (100.0, 200.0)
 /// TextRect::new("some text", Anchor::center(100.0, 200.0), 16.0).render_text(BLACK);
@@ -29,7 +29,7 @@ pub type MeasureText =
 /// or just know how big it is, possibly creating it only once:
 /// ```no_run
 /// use macroquad::prelude::{Vec2, LIGHTGRAY, DARKGRAY, BLACK};
-/// use juquad::widgets::{anchor2::Anchor, text::TextRect};
+/// use juquad::widgets::{anchor::Anchor, text::TextRect};
 /// use juquad::draw::{draw_rect, draw_rect_lines};
 ///
 /// // in initialization, stored somewhere
@@ -137,7 +137,7 @@ impl TextRect {
 /// A nice combo is:
 /// ```no_run
 /// use macroquad::prelude::BLACK;
-/// use juquad::widgets::anchor2::Anchor;
+/// use juquad::widgets::anchor::Anchor;
 /// use juquad::widgets::text::{draw_text_lines, wrap_or_hide_text};
 ///
 /// let text = "long, potentially multiline\ntext.";

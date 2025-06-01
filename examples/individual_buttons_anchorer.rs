@@ -1,4 +1,5 @@
 use juquad::widgets::anchor::{Anchor, Horizontal, Layout, Vertical};
+use juquad::widgets::anchorer::Anchorer;
 use juquad::widgets::button::{Button, Style};
 use macroquad::prelude::{next_frame, screen_height, screen_width};
 
@@ -13,8 +14,9 @@ async fn main() {
     let mut buttons_enabled = false;
     loop {
         let layout = Layout::vertical(Vertical::Bottom, alignment);
-        let anchor = Anchor::next_to(button_enable.rect(), layout, 0.0);
-        let mut button_1 = Button::new("toggle center", anchor, FONT_SIZE);
+        let mut anchorer = Anchorer::new(layout, button_enable.rect(), 0.0);
+        let mut button_1 = Button::new("toggle center", Anchor::default(), FONT_SIZE);
+        anchorer.move_and_modify(button_1.rect_mut());
         if button_1.interact().is_clicked() {
             if let Horizontal::Left = alignment {
                 alignment = Horizontal::Center;
@@ -28,11 +30,9 @@ async fn main() {
         }
         if buttons_enabled {
             let texts = vec!["some long button text", "button 3"];
-            let mut previous = button_1.rect();
             for text in texts {
-                let anchor = Anchor::next_to(previous, layout, 0.0);
-                let mut button = Button::new(text, anchor, FONT_SIZE);
-                previous = button.rect();
+                let mut button = Button::new(text, Anchor::default(), FONT_SIZE);
+                anchorer.move_and_modify(button.rect_mut());
                 button.interact();
                 extra_buttons.push(button);
             }

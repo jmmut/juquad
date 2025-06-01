@@ -1,48 +1,88 @@
 use crate::{PixelPosition, SizeInPixels};
-use macroquad::math::Rect;
+use macroquad::math::{Rect, Vec2};
 
 /// An Anchor helps you define more easily define positions for rectangles.
 /// All f32 values are in pixels units, e.g. (800.0, 600.0). Top left is (0.0, 0.0).
 #[derive(Copy, Clone)]
-pub enum Anchor {
-    Center { x: f32, y: f32 },
-    CenterLeft { x: f32, y: f32 },
-    CenterRight { x: f32, y: f32 },
-    TopLeft { x: f32, y: f32 },
-    TopRight { x: f32, y: f32 },
-    TopCenter { x: f32, y: f32 },
-    BottomLeft { x: f32, y: f32 },
-    BottomRight { x: f32, y: f32 },
-    BottomCenter { x: f32, y: f32 },
+pub struct Anchor {
+    horizontal: Horizontal,
+    vertical: Vertical,
+    x: f32,
+    y: f32,
 }
 
+#[derive(Copy, Clone, PartialEq)]
+pub enum Horizontal {
+    Left,
+    Center,
+    Right,
+}
+
+#[derive(Copy, Clone, PartialEq)]
+pub enum Vertical {
+    Top,
+    Center,
+    Bottom,
+}
+
+#[derive(Copy, Clone, PartialEq)]
+pub enum Layout {
+    Horizontal {
+        direction: Horizontal,
+        alignment: Vertical,
+    },
+    Vertical {
+        direction: Vertical,
+        alignment: Horizontal,
+    },
+}
+
+use Horizontal as H;
+use Vertical as V;
+
 impl Anchor {
+    pub fn new(horizontal: Horizontal, vertical: Vertical, x: f32, y: f32) -> Self {
+        Self {
+            horizontal,
+            vertical,
+            x,
+            y,
+        }
+    }
+    pub fn new_v(horizontal: Horizontal, vertical: Vertical, position: PixelPosition) -> Self {
+        Self {
+            horizontal,
+            vertical,
+            x: position.x,
+            y: position.y,
+        }
+    }
     pub fn center(x: f32, y: f32) -> Self {
-        Anchor::Center { x, y }
+        Self::new(H::Center, V::Center, x, y)
     }
     pub fn center_left(x: f32, y: f32) -> Self {
-        Anchor::CenterLeft { x, y }
+        Self::new(H::Left, V::Center, x, y)
     }
     pub fn center_right(x: f32, y: f32) -> Self {
-        Anchor::CenterRight { x, y }
+        Self::new(H::Right, V::Center, x, y)
     }
     pub fn top_left(x: f32, y: f32) -> Self {
-        Anchor::TopLeft { x, y }
+        Self::new(H::Left, V::Top, x, y)
     }
     pub fn top_right(x: f32, y: f32) -> Self {
-        Anchor::TopRight { x, y }
+        Self::new(H::Right, V::Top, x, y)
     }
     pub fn top_center(x: f32, y: f32) -> Self {
-        Anchor::TopCenter { x, y }
+        Self::new(H::Center, V::Top, x, y)
     }
     pub fn bottom_left(x: f32, y: f32) -> Self {
-        Anchor::BottomLeft { x, y }
+        Self::new(H::Left, V::Bottom, x, y)
     }
     pub fn bottom_right(x: f32, y: f32) -> Self {
-        Anchor::BottomRight { x, y }
+        Self::new(H::Right, V::Bottom, x, y)
     }
     pub fn bottom_center(x: f32, y: f32) -> Self {
-        Anchor::BottomCenter { x, y }
+        Self::new(H::Center, V::Bottom, x, y)
     }
     pub fn center_v(position: PixelPosition) -> Self {
         Self::center(position.x, position.y)
@@ -60,55 +100,120 @@ impl Anchor {
         Self::bottom_right(position.x, position.y)
     }
     pub fn offset(&mut self, x_diff: f32, y_diff: f32) {
-        match self {
-            Anchor::Center { x, y }
-            | Anchor::CenterLeft { x, y }
-            | Anchor::CenterRight { x, y }
-            | Anchor::TopLeft { x, y }
-            | Anchor::TopRight { x, y }
-            | Anchor::TopCenter { x, y }
-            | Anchor::BottomLeft { x, y }
-            | Anchor::BottomRight { x, y }
-            | Anchor::BottomCenter { x, y } => {
-                *x += x_diff;
-                *y += y_diff
-            }
-        }
+        self.x += x_diff;
+        self.y += y_diff;
     }
     pub fn offset_v(&mut self, diff: SizeInPixels) {
         self.offset(diff.x, diff.y)
     }
     pub fn get_top_left_pixel(&self, size: SizeInPixels) -> PixelPosition {
-        match *self {
-            Anchor::Center { x, y } => PixelPosition::new(x - size.x * 0.5, y - size.y * 0.5),
-            Anchor::CenterLeft { x, y } => PixelPosition::new(x, y - size.y * 0.5),
-            Anchor::CenterRight { x, y } => PixelPosition::new(x - size.x, y - size.y * 0.5),
-            Anchor::TopLeft { x, y } => PixelPosition::new(x, y),
-            Anchor::TopRight { x, y } => PixelPosition::new(x - size.x, y),
-            Anchor::TopCenter { x, y } => PixelPosition::new(x - size.x * 0.5, y),
-            Anchor::BottomLeft { x, y } => PixelPosition::new(x, y - size.y),
-            Anchor::BottomRight { x, y } => PixelPosition::new(x - size.x, y - size.y),
-            Anchor::BottomCenter { x, y } => PixelPosition::new(x - size.x * 0.5, y - size.y),
-        }
+        let x = match self.horizontal {
+            Horizontal::Left => self.x,
+            Horizontal::Center => self.x - size.x * 0.5,
+            Horizontal::Right => self.x - size.x,
+        };
+        let y = match self.vertical {
+            Vertical::Top => self.y,
+            Vertical::Center => self.y - size.y * 0.5,
+            Vertical::Bottom => self.y - size.y,
+        };
+        Vec2::new(x, y)
     }
     pub fn get_rect(&self, size: SizeInPixels) -> Rect {
         let pos = self.get_top_left_pixel(size);
         Rect::new(pos.x, pos.y, size.x, size.y)
     }
-    pub fn from_below(other: Rect, x_diff: f32, y_diff: f32) -> Anchor {
-        Anchor::top_left(other.x + x_diff, other.y + other.h + y_diff)
-    }
-    pub fn from_right(other: Rect, x_diff: f32, y_diff: f32) -> Anchor {
-        Anchor::top_left(other.x + other.w + x_diff, other.y + y_diff)
+
+    pub fn next_to(other: Rect, layout: Layout, pad: f32) -> Anchor {
+        match layout {
+            Layout::Horizontal {
+                direction,
+                alignment,
+            } => {
+                if direction == Horizontal::Left {
+                    Self::leftwards(other, alignment, pad)
+                } else {
+                    Self::rightwards(other, alignment, pad)
+                }
+            }
+            Layout::Vertical {
+                direction,
+                alignment,
+            } => {
+                if direction == Vertical::Top {
+                    Self::above(other, alignment, pad)
+                } else {
+                    Self::below(other, alignment, pad)
+                }
+            }
+        }
     }
 
-    pub fn center_below(other: Rect, x_diff: f32, y_diff: f32) -> Anchor {
-        Anchor::top_center(other.x + other.w * 0.5 + x_diff, other.y + other.h + y_diff)
+    pub fn below(other: Rect, alignment: Horizontal, pad_y: f32) -> Anchor {
+        let x = alignment.x(other);
+        Anchor::new(alignment, Vertical::Top, x, other.bottom() + pad_y)
+    }
+    pub fn above(other: Rect, alignment: Horizontal, pad_y: f32) -> Anchor {
+        let x = alignment.x(other);
+        Anchor::new(alignment, Vertical::Bottom, x, other.top() - pad_y)
+    }
+    pub fn rightwards(other: Rect, alignment: Vertical, pad_x: f32) -> Anchor {
+        let y = alignment.y(other);
+        Anchor::new(Horizontal::Left, alignment, other.right() + pad_x, y)
+    }
+    pub fn leftwards(other: Rect, alignment: Vertical, pad_x: f32) -> Anchor {
+        let y = alignment.y(other);
+        Anchor::new(Horizontal::Right, alignment, other.left() - pad_x, y)
     }
 }
 
 impl Default for Anchor {
     fn default() -> Self {
         Anchor::top_left(0.0, 0.0)
+    }
+}
+impl Layout {
+    pub fn vertical(
+        direction: Vertical,
+        alignment: Horizontal,) -> Self {
+        Self::Vertical{direction, alignment}
+    }
+    pub fn horizontal(
+        direction: Horizontal,
+        alignment: Vertical,) -> Self {
+        Self::Horizontal { direction, alignment }
+    }
+}
+impl Horizontal {
+    pub fn x(self, other: Rect) -> f32 {
+        match self {
+            Self::Left => other.left(),
+            Self::Center => other.center().x,
+            Self::Right => other.right(),
+        }
+    }
+    pub fn opposite(self) -> Self {
+        match self {
+            Self::Left => Self::Right,
+            Self::Center => Self::Center,
+            Self::Right => Self::Left,
+        }
+    }
+}
+
+impl Vertical {
+    pub fn y(self, other: Rect) -> f32 {
+        match self {
+            Self::Top => other.left(),
+            Self::Center => other.center().y,
+            Self::Bottom => other.right(),
+        }
+    }
+    pub fn opposite(self) -> Self {
+        match self {
+            Self::Top => Self::Bottom,
+            Self::Center => Self::Center,
+            Self::Bottom => Self::Top,
+        }
     }
 }
