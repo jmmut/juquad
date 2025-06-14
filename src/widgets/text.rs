@@ -127,20 +127,7 @@ impl TextRect {
         self.render(&style)
     }
     pub fn render(&self, style: &Style) {
-        // draw_text() draws from the baseline of the text
-        // https://en.wikipedia.org/wiki/Baseline_(typography)
-        // I don't use self.text_dimensions.offset_y because that changes depending on the letters,
-        // so I prefer an approximate distance that makes all buttons at the same baseline
-        let approx_height_from_baseline_to_top = 0.85 * self.reference_height;
-
-        (self.draw_text)(
-            &self.text,
-            (self.rect.x + self.pad.x).round(),
-            (self.rect.y + self.pad.y + approx_height_from_baseline_to_top).round(),
-            self.font_size,
-            &style,
-            self.font,
-        );
+        draw_text_rect_generic(self, style, self.draw_text);
     }
     fn rect(&self) -> Rect {
         self.rect
@@ -175,6 +162,22 @@ pub fn draw_text_lines(
     }
 }
 
+pub fn draw_text_rect_generic(text_rect: &TextRect, style: &Style, draw_text: DrawText) {
+    // draw_text() draws from the baseline of the text
+    // https://en.wikipedia.org/wiki/Baseline_(typography)
+    // I don't use self.text_dimensions.offset_y because that changes depending on the letters,
+    // so I prefer an approximate distance that makes all buttons at the same baseline
+    let approx_height_from_baseline_to_top = 0.85 * text_rect.reference_height;
+
+    draw_text(
+        &text_rect.text,
+        (text_rect.rect.x + text_rect.pad.x).round(),
+        (text_rect.rect.y + text_rect.pad.y + approx_height_from_baseline_to_top).round(),
+        text_rect.font_size,
+        &style,
+        text_rect.font,
+    );
+}
 pub fn draw_text(text: &str, x: f32, y: f32, font_size: f32, style: &Style, font: Option<Font>) {
     if let Some(font) = font {
         let params = TextParams {
