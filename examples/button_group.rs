@@ -65,14 +65,14 @@ async fn main() {
             break;
         }
 
-        buttons.expand.render(&STYLE);
-        buttons.increase_font.render(&STYLE);
+        buttons.expand.render_default(&STYLE);
+        buttons.increase_font.render_default(&STYLE);
         if show_extra_buttons {
-            buttons.change_font.render(&STYLE);
-            buttons.decrease_font.render(&STYLE);
-            buttons.toggle_borders.render(&STYLE);
-            buttons.some_text.render(&STYLE);
-            buttons.exit.render(&STYLE);
+            buttons.change_font.render_default(&STYLE);
+            buttons.decrease_font.render_default(&STYLE);
+            buttons.toggle_borders.render_default(&STYLE);
+            buttons.some_text.render_default(&STYLE);
+            buttons.exit.render_default(&STYLE);
         }
         if show_borders {
             draw_rect_lines(text_border(&buttons.expand.text_rect), 2.0, RED);

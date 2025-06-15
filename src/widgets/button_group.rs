@@ -1,8 +1,8 @@
 use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
 use crate::widgets::anchor::Anchor;
-use crate::widgets::button::{render_button, Button, RenderButton};
-use crate::widgets::text::{draw_text, TextRect};
+use crate::widgets::button::Button;
+use crate::widgets::text::TextRect;
 use macroquad::math::Vec2;
 use macroquad::prelude::{measure_text, Rect};
 use macroquad::text::Font;
@@ -10,7 +10,6 @@ use std::mem::ManuallyDrop;
 
 pub struct ButtonGroup {
     label_group: LabelGroup,
-    pub render: RenderButton,
     pub input: Box<dyn InputTrait>,
 }
 
@@ -35,7 +34,6 @@ impl ButtonGroup {
     pub fn new_with_labels(label_group: LabelGroup) -> Self {
         Self {
             label_group,
-            render: render_button,
             input: Box::new(InputMacroquad),
         }
     }
@@ -67,7 +65,6 @@ impl ButtonGroup {
         for text_rect in text_rects {
             buttons.push(Button::new_from_text_rect_generic(
                 text_rect,
-                self.render,
                 self.input.clone(),
             ));
         }
@@ -140,7 +137,6 @@ impl LabelGroup {
                 text_width: dimension.width,
                 text_height: dimension.height,
                 reference_height,
-                draw_text,
             };
             text_rects.push(text_rect);
             top_left.y += elem_size.y

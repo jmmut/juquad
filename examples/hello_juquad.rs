@@ -64,7 +64,7 @@ async fn main() -> Result<(), FileError> {
                 if button.interact().is_clicked() {
                     textures_opt = None
                 }
-                button.render(&style);
+                button.render_default(&style);
 
                 let fps_pos = Anchor::below(button.rect(), Horizontal::Center, 0.0);
                 let text_rect = TextRect::new(&format!("FPS: {:.1}", fps), fps_pos, FONT_SIZE);

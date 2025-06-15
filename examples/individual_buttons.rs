@@ -39,11 +39,11 @@ async fn main() {
         }
 
         // render
-        button_enable.render(&STYLE);
-        button_1.render(&STYLE);
+        button_enable.render_default(&STYLE);
+        button_1.render_default(&STYLE);
         if buttons_enabled {
             for extra_button in extra_buttons {
-                extra_button.render(&STYLE);
+                extra_button.render_default(&STYLE);
             }
         }
         next_frame().await

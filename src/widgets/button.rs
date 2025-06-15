@@ -2,7 +2,7 @@ use crate::draw::draw_rect;
 use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
 use crate::widgets::anchor::Anchor;
-use crate::widgets::text::{DrawText, MeasureText, TextRect};
+use crate::widgets::text::{MeasureText, TextRect};
 use crate::widgets::Widget;
 use macroquad::prelude::{
     draw_line, Color, MouseButton, Rect, Vec2, BLACK, DARKGRAY, GRAY, LIGHTGRAY, WHITE,
@@ -79,7 +79,6 @@ pub type RenderButton = fn(interaction: Interaction, text_rect: &TextRect, style
 pub struct Button {
     pub text_rect: TextRect,
     interaction: Interaction,
-    render_button: RenderButton,
     input: Box<dyn InputTrait>,
 }
 impl Widget for Button {
@@ -101,8 +100,6 @@ impl Button {
         font_size: f32,
         font: Option<Font>,
         measure_text: MeasureText,
-        draw_text: DrawText,
-        render_button: RenderButton,
         input: Box<dyn InputTrait>,
     ) -> Self {
         Self::new_from_text_rect_generic(
@@ -112,24 +109,20 @@ impl Button {
                 font_size,
                 font,
                 measure_text,
-                draw_text,
             ),
-            render_button,
             input,
         )
     }
     pub fn new_from_text_rect(text_rect: TextRect) -> Self {
-        Self::new_from_text_rect_generic(text_rect, render_button, Box::new(InputMacroquad))
+        Self::new_from_text_rect_generic(text_rect, Box::new(InputMacroquad))
     }
     pub fn new_from_text_rect_generic(
         text_rect: TextRect,
-        render_button: RenderButton,
         input: Box<dyn InputTrait>,
     ) -> Self {
         Self {
             text_rect,
             interaction: Interaction::None,
-            render_button,
             input,
         }
     }
@@ -161,8 +154,11 @@ impl Button {
     pub fn interaction(&self) -> Interaction {
         self.interaction
     }
-    pub fn render(&self, style: &Style) {
-        (self.render_button)(self.interaction, &self.text_rect, style)
+    pub fn render_default(&self, style: &Style) {
+        self.render(style, render_button);
+    }
+    pub fn render(&self, style: &Style, render_button: RenderButton) {
+        render_button(self.interaction, &self.text_rect, style);
     }
 }
 
@@ -182,7 +178,7 @@ pub fn render_button(interaction: Interaction, text_rect: &TextRect, style: &Sty
 
 pub fn draw_panel_border(rect: Rect, interaction: Interaction, style: &InteractionStyle) {
     draw_windows_95_border(rect, interaction, style);
-    // draw_rect_lines(rect, 2.0, BLACK);
+    // draw_rect_lines(rect, 2.0, style.);
 }
 
 // I swear I didn't realise what I was doing until I saw it running XD

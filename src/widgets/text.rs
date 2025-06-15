@@ -55,7 +55,6 @@ pub struct TextRect {
     pub text_width: f32,
     pub text_height: f32,
     pub reference_height: f32,
-    pub draw_text: DrawText,
 }
 
 impl Widget for TextRect {
@@ -75,7 +74,6 @@ impl TextRect {
             font_size,
             None,
             macroquad::prelude::measure_text,
-            draw_text,
         )
     }
 
@@ -85,7 +83,6 @@ impl TextRect {
         font_size: f32,
         font: Option<Font>,
         measure_text: MeasureText,
-        draw_text: DrawText,
     ) -> Self {
         // font_size doesn't seem to be in pixels across fonts
         let reference_size = measure_text("Odp", font, font_size as u16, 1.0);
@@ -110,7 +107,6 @@ impl TextRect {
             text_width: text_dimensions.width,
             text_height: text_dimensions.height,
             reference_height,
-            draw_text,
         }
     }
 
@@ -124,10 +120,13 @@ impl TextRect {
     pub fn render_text(&self, color: Color) {
         let mut style = Style::default();
         style.text_color.at_rest = color;
-        self.render(&style)
+        self.render_default(&style)
     }
-    pub fn render(&self, style: &Style) {
-        draw_text_rect_generic(self, style, self.draw_text);
+    pub fn render_default(&self, style: &Style) {
+        self.render(style, draw_text);
+    }
+    pub fn render(&self, style: &Style, draw_text: DrawText) {
+        draw_text_rect_generic(self, style, draw_text);
     }
     fn rect(&self) -> Rect {
         self.rect
