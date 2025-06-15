@@ -14,8 +14,9 @@ use juquad::draw::draw_rect;
 use juquad::fps::Seconds;
 use juquad::texture_loader::TextureLoader;
 use juquad::widgets::anchor::{Anchor, Horizontal};
-use juquad::widgets::button::{Button, Style};
+use juquad::widgets::button::{Button};
 use juquad::widgets::text::TextRect;
+use juquad::widgets::{Style, Widget};
 
 const FONT_SIZE: f32 = 32.0;
 
@@ -60,7 +61,7 @@ async fn main() -> Result<(), FileError> {
                     },
                 );
                 let button_position = Anchor::center_v(center + Vec2::new(0.0, 200.0));
-                button.text_rect.reanchor(button_position);
+                button.reanchor(button_position);
                 if button.interact().is_clicked() {
                     textures_opt = None
                 }

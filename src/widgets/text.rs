@@ -1,6 +1,5 @@
 use crate::widgets::anchor::Anchor;
-use crate::widgets::button::Style;
-use crate::widgets::Widget;
+use crate::widgets::{StateStyle, Style, Widget};
 use macroquad::prelude::{Color, Font, Rect, TextDimensions, Vec2};
 use macroquad::text::TextParams;
 use std::ops::AddAssign;
@@ -10,8 +9,6 @@ pub type Pixels = f32;
 pub const ALERT_COLOR: Color = Color::new(0.98, 0.95, 0.3, 1.00);
 pub const TEXT_PANEL_COLOR: Color = Color::new(1.0, 0.97, 0.8, 1.00);
 
-pub type DrawText =
-    fn(text: &str, x: f32, y: f32, font_size: f32, style: &Style, font: Option<Font>);
 pub type MeasureText =
     fn(text: &str, font: Option<Font>, font_size: u16, font_scale: f32) -> TextDimensions;
 
@@ -30,7 +27,7 @@ pub type MeasureText =
 /// or just know how big it is, possibly creating it only once:
 /// ```no_run
 /// use macroquad::prelude::{Vec2, LIGHTGRAY, DARKGRAY, BLACK};
-/// use juquad::widgets::{anchor::Anchor, text::TextRect};
+/// use juquad::widgets::{anchor::Anchor, text::TextRect, Widget};
 /// use juquad::draw::{draw_rect, draw_rect_lines};
 ///
 /// // in initialization, stored somewhere
@@ -110,22 +107,15 @@ impl TextRect {
         }
     }
 
-    pub fn reanchor(&mut self, position_pixels: Anchor) -> &mut Self {
-        let top_left = position_pixels.get_top_left_pixel(self.rect.size());
-        self.rect.x = top_left.x;
-        self.rect.y = top_left.y;
-        self
-    }
-
     pub fn render_text(&self, color: Color) {
         let mut style = Style::default();
-        style.text_color.at_rest = color;
-        self.render_default(&style)
+        style.at_rest.text_color = color;
+        self.render_default(&style.at_rest)
     }
-    pub fn render_default(&self, style: &Style) {
+    pub fn render_default(&self, style: &StateStyle) {
         self.render(style, draw_text);
     }
-    pub fn render(&self, style: &Style, draw_text: DrawText) {
+    pub fn render(&self, style: &StateStyle, draw_text: DrawText) {
         draw_text_rect_generic(self, style, draw_text);
     }
     fn rect(&self) -> Rect {
@@ -133,6 +123,40 @@ impl TextRect {
     }
     fn rect_mut(&mut self) -> &mut Rect {
         &mut self.rect
+    }
+}
+
+pub fn draw_text_rect_generic(text_rect: &TextRect, style: &StateStyle, draw_text: DrawText) {
+    // draw_text() draws from the baseline of the text
+    // https://en.wikipedia.org/wiki/Baseline_(typography)
+    // I don't use self.text_dimensions.offset_y because that changes depending on the letters,
+    // so I prefer an approximate distance that makes all buttons at the same baseline
+    let approx_height_from_baseline_to_top = 0.85 * text_rect.reference_height;
+
+    draw_text(
+        &text_rect.text,
+        (text_rect.rect.x + text_rect.pad.x).round(),
+        (text_rect.rect.y + text_rect.pad.y + approx_height_from_baseline_to_top).round(),
+        text_rect.font_size,
+        &style,
+        text_rect.font,
+    );
+}
+
+pub type DrawText =
+    fn(text: &str, x: f32, y: f32, font_size: f32, style: &StateStyle, font: Option<Font>);
+
+pub fn draw_text(text: &str, x: f32, y: f32, font_size: f32, style: &StateStyle, font: Option<Font>) {
+    if let Some(font) = font {
+        let params = TextParams {
+            font,
+            font_size: font_size as u16,
+            color: style.text_color,
+            ..TextParams::default()
+        };
+        macroquad::text::draw_text_ex(text, x, y, params)
+    } else {
+        macroquad::text::draw_text(text, x, y, font_size, style.text_color)
     }
 }
 
@@ -158,36 +182,6 @@ pub fn draw_text_lines(
     for line in text_lines {
         TextRect::new(&line, position, font_size).render_text(color);
         position.offset(0.0, line_height);
-    }
-}
-
-pub fn draw_text_rect_generic(text_rect: &TextRect, style: &Style, draw_text: DrawText) {
-    // draw_text() draws from the baseline of the text
-    // https://en.wikipedia.org/wiki/Baseline_(typography)
-    // I don't use self.text_dimensions.offset_y because that changes depending on the letters,
-    // so I prefer an approximate distance that makes all buttons at the same baseline
-    let approx_height_from_baseline_to_top = 0.85 * text_rect.reference_height;
-
-    draw_text(
-        &text_rect.text,
-        (text_rect.rect.x + text_rect.pad.x).round(),
-        (text_rect.rect.y + text_rect.pad.y + approx_height_from_baseline_to_top).round(),
-        text_rect.font_size,
-        &style,
-        text_rect.font,
-    );
-}
-pub fn draw_text(text: &str, x: f32, y: f32, font_size: f32, style: &Style, font: Option<Font>) {
-    if let Some(font) = font {
-        let params = TextParams {
-            font,
-            font_size: font_size as u16,
-            color: style.text_color.at_rest,
-            ..TextParams::default()
-        };
-        macroquad::text::draw_text_ex(text, x, y, params)
-    } else {
-        macroquad::text::draw_text(text, x, y, font_size, style.text_color.at_rest)
     }
 }
 

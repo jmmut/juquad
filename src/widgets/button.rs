@@ -1,78 +1,13 @@
-use crate::draw::draw_rect;
+use crate::draw::{draw_rect, draw_rect_lines};
 use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
 use crate::widgets::anchor::Anchor;
 use crate::widgets::text::{MeasureText, TextRect};
-use crate::widgets::Widget;
+use crate::widgets::{interact, Interaction, Style, Widget};
 use macroquad::prelude::{
-    draw_line, Color, MouseButton, Rect, Vec2, BLACK, DARKGRAY, GRAY, LIGHTGRAY, WHITE,
+    draw_line, Rect,
 };
 use macroquad::text::Font;
-
-#[derive(Eq, PartialEq, Copy, Clone)]
-pub enum Interaction {
-    Pressing,
-    Clicked,
-    Hovered,
-    None,
-}
-
-impl Interaction {
-    pub fn is_clicked(&self) -> bool {
-        *self == Interaction::Clicked
-    }
-
-    pub fn is_down(&self) -> bool {
-        *self == Interaction::Pressing || *self == Interaction::Clicked
-    }
-
-    pub fn is_hovered(&self) -> bool {
-        *self == Interaction::Hovered
-    }
-
-    pub fn is_hovered_or_clicked(&self) -> bool {
-        *self == Interaction::Hovered || *self == Interaction::Clicked
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct InteractionStyle {
-    pub at_rest: Color,
-    pub hovered: Color,
-    pub pressed: Color,
-}
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Style {
-    pub bg_color: InteractionStyle,
-    pub text_color: InteractionStyle,
-    pub border_color: InteractionStyle,
-}
-impl Style {
-    pub const fn new() -> Style {
-        Self {
-            bg_color: InteractionStyle {
-                at_rest: LIGHTGRAY,
-                hovered: WHITE,
-                pressed: GRAY,
-            },
-            text_color: InteractionStyle {
-                at_rest: BLACK,
-                hovered: BLACK,
-                pressed: BLACK,
-            },
-            border_color: InteractionStyle {
-                at_rest: DARKGRAY,
-                hovered: Color::new(0.88, 0.88, 0.88, 1.00),
-                pressed: DARKGRAY,
-            },
-        }
-    }
-}
-impl Default for Style {
-    fn default() -> Self {
-        Self::new()
-    }
-}
 
 pub type RenderButton = fn(interaction: Interaction, text_rect: &TextRect, style: &Style);
 
@@ -134,21 +69,7 @@ impl Button {
         &mut self.text_rect.rect
     }
     pub fn interact(&mut self) -> Interaction {
-        self.interaction = if self
-            .text_rect
-            .rect
-            .contains(Vec2::from(self.input.mouse_position()))
-        {
-            if self.input.is_mouse_button_down(MouseButton::Left) {
-                Interaction::Pressing
-            } else if self.input.is_mouse_button_released(MouseButton::Left) {
-                Interaction::Clicked
-            } else {
-                Interaction::Hovered
-            }
-        } else {
-            Interaction::None
-        };
+        self.interaction = interact(self.rect(), &self.input);
         self.interaction
     }
     pub fn interaction(&self) -> Interaction {
@@ -163,30 +84,24 @@ impl Button {
 }
 
 pub fn render_button(interaction: Interaction, text_rect: &TextRect, style: &Style) {
-    let (bg_color, text_color) = match interaction {
-        Interaction::Clicked | Interaction::Pressing => {
-            (style.bg_color.pressed, style.text_color.pressed)
-        }
-        Interaction::Hovered => (style.bg_color.hovered, style.text_color.hovered),
-        Interaction::None => (style.bg_color.at_rest, style.text_color.at_rest),
-    };
+    let state_style = style.choose(interaction);
     let rect = text_rect.rect;
-    draw_rect(rect, bg_color);
-    draw_panel_border(rect, interaction, &style.border_color);
-    text_rect.render_text(text_color);
+    draw_rect(rect, state_style.bg_color);
+    draw_panel_border(rect, interaction, &style);
+    text_rect.render_text(state_style.text_color);
 }
 
-pub fn draw_panel_border(rect: Rect, interaction: Interaction, style: &InteractionStyle) {
-    draw_windows_95_border(rect, interaction, style);
-    // draw_rect_lines(rect, 2.0, style.);
+pub fn draw_panel_border(rect: Rect, interaction: Interaction, style: &Style) {
+    // draw_windows_95_border(rect, interaction, style);
+    draw_rect_lines(rect, 2.0, style.choose(interaction).border_color);
 }
 
 // I swear I didn't realise what I was doing until I saw it running XD
-pub fn draw_windows_95_border(rect: Rect, interaction: Interaction, style: &InteractionStyle) {
+pub fn draw_windows_95_border(rect: Rect, interaction: Interaction, style: &Style) {
     let (border_color_high, border_color_low) = if interaction.is_down() {
-        (style.pressed, style.hovered)
+        (style.pressed.border_color, style.hovered.border_color)
     } else {
-        (style.hovered, style.pressed)
+        (style.hovered.border_color, style.pressed.border_color)
     };
     let left = rect.x + 1.0;
     let right = rect.x + rect.w;

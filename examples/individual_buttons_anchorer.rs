@@ -1,6 +1,7 @@
 use juquad::widgets::anchor::{Anchor, Horizontal, Layout, Vertical};
 use juquad::widgets::anchorer::Anchorer;
-use juquad::widgets::button::{Button, Style};
+use juquad::widgets::button::Button;
+use juquad::widgets::Style;
 use macroquad::prelude::{next_frame, screen_height, screen_width};
 
 const FONT_SIZE: f32 = 16.0;

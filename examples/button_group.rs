@@ -1,8 +1,9 @@
 use juquad::draw::draw_rect_lines;
 use juquad::widgets::anchor::Anchor;
-use juquad::widgets::button::{Button, Style};
+use juquad::widgets::button::Button;
 use juquad::widgets::button_group::LabelGroup;
 use juquad::widgets::text::TextRect;
+use juquad::widgets::Style;
 use macroquad::color::{Color, BLACK};
 use macroquad::math::Vec2;
 use macroquad::prelude::{clear_background, next_frame, screen_height, screen_width, Rect, RED};
@@ -71,7 +72,7 @@ async fn main() {
             buttons.change_font.render_default(&STYLE);
             buttons.decrease_font.render_default(&STYLE);
             buttons.toggle_borders.render_default(&STYLE);
-            buttons.some_text.render_default(&STYLE);
+            buttons.some_text.render_default(&STYLE.at_rest);
             buttons.exit.render_default(&STYLE);
         }
         if show_borders {

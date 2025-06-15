@@ -4,8 +4,7 @@ use macroquad::prelude::{
 };
 
 use crate::widgets::anchor::Anchor;
-use crate::widgets::button::Interaction;
-use crate::widgets::Widget;
+use crate::widgets::{Interaction, Widget};
 
 pub struct TextureButton {
     pub rect: Rect,
