@@ -1,6 +1,6 @@
 use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
-use crate::widgets::anchor::Anchor;
+use crate::widgets::anchor::{Anchor, Horizontal};
 use crate::widgets::button::Button;
 use crate::widgets::text::TextRect;
 use macroquad::math::Vec2;
@@ -14,9 +14,10 @@ pub struct ButtonGroup {
 }
 
 pub struct LabelGroup {
-    font_size: f32,
-    font: Option<Font>,
-    anchor: Anchor,
+    pub font_size: f32,
+    pub font: Option<Font>,
+    pub alignment: Horizontal,
+    pub anchor: Anchor,
 }
 
 union ButtonUnion<T, const N: usize> {
@@ -74,15 +75,30 @@ impl ButtonGroup {
     }
 }
 
+impl Default for LabelGroup {
+    fn default() -> Self {
+        Self {
+            font_size: 16.0,
+            font: None,
+            anchor: Anchor::top_left(0.0, 0.0),
+            alignment: Horizontal::Center,
+        }
+    }
+}
 impl LabelGroup {
     pub fn new(font_size: f32, anchor: Anchor) -> Self {
-        Self::new_with_font(font_size, None, anchor)
+        Self {
+            font_size,
+            anchor,
+            ..Default::default()
+        }
     }
     pub fn new_with_font(font_size: f32, font: Option<Font>, anchor: Anchor) -> Self {
         Self {
             font_size,
             font,
             anchor,
+            ..Default::default()
         }
     }
     pub fn create<S: AsRef<str>, const N: usize>(&self, texts: [S; N]) -> [TextRect; N] {
@@ -101,7 +117,7 @@ impl LabelGroup {
         // let reference_size3 = measure_text("pd", self.font, self.font_size as u16, 1.0);
 
         let reference_height = reference_size.height;
-        let pad = Vec2::new(reference_height, reference_height * 0.75);
+        let min_pad = Vec2::new(reference_height, reference_height * 0.75);
 
         for text in texts {
             let text = text.as_ref().to_string();
@@ -112,8 +128,8 @@ impl LabelGroup {
             dimensions.push((text, text_dimensions));
         }
         let elem_size = Vec2::new(
-            (max_width + pad.x * 2.0).round(),
-            (reference_height + pad.y * 2.0).round(),
+            (max_width + min_pad.x * 2.0).round(),
+            (reference_height + min_pad.y * 2.0).round(),
         );
         let mut top_left = self
             .anchor
@@ -127,12 +143,19 @@ impl LabelGroup {
                 elem_size.y,
             );
 
+            let pad = match self.alignment {
+                Horizontal::Left => min_pad,
+                Horizontal::Center => Vec2::new((elem_size.x - dimension.width) * 0.5, min_pad.y),
+                Horizontal::Right => {
+                    Vec2::new((elem_size.x - dimension.width) - min_pad.x, min_pad.y)
+                }
+            };
             let text_rect = TextRect {
                 text,
                 rect,
                 font_size: self.font_size,
                 font: self.font,
-                pad: Vec2::new((elem_size.x - dimension.width) * 0.5, pad.y),
+                pad,
                 offset_y: dimension.offset_y,
                 text_width: dimension.width,
                 text_height: dimension.height,

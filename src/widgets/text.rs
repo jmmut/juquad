@@ -47,6 +47,7 @@ pub struct TextRect {
     pub rect: Rect,
     pub font_size: f32,
     pub font: Option<Font>,
+    /// if the pad is asymmetric, this is the left/top pad
     pub pad: Vec2,
     pub offset_y: f32,
     pub text_width: f32,
@@ -146,7 +147,14 @@ pub fn draw_text_rect_generic(text_rect: &TextRect, style: &StateStyle, draw_tex
 pub type DrawText =
     fn(text: &str, x: f32, y: f32, font_size: f32, style: &StateStyle, font: Option<Font>);
 
-pub fn draw_text(text: &str, x: f32, y: f32, font_size: f32, style: &StateStyle, font: Option<Font>) {
+pub fn draw_text(
+    text: &str,
+    x: f32,
+    y: f32,
+    font_size: f32,
+    style: &StateStyle,
+    font: Option<Font>,
+) {
     if let Some(font) = font {
         let params = TextParams {
             font,

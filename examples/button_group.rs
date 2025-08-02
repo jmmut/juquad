@@ -1,5 +1,5 @@
 use juquad::draw::draw_rect_lines;
-use juquad::widgets::anchor::Anchor;
+use juquad::widgets::anchor::{Anchor, Horizontal};
 use juquad::widgets::button::Button;
 use juquad::widgets::button_group::LabelGroup;
 use juquad::widgets::text::TextRect;
@@ -18,6 +18,7 @@ struct Buttons {
     change_font: Button,
     toggle_borders: Button,
     some_text: TextRect,
+    toggle_alignment: Button,
     exit: Button,
 }
 
@@ -28,8 +29,9 @@ async fn main() {
     let font_bytes = include_bytes!("../assets/Saira-Regular.ttf");
     let font = load_ttf_font_from_bytes(font_bytes).unwrap();
     let mut custom_font = false;
+    let mut alignment = Horizontal::Center;
 
-    let mut buttons = create_button_group(None, font_size);
+    let mut buttons = create_button_group(None, font_size, alignment);
 
     let mut show_extra_buttons = false;
     let mut show_borders = false;
@@ -65,6 +67,14 @@ async fn main() {
         if show_extra_buttons && buttons.exit.interact().is_clicked() {
             break;
         }
+        if show_extra_buttons && buttons.toggle_alignment.interact().is_clicked() {
+            alignment = match alignment {
+                Horizontal::Left => Horizontal::Center,
+                Horizontal::Center => Horizontal::Right,
+                Horizontal::Right => Horizontal::Left,
+            };
+            update_buttons = true;
+        }
 
         buttons.expand.render_default(&STYLE);
         buttons.increase_font.render_default(&STYLE);
@@ -73,6 +83,7 @@ async fn main() {
             buttons.decrease_font.render_default(&STYLE);
             buttons.toggle_borders.render_default(&STYLE);
             buttons.some_text.render_default(&STYLE.at_rest);
+            buttons.toggle_alignment.render_default(&STYLE);
             buttons.exit.render_default(&STYLE);
         }
         if show_borders {
@@ -86,37 +97,40 @@ async fn main() {
         }
         if update_buttons {
             let font_option = if custom_font { Some(font) } else { None };
-            buttons = create_button_group(font_option, font_size);
+            buttons = create_button_group(font_option, font_size, alignment);
         }
 
         next_frame().await
     }
 }
 
-fn create_button_group(font: Option<Font>, font_size: f32) -> Buttons {
+fn create_button_group(font: Option<Font>, font_size: f32, alignment: Horizontal) -> Buttons {
     let _pad = if font.is_some() {
         Vec2::new(font_size * 2.0, font_size * 0.65)
     } else {
         Vec2::new(font_size, font_size * 0.25)
     };
-    let label_group = LabelGroup::new_with_font(
+    let anchor = Anchor::top_center(screen_width() * 0.5, screen_height() * 0.25);
+    let label_group = LabelGroup {
         font_size,
         font,
-        // pad,
-        Anchor::top_center(screen_width() * 0.5, screen_height() * 0.25),
-    );
+        anchor,
+        alignment,
+    };
 
-    let texts: [TextRect; 7] = label_group.create([
-        "some button to expand",
-        "long button to increase font size",
-        "decrease font size",
-        "CHANGE FONT",
-        "toggle borders",
-        "some text",
-        "exit",
-    ]);
-    let [expand, increase_font, decrease_font, change_font, toggle_borders, some_text, exit] =
-        texts;
+    let [expand, increase_font, decrease_font, change_font, toggle_borders, some_text, toggle_alignment, exit] =
+        label_group.create([
+            "some button to expand",
+            "long button to increase font size",
+            "decrease font size",
+            "CHANGE FONT",
+            "toggle borders",
+            "some text",
+            "toggle alignment",
+            "exit",
+        ]);
+    // let [expand, increase_font, decrease_font, change_font, toggle_borders, some_text, exit] =
+    //     texts;
     Buttons {
         expand: Button::new_from_text_rect(expand),
         increase_font: Button::new_from_text_rect(increase_font),
@@ -124,6 +138,7 @@ fn create_button_group(font: Option<Font>, font_size: f32) -> Buttons {
         change_font: Button::new_from_text_rect(change_font),
         toggle_borders: Button::new_from_text_rect(toggle_borders),
         some_text,
+        toggle_alignment: Button::new_from_text_rect(toggle_alignment),
         exit: Button::new_from_text_rect(exit),
     }
 }

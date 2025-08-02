@@ -4,9 +4,7 @@ use crate::input::input_trait::InputTrait;
 use crate::widgets::anchor::Anchor;
 use crate::widgets::text::{MeasureText, TextRect};
 use crate::widgets::{interact, Interaction, Style, Widget};
-use macroquad::prelude::{
-    draw_line, Rect,
-};
+use macroquad::prelude::{draw_line, Rect};
 use macroquad::text::Font;
 
 pub type RenderButton = fn(interaction: Interaction, text_rect: &TextRect, style: &Style);
@@ -38,23 +36,14 @@ impl Button {
         input: Box<dyn InputTrait>,
     ) -> Self {
         Self::new_from_text_rect_generic(
-            TextRect::new_generic(
-                text,
-                position_pixels,
-                font_size,
-                font,
-                measure_text,
-            ),
+            TextRect::new_generic(text, position_pixels, font_size, font, measure_text),
             input,
         )
     }
     pub fn new_from_text_rect(text_rect: TextRect) -> Self {
         Self::new_from_text_rect_generic(text_rect, Box::new(InputMacroquad))
     }
-    pub fn new_from_text_rect_generic(
-        text_rect: TextRect,
-        input: Box<dyn InputTrait>,
-    ) -> Self {
+    pub fn new_from_text_rect_generic(text_rect: TextRect, input: Box<dyn InputTrait>) -> Self {
         Self {
             text_rect,
             interaction: Interaction::None,

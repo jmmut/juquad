@@ -14,7 +14,7 @@ use juquad::draw::draw_rect;
 use juquad::fps::Seconds;
 use juquad::texture_loader::TextureLoader;
 use juquad::widgets::anchor::{Anchor, Horizontal};
-use juquad::widgets::button::{Button};
+use juquad::widgets::button::Button;
 use juquad::widgets::text::TextRect;
 use juquad::widgets::{Style, Widget};
 

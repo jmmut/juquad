@@ -1,7 +1,7 @@
-use macroquad::color::{BLACK, DARKGRAY, GRAY, LIGHTGRAY, WHITE};
-use macroquad::prelude::{Color, Rect, MouseButton};
 use crate::input::input_trait::InputTrait;
 use crate::widgets::anchor::Anchor;
+use macroquad::color::{BLACK, DARKGRAY, GRAY, LIGHTGRAY, WHITE};
+use macroquad::prelude::{Color, MouseButton, Rect};
 
 pub mod anchor;
 pub mod anchorer;
