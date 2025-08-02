@@ -27,7 +27,7 @@ git commit -m "bumping version in Cargo.toml to ${new_version}"
 
 echo "  - tagging"
 # echo -e "$new_version\n\nCurrent roadmap:\n" | cat - docs/roadmap.md |git tag $new_version -a --file=-
-git tag "$new_version"
+git tag "$new_version" -m "$(git show HEAD~1 --pretty="%s" |head -n 1)"
 
 echo -e "version bumping done\n"
 echo "optionally, do the next command to edit the tag with the highlights of this version:"
