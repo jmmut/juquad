@@ -4,6 +4,7 @@ set -euo pipefail
 if [ $# != 1 ]
 then
 	echo "need 1 arguments: new versions"
+	echo -e "latest one is:\n$(git tag -n | sort -V | tail -n 1)"
 	exit 1
 fi
 
