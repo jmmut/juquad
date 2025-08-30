@@ -1,6 +1,40 @@
 use std::future::Future;
 use std::pin::Pin;
 use std::task::{Poll, RawWaker, RawWakerVTable, Waker};
+use macroquad::file::FileError;
+use macroquad::texture::{load_texture, Texture2D};
+
+pub type TextureLoaderAlias<'a> = ResourceLoader<
+    'a,
+    &'a str,
+    Texture2D,
+    FileError,
+    fn(&'a str) -> std::pin::Pin<Box<dyn Future<Output = Result<Texture2D, FileError>> + 'a>>,
+    std::pin::Pin<Box<dyn Future<Output = Result<Texture2D, FileError>> + 'a>>,
+>;
+impl<'a> TextureLoaderAlias<'a> {
+    #[deprecated = "use ResourceLoader.get_resources() resources"]
+    pub fn get_textures(&mut self) -> Result<Option<Vec<Texture2D>>, FileError> {
+        self.get_resources()
+    }
+}
+pub struct TextureLoader;
+impl TextureLoader {
+    pub fn new<'a>(inputs: &'a [&'a str]) -> TextureLoaderAlias<'a> {
+        ResourceLoader::new(|path| Box::pin(load_texture(path)), inputs)
+    }
+}
+// pub trait TextureLoader {
+//     fn new<'a, Func: Fn(&'a str) -> Fut, Fut: Future<Output = Result<Texture2D, FileError>> + 'a>(
+//         paths: &'a[&'a str]
+//     ) -> ResourceLoader<&'a str, Texture2D, FileError, Func, Fut> {
+//         ResourceLoader::new(load_texture, paths)
+//     }
+// }
+// fn new_texture_loader<'a, Func: Fn(&'a str) -> Fut, Fut: Future<Output = Result<Texture2D, FileError>> + 'a>(paths: &'a [&'a str; 1]) -> ResourceLoader<'a, &'a str, Texture2D, FileError, Func, Fut> {
+//     ResourceLoader::new(|path|load_texture(path), paths)
+// }
+
 
 /// Loads resources semi-asynchronously, so that you can render a loading screen.
 ///
