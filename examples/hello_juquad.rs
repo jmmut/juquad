@@ -9,10 +9,10 @@ use macroquad::prelude::{
     clear_background, draw_texture_ex, next_frame, screen_height, screen_width, DrawTextureParams,
     FileError, Vec2, DARKGRAY, WHITE,
 };
-
+use macroquad::texture::load_texture;
 use juquad::draw::draw_rect;
 use juquad::fps::Seconds;
-use juquad::texture_loader::TextureLoader;
+use juquad::texture_loader::ResourceLoader;
 use juquad::widgets::anchor::{Anchor, Horizontal};
 use juquad::widgets::button::Button;
 use juquad::widgets::text::TextRect;
@@ -23,7 +23,7 @@ const FONT_SIZE: f32 = 32.0;
 #[macroquad::main("Hello juquad")]
 async fn main() -> Result<(), FileError> {
     let style: Style = Style::new();
-    let mut loader = TextureLoader::new(&["assets/ferris.png"]);
+    let mut loader = ResourceLoader::new(load_texture, &["assets/ferris.png"]);
     let mut textures_opt = None;
     let mut frame = 0;
     let mut button = Button::new("Reload", Anchor::top_left(0.0, 0.0), 16.0);
@@ -43,7 +43,7 @@ async fn main() -> Result<(), FileError> {
                 bar_rect.w = frame as f32 * 5.0 % rect.rect.w;
                 draw_rect(bar_rect, WHITE);
 
-                if let Some(loaded) = loader.get_textures()? {
+                if let Some(loaded) = loader.get_resources()? {
                     textures_opt = Some(loaded);
                 }
             }
