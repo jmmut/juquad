@@ -132,14 +132,14 @@ fn create_button_group(font: Option<Font>, font_size: f32, alignment: Horizontal
     // let [expand, increase_font, decrease_font, change_font, toggle_borders, some_text, exit] =
     //     texts;
     Buttons {
-        expand: Button::new_from_text_rect(expand),
-        increase_font: Button::new_from_text_rect(increase_font),
-        decrease_font: Button::new_from_text_rect(decrease_font),
-        change_font: Button::new_from_text_rect(change_font),
-        toggle_borders: Button::new_from_text_rect(toggle_borders),
+        expand: expand.into(),
+        increase_font: increase_font.into(),
+        decrease_font: decrease_font.into(),
+        change_font: change_font.into(),
+        toggle_borders: toggle_borders.into(),
         some_text,
-        toggle_alignment: Button::new_from_text_rect(toggle_alignment),
-        exit: Button::new_from_text_rect(exit),
+        toggle_alignment: toggle_alignment.into(),
+        exit: exit.into(),
     }
 }
 

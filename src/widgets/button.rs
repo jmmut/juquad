@@ -102,3 +102,9 @@ pub fn draw_windows_95_border(rect: Rect, interaction: Interaction, style: &Styl
     draw_line(left, bottom, right, bottom, thickness, border_color_low);
     draw_line(right, top, right, bottom, thickness, border_color_low);
 }
+
+impl From<TextRect> for Button {
+    fn from(text_rect: TextRect) -> Self {
+        Button::new_from_text_rect(text_rect)
+    }
+}
