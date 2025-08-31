@@ -1,6 +1,6 @@
 use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
-use crate::widgets::anchor::{Anchor, Horizontal};
+use crate::widgets::anchor::{Anchor, Horizontal, Layout, Vertical};
 use crate::widgets::button::Button;
 use crate::widgets::text::TextRect;
 use macroquad::math::Vec2;
@@ -17,9 +17,15 @@ pub struct LabelGroup {
     pub font_size: f32,
     pub font: Option<Font>,
     pub alignment: Horizontal,
+    pub direction: Direction,
     pub anchor: Anchor,
 }
-
+pub enum Direction {
+    Top,
+    Bottom,
+    Right,
+    Left,
+}
 union ButtonUnion<T, const N: usize> {
     b: ManuallyDrop<T>,
     v: ManuallyDrop<[Button; N]>,
@@ -82,6 +88,7 @@ impl Default for LabelGroup {
             font: None,
             anchor: Anchor::top_left(0.0, 0.0),
             alignment: Horizontal::Center,
+            direction: Direction::Bottom,
         }
     }
 }
@@ -99,6 +106,15 @@ impl LabelGroup {
             font,
             anchor,
             ..Default::default()
+        }
+    }
+    pub fn new_generic(font_size: f32, font: Option<Font>, anchor: Anchor, alignment: Horizontal, direction: Direction) -> Self {
+        Self {
+            font_size,
+            font,
+            anchor,
+            alignment,
+            direction,
         }
     }
     pub fn create<S: AsRef<str>, const N: usize>(&self, texts: [S; N]) -> [TextRect; N] {
@@ -131,9 +147,11 @@ impl LabelGroup {
             (max_width + min_pad.x * 2.0).round(),
             (reference_height + min_pad.y * 2.0).round(),
         );
-        let mut top_left = self
-            .anchor
-            .get_top_left_pixel(elem_size * Vec2::new(1.0, N as f32));
+        let panel_size = elem_size * match self.direction {
+            Direction::Top | Direction::Bottom => Vec2::new(1.0, N as f32),
+            Direction::Right | Direction::Left => Vec2::new(N as f32, 1.0),
+        };
+        let mut top_left = self.anchor.get_top_left_pixel(panel_size);
 
         for (text, dimension) in dimensions {
             let rect = Rect::new(
@@ -162,9 +180,27 @@ impl LabelGroup {
                 reference_height,
             };
             text_rects.push(text_rect);
-            top_left.y += elem_size.y
-                // + 1.0
-            ;
+            match self.direction {
+                Direction::Top => {
+                    top_left.y -= elem_size.y
+                    // - 1.0
+                    ;
+                }
+                Direction::Bottom => {
+                    top_left.y += elem_size.y
+                    // + 1.0
+                    ;
+                }
+                Direction::Right => {
+                    top_left.x += elem_size.x
+                    // + 1.0
+                    ;}
+                Direction::Left => {
+                    top_left.x -= elem_size.x
+                    // - 1.0
+                    ;
+                }
+            }
         }
         text_rects.try_into().unwrap_or_else(|v: Vec<_>| {
             panic!("Expected a Vec of length {} but it was {}", N, v.len())

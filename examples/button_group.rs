@@ -1,7 +1,7 @@
 use juquad::draw::draw_rect_lines;
-use juquad::widgets::anchor::{Anchor, Horizontal};
+use juquad::widgets::anchor::{Anchor, Horizontal, Layout, Vertical};
 use juquad::widgets::button::Button;
-use juquad::widgets::button_group::LabelGroup;
+use juquad::widgets::button_group::{Direction, LabelGroup};
 use juquad::widgets::text::TextRect;
 use juquad::widgets::Style;
 use macroquad::color::{Color, BLACK};
@@ -111,11 +111,13 @@ fn create_button_group(font: Option<Font>, font_size: f32, alignment: Horizontal
         Vec2::new(font_size, font_size * 0.25)
     };
     let anchor = Anchor::top_center(screen_width() * 0.5, screen_height() * 0.25);
+    let direction = Direction::Bottom;
     let label_group = LabelGroup {
         font_size,
         font,
         anchor,
         alignment,
+        direction,
     };
 
     let [expand, increase_font, decrease_font, change_font, toggle_borders, some_text, toggle_alignment, exit] =
