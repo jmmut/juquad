@@ -1,8 +1,8 @@
+use macroquad::file::FileError;
+use macroquad::texture::{load_texture, Texture2D};
 use std::future::Future;
 use std::pin::Pin;
 use std::task::{Poll, RawWaker, RawWakerVTable, Waker};
-use macroquad::file::FileError;
-use macroquad::texture::{load_texture, Texture2D};
 
 pub type TextureLoaderAlias<'a> = ResourceLoader<
     'a,
@@ -24,7 +24,6 @@ impl TextureLoader {
         ResourceLoader::new(|path| Box::pin(load_texture(path)), inputs)
     }
 }
-
 
 /// Loads resources semi-asynchronously, so that you can render a loading screen.
 ///

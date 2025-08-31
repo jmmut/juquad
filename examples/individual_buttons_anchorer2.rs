@@ -29,9 +29,9 @@ async fn main() {
             buttons_enabled = !buttons_enabled;
         }
         if buttons_enabled {
-            let texts = vec!["some long button text", "button 3"];
-            for text in texts {
-                let mut button = anchorer.new_button(text, FONT_SIZE);
+            let texts = ["some long button text", "button 3"];
+            let buttons = anchorer.new_buttons(texts, FONT_SIZE);
+            for mut button in buttons {
                 button.interact();
                 extra_buttons.push(button);
             }

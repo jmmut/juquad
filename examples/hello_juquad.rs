@@ -4,11 +4,6 @@
 //! - How to reuse a [`Button`] created once at the beginning.
 //! - How to reposition stuff when the window is resized.
 
-use macroquad::miniquad::date::now;
-use macroquad::prelude::{
-    clear_background, draw_texture_ex, next_frame, screen_height, screen_width, DrawTextureParams,
-    FileError, Vec2, DARKGRAY, WHITE,
-};
 use juquad::draw::draw_rect;
 use juquad::fps::Seconds;
 use juquad::resource_loader::TextureLoader;
@@ -16,6 +11,11 @@ use juquad::widgets::anchor::{Anchor, Horizontal};
 use juquad::widgets::button::Button;
 use juquad::widgets::text::TextRect;
 use juquad::widgets::{Style, Widget};
+use macroquad::miniquad::date::now;
+use macroquad::prelude::{
+    clear_background, draw_texture_ex, next_frame, screen_height, screen_width, DrawTextureParams,
+    FileError, Vec2, DARKGRAY, WHITE,
+};
 
 const FONT_SIZE: f32 = 32.0;
 

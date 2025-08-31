@@ -30,6 +30,15 @@ impl Anchorer {
     pub fn new_button(&mut self, text: &str, font_size: f32) -> Button {
         self.new_widget(|anchor| Button::new(text, anchor, font_size))
     }
+    pub fn new_buttons<const N: usize>(&mut self, texts: [&str; N], font_size: f32) -> [Button; N] {
+        let mut buttons = Vec::new();
+        for text in texts {
+            buttons.push(self.new_button(text, font_size));
+        }
+        buttons.try_into().unwrap_or_else(|v: Vec<_>| {
+            panic!("Expected a Vec of length {} but it was {}", N, v.len())
+        })
+    }
     pub fn new_text(&mut self, text: &str, font_size: f32) -> TextRect {
         self.new_widget(|anchor| TextRect::new(text, anchor, font_size))
     }
