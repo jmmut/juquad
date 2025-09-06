@@ -3,7 +3,7 @@ use macroquad::math::{Rect, Vec2};
 
 /// An Anchor helps you define more easily define positions for rectangles.
 /// All f32 values are in pixels units, e.g. (800.0, 600.0). Top left is (0.0, 0.0).
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct Anchor {
     horizontal: Horizontal,
     vertical: Vertical,
@@ -11,21 +11,21 @@ pub struct Anchor {
     y: f32,
 }
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Horizontal {
     Left,
     Center,
     Right,
 }
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Vertical {
     Top,
     Center,
     Bottom,
 }
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Layout {
     Horizontal {
         direction: Horizontal,
@@ -36,8 +36,6 @@ pub enum Layout {
         alignment: Horizontal,
     },
 }
-
-
 
 use Horizontal as H;
 use Vertical as V;
