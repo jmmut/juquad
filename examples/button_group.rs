@@ -1,5 +1,5 @@
 use juquad::draw::draw_rect_lines;
-use juquad::widgets::anchor::{Anchor, Horizontal, Layout, Vertical};
+use juquad::widgets::anchor::{Anchor, Horizontal};
 use juquad::widgets::button::Button;
 use juquad::widgets::button_group::{Direction, LabelGroup};
 use juquad::widgets::text::TextRect;

@@ -1,6 +1,6 @@
 use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
-use crate::widgets::anchor::{Anchor, Horizontal, Layout, Vertical};
+use crate::widgets::anchor::{Anchor, Horizontal};
 use crate::widgets::button::Button;
 use crate::widgets::text::TextRect;
 use macroquad::math::Vec2;
