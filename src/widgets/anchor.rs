@@ -84,8 +84,15 @@ impl Anchor {
     pub fn bottom_center(x: f32, y: f32) -> Self {
         Self::new(H::Center, V::Bottom, x, y)
     }
+
     pub fn center_v(position: PixelPosition) -> Self {
         Self::center(position.x, position.y)
+    }
+    pub fn center_left_v(position: PixelPosition) -> Self {
+        Self::center_left(position.x, position.y)
+    }
+    pub fn center_right_v(position: PixelPosition) -> Self {
+        Self::center_right(position.x, position.y)
     }
     pub fn top_left_v(position: PixelPosition) -> Self {
         Self::top_left(position.x, position.y)
@@ -93,12 +100,19 @@ impl Anchor {
     pub fn top_right_v(position: PixelPosition) -> Self {
         Self::top_right(position.x, position.y)
     }
+    pub fn top_center_v(position: PixelPosition) -> Self {
+        Self::top_center(position.x, position.y)
+    }
     pub fn bottom_left_v(position: PixelPosition) -> Self {
         Self::bottom_left(position.x, position.y)
     }
     pub fn bottom_right_v(position: PixelPosition) -> Self {
         Self::bottom_right(position.x, position.y)
     }
+    pub fn bottom_center_v(position: PixelPosition) -> Self {
+        Self::bottom_center(position.x, position.y)
+    }
+
     pub fn offset(&mut self, x_diff: f32, y_diff: f32) {
         self.x += x_diff;
         self.y += y_diff;
@@ -106,6 +120,7 @@ impl Anchor {
     pub fn offset_v(&mut self, diff: SizeInPixels) {
         self.offset(diff.x, diff.y)
     }
+
     pub fn get_top_left_pixel(&self, size: SizeInPixels) -> PixelPosition {
         let x = match self.horizontal {
             Horizontal::Left => self.x,
