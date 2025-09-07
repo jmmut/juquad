@@ -3,7 +3,7 @@ use crate::input::input_trait::InputTrait;
 use crate::widgets::anchor::{Anchor, Horizontal};
 use crate::widgets::button::Button;
 use crate::widgets::text::TextRect;
-use macroquad::math::Vec2;
+use macroquad::math::{vec2, Vec2};
 use macroquad::prelude::{measure_text, Rect};
 use macroquad::text::Font;
 use std::mem::ManuallyDrop;
@@ -19,6 +19,8 @@ pub struct LabelGroup {
     pub alignment: Horizontal,
     pub direction: Direction,
     pub anchor: Anchor,
+    pub pad_x: Option<f32>,
+    pub pad_y: Option<f32>,
 }
 pub enum Direction {
     Top,
@@ -89,6 +91,8 @@ impl Default for LabelGroup {
             anchor: Anchor::top_left(0.0, 0.0),
             alignment: Horizontal::Center,
             direction: Direction::Bottom,
+            pad_x: None,
+            pad_y: None,
         }
     }
 }
@@ -121,6 +125,7 @@ impl LabelGroup {
             anchor,
             alignment,
             direction,
+            ..Default::default()
         }
     }
     pub fn create<S: AsRef<str>, const N: usize>(&self, texts: [S; N]) -> [TextRect; N] {
@@ -139,7 +144,18 @@ impl LabelGroup {
         // let reference_size3 = measure_text("pd", self.font, self.font_size as u16, 1.0);
 
         let reference_height = reference_size.height;
-        let min_pad = Vec2::new(reference_height, reference_height * 0.75);
+        let pad_x = if let Some(p) = self.pad_x {
+            p
+        } else {
+            reference_height
+        };
+        let pad_y = if let Some(p) = self.pad_y {
+            p
+        } else {
+            reference_height * 0.75
+        };
+        
+        let min_pad = vec2(pad_x, pad_y);
 
         for text in texts {
             let text = text.as_ref().to_string();

@@ -118,6 +118,7 @@ fn create_button_group(font: Option<Font>, font_size: f32, alignment: Horizontal
         anchor,
         alignment,
         direction,
+        ..Default::default()
     };
 
     let [expand, increase_font, decrease_font, change_font, toggle_borders, some_text, toggle_alignment, exit] =
