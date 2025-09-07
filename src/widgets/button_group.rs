@@ -21,6 +21,7 @@ pub struct LabelGroup {
     pub anchor: Anchor,
     pub pad_x: Option<f32>,
     pub pad_y: Option<f32>,
+    pub margin: f32,
 }
 pub enum Direction {
     Top,
@@ -93,6 +94,7 @@ impl Default for LabelGroup {
             direction: Direction::Bottom,
             pad_x: None,
             pad_y: None,
+            margin: 0.0,
         }
     }
 }
@@ -169,7 +171,7 @@ impl LabelGroup {
             (max_width + min_pad.x * 2.0).round(),
             (reference_height + min_pad.y * 2.0).round(),
         );
-        let panel_size = elem_size
+        let panel_size = -self.margin + (elem_size + self.margin)
             * match self.direction {
                 Direction::Top | Direction::Bottom => Vec2::new(1.0, N as f32),
                 Direction::Right | Direction::Left => Vec2::new(N as f32, 1.0),
