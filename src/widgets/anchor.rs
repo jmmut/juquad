@@ -1,7 +1,7 @@
 use crate::{PixelPosition, SizeInPixels};
 use macroquad::math::{Rect, Vec2};
 
-/// An Anchor helps you define more easily define positions for rectangles.
+/// An Anchor helps you define positions for rectangles.
 /// All f32 values are in pixels units, e.g. (800.0, 600.0). Top left is (0.0, 0.0).
 #[derive(Copy, Clone, Debug)]
 pub struct Anchor {

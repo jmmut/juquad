@@ -12,11 +12,16 @@ pub mod texture_button;
 
 pub trait Widget {
     fn rect(&self) -> Rect;
+
+    #[deprecated = "rect_mut doesn't allow doing stuff before or after the rect is changed"]
     fn rect_mut(&mut self) -> &mut Rect;
+    #[allow(deprecated)]
+    fn set_rect(&mut self, rect: Rect) { // providing implementation for backwards compatibility
+        *self.rect_mut() = rect;
+    }
     fn reanchor(&mut self, anchor: Anchor) {
-        let top_left = anchor.get_top_left_pixel(self.rect().size());
-        self.rect_mut().x = top_left.x;
-        self.rect_mut().y = top_left.y;
+        let new_rect = anchor.get_rect(self.rect().size());
+        self.set_rect(new_rect);
     }
 }
 
