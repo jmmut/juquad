@@ -18,8 +18,8 @@ impl Widget for Button {
     fn rect(&self) -> Rect {
         Button::rect(self)
     }
-    fn rect_mut(&mut self) -> &mut Rect {
-        Button::rect_mut(self)
+    fn set_rect(&mut self, rect: Rect) {
+        self.text_rect.rect = rect;
     }
 }
 

@@ -1,7 +1,8 @@
 use crate::input::input_trait::InputTrait;
 use crate::widgets::anchor::Anchor;
 use macroquad::color::{BLACK, DARKGRAY, GRAY, LIGHTGRAY, WHITE};
-use macroquad::prelude::{Color, MouseButton, Rect};
+use macroquad::prelude::{Color, MouseButton, Rect, Vec2};
+use crate::{PixelPosition, SizeInPixels};
 
 pub mod anchor;
 pub mod anchorer;
@@ -12,16 +13,18 @@ pub mod texture_button;
 
 pub trait Widget {
     fn rect(&self) -> Rect;
-
-    #[deprecated = "rect_mut doesn't allow doing stuff before or after the rect is changed"]
-    fn rect_mut(&mut self) -> &mut Rect;
-    #[allow(deprecated)]
-    fn set_rect(&mut self, rect: Rect) { // providing implementation for backwards compatibility
-        *self.rect_mut() = rect;
+    fn size(&self) -> SizeInPixels {
+        self.rect().size()
     }
+    fn set_rect(&mut self, rect: Rect);
     fn reanchor(&mut self, anchor: Anchor) {
-        let new_rect = anchor.get_rect(self.rect().size());
-        self.set_rect(new_rect);
+        let new_rect = anchor.get_top_left_pixel(self.size());
+        self.set_pos(new_rect);
+    }
+    fn set_pos(&mut self, position: PixelPosition) {
+        let mut rect = self.rect();
+        rect.move_to(position);
+        self.set_rect(rect);
     }
 }
 

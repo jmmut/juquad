@@ -5,6 +5,7 @@ pub mod fps;
 pub mod resource_loader;
 pub mod texture_loader;
 pub mod widgets;
+pub mod lazy;
 
 pub mod input {
     pub mod input_macroquad;

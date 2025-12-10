@@ -59,8 +59,8 @@ impl Widget for TextRect {
     fn rect(&self) -> Rect {
         TextRect::rect(self)
     }
-    fn rect_mut(&mut self) -> &mut Rect {
-        TextRect::rect_mut(self)
+    fn set_rect(&mut self, rect: Rect) {
+        self.rect = rect;
     }
 }
 
