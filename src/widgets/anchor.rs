@@ -206,7 +206,7 @@ impl Layout {
     pub fn parallel_index(&self) -> usize {
         match self {
             Layout::Horizontal { .. } => 0,
-            Layout::Vertical { .. } => 1, 
+            Layout::Vertical { .. } => 1,
         }
     }
     pub fn perpendicular(&self, v: Vec2) -> f32 {

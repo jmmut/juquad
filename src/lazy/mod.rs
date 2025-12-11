@@ -1,15 +1,14 @@
-use macroquad::prelude::{measure_text, vec2, Font, Rect, Vec2};
-use crate::draw::draw_rect;
+use crate::widgets::anchor::{Anchor, Horizontal, Layout, Vertical};
+use crate::widgets::text::Pixels;
+use crate::widgets::Style as Coloring;
 use crate::{PositionInPixels2d, SizeInPixels2d};
-use crate::widgets::{Style as Coloring};
-use crate::widgets::anchor::{Layout, Vertical, Horizontal, Anchor};
-use crate::widgets::text::{draw_text, Pixels};
+use macroquad::prelude::{vec2, Font, Rect};
 
 pub mod button;
+pub mod panel;
 pub mod text;
 
 pub const DEFAULT_FONT_SIZE: f32 = 16.0;
-
 
 pub trait Widget {
     fn rect(&self) -> Rect {
@@ -107,25 +106,25 @@ impl From<Style> for WidgetData {
 pub enum Size {
     Fit,
     Grow,
-    Size{w: Pixels, h: Pixels},
-    Ratio{w: f32, h: f32},
+    Size { w: Pixels, h: Pixels },
+    Ratio { w: f32, h: f32 },
 }
 
 pub enum Pad {
     Symmetric(f32),
-    Asymmetric{x: f32, y: f32},
+    Asymmetric { x: f32, y: f32 },
 }
 impl Pad {
     pub fn position(&self, position: PositionInPixels2d) -> PositionInPixels2d {
         match self {
-            Pad::Symmetric(pad) => { position + vec2(*pad, *pad)}
-            Pad::Asymmetric { x, y } => {position + vec2(*x, *y)}
+            Pad::Symmetric(pad) => position + vec2(*pad, *pad),
+            Pad::Asymmetric { x, y } => position + vec2(*x, *y),
         }
     }
-    pub fn vec2(&self) -> SizeInPixels2d{
+    pub fn vec2(&self) -> SizeInPixels2d {
         match self {
-            Pad::Symmetric(pad) => {vec2(*pad, *pad)}
-            Pad::Asymmetric { x, y } => {vec2(*x, *y)}
+            Pad::Symmetric(pad) => vec2(*pad, *pad),
+            Pad::Asymmetric { x, y } => vec2(*x, *y),
         }
     }
 }
@@ -176,13 +175,17 @@ impl Ui {
         self.screen_size = size;
     }
     pub fn start_container<W: Widget>(&self, widget: W) -> Container<W> {
-        Container {widget, max_size: self.screen_size, children: Vec::new()}
+        Container {
+            widget,
+            max_size: self.screen_size,
+            children: Vec::new(),
+        }
     }
 }
 pub struct Container<W: Widget> {
     pub max_size: SizeInPixels2d,
     pub widget: W,
-    pub children: Vec<Box<dyn Widget>>, 
+    pub children: Vec<Box<dyn Widget>>,
 }
 impl<W: Widget> Container<W> {
     pub fn close(mut self) -> W {
@@ -191,9 +194,7 @@ impl<W: Widget> Container<W> {
             Size::Grow => {
                 self.widget.set_size(self.max_size);
             }
-            Size::Fit |
-            Size::Size { .. } |
-            Size::Ratio { .. } => {
+            Size::Fit | Size::Size { .. } | Size::Ratio { .. } => {
                 unimplemented!()
             }
         }
@@ -201,80 +202,49 @@ impl<W: Widget> Container<W> {
     }
 }
 
-pub struct Panel {
-    pub widget_data: WidgetData,
+pub struct UiNode<'a> {
+    node: &'a mut dyn Widget,
+    children: Vec<UiNode<'a>>,
 }
-impl Default for Panel {
-    fn default() -> Self {
+
+impl<'a> UiNode<'a> {
+    pub fn leaf(node: &'a mut dyn Widget) -> UiNode<'a> {
         Self {
-            widget_data: Default::default(),
+            node,
+            children: Vec::new(),
         }
     }
-}
-impl Panel {
-    pub fn new(widget_data: WidgetData) -> Self {
-        Self {
-            widget_data
-        }
-    }
-    pub fn render(&self) {
-        draw_rect(self.widget_data.rect(), self.style().coloring.at_rest.bg_color)
-    }
-}
-impl AsWidget for Panel {
-    fn widget(&self) -> &dyn Widget {
-        &self.widget_data
-    }
-    fn widget_mut(&mut self) -> &mut dyn Widget {
-        &mut self.widget_data
+    pub fn container(node: &'a mut dyn Widget, children: Vec<UiNode<'a>>) -> Self {
+        Self { node, children }
     }
 }
 
-pub struct Text {
-    pub widget_data: WidgetData,
-    pub text: String,
-}
-impl AsWidget for Text {
-    fn widget(&self) -> &dyn Widget {
-        &self.widget_data
+pub fn set_sizes(node: &mut UiNode) {
+    let mut accumulated_size = SizeInPixels2d::new(0.0, 0.0);
+    for child in &mut node.children {
+        set_sizes(child);
+        let style = child.node.style();
+        let parallel = style.layout.parallel_index();
+        let perpendicular = style.layout.perpendicular_index();
+        let size = child.node.size();
+        let margin = style.margin.vec2();
+        accumulated_size[parallel] += size[parallel] + margin[parallel];
+        accumulated_size[perpendicular] =
+            accumulated_size[perpendicular].max(size[perpendicular] + margin[perpendicular]);
     }
-    fn widget_mut(&mut self) -> &mut dyn Widget {
-        &mut self.widget_data
+    accumulated_size += 2.0 * node.node.style().pad.vec2();
+    node.node.set_size(accumulated_size);
+}
+pub fn set_positions(node: &mut UiNode, pos: PositionInPixels2d) {
+    let mut accumulated_pos = pos;
+    accumulated_pos += node.node.style().margin.vec2();
+    node.node.set_pos(accumulated_pos);
+    let pad = node.node.style().pad.vec2();
+    accumulated_pos += pad;
+    for child in &mut node.children {
+        let style = child.node.style();
+        let parallel = style.layout.parallel_index();
+        set_positions(child, accumulated_pos);
+        accumulated_pos[parallel] += child.node.size()[parallel];
     }
 }
-impl Text {
-    pub fn new(text: &str, mut widget_data: WidgetData) -> Self {
-        let size = size_text(text, widget_data.style());
-        widget_data.set_size(size);
-        Self { widget_data, text: text.to_string()}
-    }
-    pub fn render(&self) {
-        let pos = self.widget_data.pos();
-        draw_text(&self.text, pos.x, pos.y, self.widget_data.style.font_size, &self.widget_data.style.coloring.at_rest, self.widget_data.style.font);
-    }
-}
-// 
-// impl Widget for Text {
-//     fn rect(&self) -> Rect {
-//         self.rect
-//     }
-// 
-//     fn set_rect(&mut self, rect: Rect) {
-//         todo!()
-//     }
-// }
-
-fn size_text(text: &str, style: &Style) -> SizeInPixels2d {
-    // font_size doesn't seem to be in pixels across fonts
-    let reference_size = measure_text("Odp", style.font, style.font_size as u16, 1.0);
-    let reference_height = reference_size.height;
-    let pad = Vec2::new(reference_height, reference_height * 0.75);
-    let text_dimensions = measure_text(text, style.font, style.font_size as u16, 1.0);
-
-    let size = Vec2::new(
-        (text_dimensions.width + pad.x * 2.0).round(),
-        (reference_height + pad.y * 2.0).round(),
-    );
-    size
-}
-

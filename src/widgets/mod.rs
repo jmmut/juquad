@@ -1,8 +1,8 @@
 use crate::input::input_trait::InputTrait;
 use crate::widgets::anchor::Anchor;
+use crate::{PositionInPixels2d, SizeInPixels2d};
 use macroquad::color::{BLACK, DARKGRAY, GRAY, LIGHTGRAY, WHITE};
 use macroquad::prelude::{Color, MouseButton, Rect, Vec2};
-use crate::{PositionInPixels2d, SizeInPixels2d};
 
 pub mod anchor;
 pub mod anchorer;
