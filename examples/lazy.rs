@@ -1,3 +1,4 @@
+use juquad::lazy::button::Button;
 use juquad::lazy::panel::Panel;
 use juquad::lazy::text::Text;
 use juquad::lazy::{set_positions, set_sizes, Pad, Size, Style, Ui, UiNode, WidgetData};
@@ -6,7 +7,6 @@ use macroquad::prelude::{
     clear_background, is_key_pressed, is_mouse_button_pressed, mouse_position, next_frame,
     screen_height, screen_width, vec2, KeyCode, MouseButton, BLACK,
 };
-
 // const COLORING: Coloring = Coloring::new();
 
 struct Buttons {
@@ -19,13 +19,14 @@ struct Buttons {
     some_text_2: Text,
     some_text_3: Text,
     //     toggle_alignment: Button,
-    // exit: Button,
+    exit: Button,
 }
 impl Buttons {
     pub fn render(&self) {
         self.some_text.render();
         self.some_text_2.render();
         self.some_text_3.render();
+        self.exit.render();
     }
 }
 
@@ -42,6 +43,9 @@ async fn main() {
         }
 
         if is_key_pressed(KeyCode::Escape) {
+            break;
+        }
+        if buttons.exit.interact().is_clicked() {
             break;
         }
 
@@ -69,9 +73,19 @@ fn rebuild_ui(ui: &mut Ui, screen: SizeInPixels2d) -> (Panel, Buttons) {
     let mut text = Text::new("asdf", text_style.clone());
     let mut text_2 = Text::new("qwer", text_style.clone());
     let mut text_3 = Text::new("QWER", text_style.clone());
+    let mut exit_text = Text::new("Exit", text_style.clone());
+    let mut exit = Button::new(
+        Style {
+            ..Default::default()
+        }
+        .into(),
+        vec![],
+    );
     let text_node = UiNode::leaf(&mut text);
     let text_node_2 = UiNode::leaf(&mut text_2);
     let text_node_3 = UiNode::leaf(&mut text_3);
+    let exit_text_node = UiNode::leaf(&mut exit_text);
+    let exit_node = UiNode::container(&mut exit, vec![exit_text_node]);
     let mut panel = Panel::new(
         Style {
             pad,
@@ -81,14 +95,19 @@ fn rebuild_ui(ui: &mut Ui, screen: SizeInPixels2d) -> (Panel, Buttons) {
         }
         .into(),
     );
-    let mut panel_node = UiNode::container(&mut panel, vec![text_node, text_node_2, text_node_3]);
+
+    let mut panel_node = UiNode::container(
+        &mut panel,
+        vec![text_node, text_node_2, text_node_3, exit_node],
+    );
     set_sizes(&mut panel_node);
     set_positions(&mut panel_node, vec2(2.0, 2.0));
-
+    exit.children = vec![Box::new(exit_text)];
     let buttons = Buttons {
         some_text: text,
         some_text_2: text_2,
         some_text_3: text_3,
+        exit,
     };
     (panel, buttons)
 }

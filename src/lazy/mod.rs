@@ -1,7 +1,7 @@
 use crate::draw::{draw_rect_lines, to_rect};
 use crate::widgets::anchor::{Anchor, Horizontal, Layout, Vertical};
 use crate::widgets::text::Pixels;
-use crate::widgets::Style as Coloring;
+use crate::widgets::{Interaction, Style as Coloring};
 use crate::{PositionInPixels2d, SizeInPixels2d};
 use macroquad::color::{Color, BLACK, BLUE, ORANGE};
 use macroquad::prelude::{vec2, Font, Rect, Vec2};
@@ -34,6 +34,11 @@ pub trait Widget {
     // fn children_mut(&mut self) -> Vec<&mut dyn Widget>;
     // fn children(&mut self) -> Vec<&dyn Widget>;
 }
+pub trait Renderable {
+    fn render_interactive(&self, interaction: Interaction);
+    // fn render_generic?
+}
+pub trait RenderableWidget: Renderable + Widget {}
 pub trait AsWidget {
     fn widget(&self) -> &dyn Widget;
     fn widget_mut(&mut self) -> &mut dyn Widget;
@@ -56,6 +61,9 @@ impl<W: AsWidget> Widget for W {
     fn style(&self) -> &Style {
         self.widget().style()
     }
+    // fn render_interactive(&self, interaction: Interaction) {
+    //     unimplemented!("Widgets need to implement Widget::render(&self)")
+    // }
 }
 
 #[derive(Clone)]
@@ -96,6 +104,9 @@ impl Widget for WidgetData {
     fn style(&self) -> &Style {
         &self.style
     }
+    // fn render_interactive(&self, interaction: Interaction) {
+    //     unimplemented!("Widgets need to implement Widget::render(&self)")
+    // }
 }
 impl From<Style> for WidgetData {
     fn from(style: Style) -> Self {

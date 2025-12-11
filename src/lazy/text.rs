@@ -1,5 +1,9 @@
-use crate::lazy::{add_contour, draw_debug_widget, AsWidget, Style, Widget, WidgetData};
+use crate::lazy::{
+    add_contour, draw_debug_widget, AsWidget, Renderable, RenderableWidget, Style, Widget,
+    WidgetData,
+};
 use crate::widgets::text::draw_text_v;
+use crate::widgets::Interaction;
 use crate::SizeInPixels2d;
 use macroquad::math::Vec2;
 use macroquad::prelude::{measure_text, vec2};
@@ -17,8 +21,6 @@ impl AsWidget for Text {
         &mut self.widget_data
     }
 }
-static mut FIRST: bool = true;
-
 impl Text {
     pub fn new(text: &str, mut widget_data: WidgetData) -> Self {
         let mut size = size_text(text, widget_data.style());
@@ -32,47 +34,20 @@ impl Text {
         }
     }
     pub fn render(&self) {
-        let widget = &self.widget_data;
-        let rect_pad = add_contour(widget.rect(), -widget.style.pad.vec2());
-        draw_debug_widget(widget);
-
-        // draw_text() draws from the baseline of the text
-        // https://en.wikipedia.org/wiki/Baseline_(typography)
-        // I don't use self.text_dimensions.offset_y because that changes depending on the letters,
-        // so I prefer an approximate distance that makes all buttons at the same baseline
-        let approx_height_from_baseline_to_top = 0.85 * self.reference_height;
-        let x = rect_pad.x.round();
-        let y = (rect_pad.y + approx_height_from_baseline_to_top).round();
-        Self::print_debug_pos(x, y);
-        draw_text_v(
-            &self.text,
-            vec2(x, y),
-            widget.style.font_size,
-            &widget.style.coloring.at_rest,
-            widget.style.font,
-        );
-    }
-
-    fn print_debug_pos(x: f32, y: f32) {
-        let first = unsafe { FIRST };
-        if first {
-            println!("drawing text at {}, {}", x, y);
-            unsafe {
-                FIRST = false;
-            }
-        }
+        self.render_interactive(Interaction::None)
     }
 }
-//
-// impl Widget for Text {
-//     fn rect(&self) -> Rect {
-//         self.rect
-//     }
-//
-//     fn set_rect(&mut self, rect: Rect) {
-//         todo!()
-//     }
-// }
+impl Renderable for Text {
+    fn render_interactive(&self, interaction: Interaction) {
+        render_text(
+            &self.widget_data,
+            self.reference_height,
+            &self.text,
+            interaction,
+        );
+    }
+}
+impl RenderableWidget for Text {}
 
 fn size_text(text: &str, style: &Style) -> SizeInPixels2d {
     // font_size doesn't seem to be in pixels across fonts
@@ -82,4 +57,36 @@ fn size_text(text: &str, style: &Style) -> SizeInPixels2d {
 
     let size = Vec2::new(text_dimensions.width.round(), reference_height.round());
     size
+}
+fn render_text(widget: &WidgetData, reference_height: f32, text: &str, interaction: Interaction) {
+    let rect_pad = add_contour(widget.rect(), -widget.style.pad.vec2());
+    draw_debug_widget(widget);
+
+    // draw_text() draws from the baseline of the text
+    // https://en.wikipedia.org/wiki/Baseline_(typography)
+    // I don't use self.text_dimensions.offset_y because that changes depending on the letters,
+    // so I prefer an approximate distance that makes all buttons at the same baseline
+    let approx_height_from_baseline_to_top = 0.85 * reference_height;
+    let x = rect_pad.x.round();
+    let y = (rect_pad.y + approx_height_from_baseline_to_top).round();
+    print_debug_pos(x, y);
+    draw_text_v(
+        text,
+        vec2(x, y),
+        widget.style.font_size,
+        &widget.style.coloring.choose(interaction),
+        widget.style.font,
+    );
+}
+
+static mut FIRST: bool = true;
+
+fn print_debug_pos(x: f32, y: f32) {
+    let first = unsafe { FIRST };
+    if first {
+        println!("drawing text at {}, {}", x, y);
+        unsafe {
+            FIRST = false;
+        }
+    }
 }
