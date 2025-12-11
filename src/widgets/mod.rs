@@ -33,14 +33,14 @@ pub trait Widget {
         self.set_rect(rect)
     }
 }
-#[derive(Clone)]
+#[derive(Copy, Clone)]
 pub struct StateStyle {
     pub bg_color: Color,
     pub text_color: Color,
     pub border_color: Color,
 }
 
-#[derive(Clone)]
+#[derive(Copy, Clone)]
 pub struct Style {
     pub at_rest: StateStyle,
     pub hovered: StateStyle,

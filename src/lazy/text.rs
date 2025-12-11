@@ -69,7 +69,7 @@ fn render_text(widget: &WidgetData, reference_height: f32, text: &str, interacti
     let approx_height_from_baseline_to_top = 0.85 * reference_height;
     let x = rect_pad.x.round();
     let y = (rect_pad.y + approx_height_from_baseline_to_top).round();
-    print_debug_pos(x, y);
+    // print_debug_pos(x, y);
     draw_text_v(
         text,
         vec2(x, y),
@@ -81,6 +81,7 @@ fn render_text(widget: &WidgetData, reference_height: f32, text: &str, interacti
 
 static mut FIRST: bool = true;
 
+#[allow(unused)]
 fn print_debug_pos(x: f32, y: f32) {
     let first = unsafe { FIRST };
     if first {

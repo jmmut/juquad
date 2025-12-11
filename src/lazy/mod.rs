@@ -66,7 +66,7 @@ impl<W: AsWidget> Widget for W {
     // }
 }
 
-#[derive(Clone)]
+#[derive(Copy, Clone)]
 pub struct WidgetData {
     pos: PositionInPixels2d,
     size: Option<SizeInPixels2d>,
@@ -117,7 +117,7 @@ impl From<Style> for WidgetData {
     }
 }
 
-#[derive(Clone)]
+#[derive(Copy, Clone)]
 pub enum Size {
     Fit,
     Grow,
@@ -125,7 +125,7 @@ pub enum Size {
     Ratio { w: f32, h: f32 },
 }
 
-#[derive(Clone)]
+#[derive(Copy, Clone)]
 pub enum Pad {
     Symmetric(f32),
     Asymmetric { x: f32, y: f32 },
@@ -144,7 +144,7 @@ impl Pad {
         }
     }
 }
-#[derive(Clone)]
+#[derive(Copy, Clone)]
 pub struct Style {
     pub pad: Pad,
     pub margin: Pad,
@@ -297,7 +297,7 @@ fn draw_debug_widget(widget_data: &WidgetData) {
     let contours = [
         (Vec2::new(0.0, 0.0), BLACK),
         (widget_data.style.margin.vec2(), BLUE),
-        (-widget_data.style.pad.vec2(), ORANGE),
+        (-widget_data.style.pad.vec2() + DEBUGGING_THICKNESS*0.5, ORANGE),
     ];
     let rect = widget_data.rect();
     for (contour, color) in contours {

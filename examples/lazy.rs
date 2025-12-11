@@ -36,15 +36,14 @@ impl Buttons {
 
 #[macroquad::main("juquad button group")]
 async fn main() {
-    let mut ui = Ui::default();
     let mut screen = vec2(screen_width(), screen_height());
-    let (mut panel, mut buttons) = rebuild_ui(&mut ui, screen);
+    let (mut panel, mut buttons) = rebuild_ui(screen);
     loop {
         let start = now();
         let new_screen = vec2(screen_width(), screen_height());
         if new_screen != screen {
             screen = new_screen;
-            (panel, buttons) = rebuild_ui(&mut ui, screen);
+            (panel, buttons) = rebuild_ui(screen);
         }
 
         if is_key_pressed(KeyCode::Escape) {
@@ -67,35 +66,39 @@ async fn main() {
     }
 }
 
-fn rebuild_ui(ui: &mut Ui, screen: SizeInPixels2d) -> (Panel, Buttons) {
+fn rebuild_ui(_screen: SizeInPixels2d) -> (Panel, Buttons) {
     let start = now();
 
-    ui.set_screen_size(screen);
-
-    let font_size: f32 = 32.0;
-    let pad = Pad::Symmetric(40.0);
-    let text_style: WidgetData = Style {
+    let font_size: f32 = 22.0;
+    let pad = Pad::Symmetric(10.0);
+    let style = Style {
         font_size,
-        font: None,
+        pad,
+        margin: pad,
         ..Default::default()
+    };
+
+    let text_style: WidgetData = Style {
+        font: None,
+        ..style
     }
     .into();
-    let mut text = Text::new("asdf", text_style.clone());
-    let mut text_2 = Text::new("qwer", text_style.clone());
-    let mut text_3 = Text::new("QWER", text_style.clone());
-    let mut toggle_text = Text::new("Toggle alignment", text_style.clone());
-    let mut exit_text = Text::new("Exit", text_style.clone());
+    let start_text = now();
+    let mut text = Text::new("asdf", text_style);
+    let mut text_2 = Text::new("qwer", text_style);
+    let mut text_3 = Text::new("QWER", text_style);
+    let mut toggle_text = Text::new("Toggle alignment", text_style);
+    let mut exit_text = Text::new("Exit", text_style);
+    print_time_since(start_text, "time measuring text");
 
-    let button_style: WidgetData = Style::default().into();
-    let mut toggle = Button::new(button_style.clone(), vec![]);
+    let button_style: WidgetData = style.into();
+    let mut toggle = Button::new(button_style, vec![]);
     let mut exit = Button::new(button_style, vec![]);
 
     let mut panel = Panel::new(
         Style {
-            pad,
-            font_size,
             size: Size::Grow,
-            ..Style::default()
+            ..style
         }
         .into(),
     );
@@ -126,7 +129,7 @@ fn rebuild_ui(ui: &mut Ui, screen: SizeInPixels2d) -> (Panel, Buttons) {
     (panel, buttons)
 }
 
-fn print_time_since(start_seconds: f64, name: &str) {
-    let end = now();
-    println!("{} {:.3} ms", name, (end - start_seconds) * 1000.0);
+fn print_time_since(_start_seconds: f64, _name: &str) {
+    let _end = now();
+    // println!("{} {:.3} ms", name, (end - start_seconds) * 1000.0);
 }
