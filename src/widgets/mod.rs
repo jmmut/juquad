@@ -24,11 +24,13 @@ pub trait Widget {
     fn set_pos(&mut self, position: PositionInPixels2d) {
         let mut rect = self.rect();
         rect.move_to(position);
+        self.set_rect(rect);
     }
     fn set_size(&mut self, size: SizeInPixels2d) {
         let mut rect = self.rect();
         rect.w = size.x;
         rect.h = size.y;
+        self.set_rect(rect)
     }
 }
 #[derive(Clone)]
