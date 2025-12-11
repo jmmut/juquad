@@ -56,6 +56,7 @@ impl<W: AsWidget> Widget for W {
     }
 }
 
+#[derive(Clone)]
 pub struct WidgetData {
     pos: PositionInPixels2d,
     size: Option<SizeInPixels2d>,
@@ -103,6 +104,7 @@ impl From<Style> for WidgetData {
     }
 }
 
+#[derive(Clone)]
 pub enum Size {
     Fit,
     Grow,
@@ -110,6 +112,7 @@ pub enum Size {
     Ratio { w: f32, h: f32 },
 }
 
+#[derive(Clone)]
 pub enum Pad {
     Symmetric(f32),
     Asymmetric { x: f32, y: f32 },
@@ -128,6 +131,7 @@ impl Pad {
         }
     }
 }
+#[derive(Clone)]
 pub struct Style {
     pub pad: Pad,
     pub margin: Pad,
@@ -228,23 +232,33 @@ pub fn set_sizes(node: &mut UiNode) {
         let perpendicular = style.layout.perpendicular_index();
         let size = child.node.size();
         let margin = style.margin.vec2();
-        accumulated_size[parallel] += size[parallel] + margin[parallel];
+        accumulated_size[parallel] += size[parallel] + 2.0 * margin[parallel];
         accumulated_size[perpendicular] =
-            accumulated_size[perpendicular].max(size[perpendicular] + margin[perpendicular]);
+            accumulated_size[perpendicular].max(size[perpendicular] + 2.0 * margin[perpendicular]);
     }
     accumulated_size += 2.0 * node.node.style().pad.vec2();
     node.node.set_size(accumulated_size);
+    println!(
+        "size: {}, margin: {}, pad: {}",
+        node.node.size(),
+        node.node.style().margin.vec2(),
+        node.node.style().pad.vec2()
+    );
 }
 pub fn set_positions(node: &mut UiNode, pos: PositionInPixels2d) {
     let mut accumulated_pos = pos;
     accumulated_pos += node.node.style().margin.vec2();
     node.node.set_pos(accumulated_pos);
+    println!("pos: {}", node.node.pos());
     let pad = node.node.style().pad.vec2();
     accumulated_pos += pad;
     for child in &mut node.children {
         let style = child.node.style();
         let parallel = style.layout.parallel_index();
         set_positions(child, accumulated_pos);
-        accumulated_pos[parallel] += child.node.size()[parallel];
+        accumulated_pos[parallel] +=
+            child.node.size()[parallel] + node.node.style().margin.vec2()[parallel];
+        let style = child.node.style();
+        accumulated_pos[parallel] += style.margin.vec2()[parallel];
     }
 }

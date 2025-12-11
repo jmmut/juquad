@@ -122,9 +122,6 @@ impl TextRect {
     fn rect(&self) -> Rect {
         self.rect
     }
-    fn rect_mut(&mut self) -> &mut Rect {
-        &mut self.rect
-    }
 }
 
 pub fn draw_text_rect_generic(text_rect: &TextRect, style: &StateStyle, draw_text: DrawText) {

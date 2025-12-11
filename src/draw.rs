@@ -25,3 +25,7 @@ pub fn draw_rect(rectangle: Rect, color: Color) {
 pub fn draw_segment(start: Vec2, end: Vec2, thickness: f32, color: Color) {
     macroquad::prelude::draw_line(start.x, start.y, end.x, end.y, thickness, color);
 }
+
+pub fn to_rect(pos: Vec2, size: Vec2) -> Rect {
+    Rect::new(pos.x, pos.y, size.x, size.y)
+}

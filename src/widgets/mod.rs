@@ -2,7 +2,7 @@ use crate::input::input_trait::InputTrait;
 use crate::widgets::anchor::Anchor;
 use crate::{PositionInPixels2d, SizeInPixels2d};
 use macroquad::color::{BLACK, DARKGRAY, GRAY, LIGHTGRAY, WHITE};
-use macroquad::prelude::{Color, MouseButton, Rect, Vec2};
+use macroquad::prelude::{Color, MouseButton, Rect};
 
 pub mod anchor;
 pub mod anchorer;
@@ -31,11 +31,14 @@ pub trait Widget {
         rect.h = size.y;
     }
 }
+#[derive(Clone)]
 pub struct StateStyle {
     pub bg_color: Color,
     pub text_color: Color,
     pub border_color: Color,
 }
+
+#[derive(Clone)]
 pub struct Style {
     pub at_rest: StateStyle,
     pub hovered: StateStyle,
