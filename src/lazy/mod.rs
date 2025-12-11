@@ -223,17 +223,14 @@ pub struct UiNode<'a> {
     node: &'a mut dyn Widget,
     children: Vec<UiNode<'a>>,
 }
-
-impl<'a> UiNode<'a> {
-    pub fn leaf(node: &'a mut dyn Widget) -> UiNode<'a> {
-        Self {
-            node,
-            children: Vec::new(),
-        }
+pub fn leaf(node: &mut dyn Widget) -> UiNode<'_> {
+    UiNode {
+        node,
+        children: Vec::new(),
     }
-    pub fn container(node: &'a mut dyn Widget, children: Vec<UiNode<'a>>) -> Self {
-        Self { node, children }
-    }
+}
+pub fn container<'a>(node: &'a mut dyn Widget, children: Vec<UiNode<'a>>) -> UiNode<'a> {
+    UiNode { node, children }
 }
 
 pub fn set_sizes(node: &mut UiNode) {
@@ -251,18 +248,18 @@ pub fn set_sizes(node: &mut UiNode) {
     }
     accumulated_size += 2.0 * node.node.style().pad.vec2();
     node.node.set_size(accumulated_size);
-    println!(
-        "size: {}, margin: {}, pad: {}",
-        node.node.size(),
-        node.node.style().margin.vec2(),
-        node.node.style().pad.vec2()
-    );
+    // println!(
+    //     "size: {}, margin: {}, pad: {}",
+    //     node.node.size(),
+    //     node.node.style().margin.vec2(),
+    //     node.node.style().pad.vec2()
+    // );
 }
 pub fn set_positions(node: &mut UiNode, pos: PositionInPixels2d) {
     let mut accumulated_pos = pos;
     accumulated_pos += node.node.style().margin.vec2();
     node.node.set_pos(accumulated_pos);
-    println!("pos: {}", node.node.pos());
+    // println!("pos: {}", node.node.pos());
     let pad = node.node.style().pad.vec2();
     accumulated_pos += pad;
     for child in &mut node.children {
