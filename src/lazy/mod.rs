@@ -1,8 +1,10 @@
+use crate::draw::{draw_rect_lines, to_rect};
 use crate::widgets::anchor::{Anchor, Horizontal, Layout, Vertical};
 use crate::widgets::text::Pixels;
 use crate::widgets::Style as Coloring;
 use crate::{PositionInPixels2d, SizeInPixels2d};
-use macroquad::prelude::{vec2, Font, Rect};
+use macroquad::color::{Color, BLACK, BLUE, ORANGE};
+use macroquad::prelude::{vec2, Font, Rect, Vec2};
 
 pub mod button;
 pub mod panel;
@@ -260,5 +262,39 @@ pub fn set_positions(node: &mut UiNode, pos: PositionInPixels2d) {
             child.node.size()[parallel] + node.node.style().margin.vec2()[parallel];
         let style = child.node.style();
         accumulated_pos[parallel] += style.margin.vec2()[parallel];
+    }
+}
+
+pub fn add_contour(rect: Rect, size: SizeInPixels2d) -> Rect {
+    let mut new_position = rect.point() - size;
+    let mut new_size = rect.size() + size * 2.0;
+    let center = rect.center();
+    for i in 0..1 {
+        if new_size[i] < 0.0 {
+            new_position[i] = center[i];
+            new_size[i] = 0.0;
+        }
+    }
+    to_rect(new_position, new_size)
+}
+
+pub const DEBUGGING_ALPHA: f32 = 0.5;
+pub const DEBUGGING_THICKNESS: f32 = 8.0;
+
+pub fn with_alpha(color: Color, alpha: f32) -> Color {
+    Color::new(color.r, color.g, color.b, alpha)
+}
+
+fn draw_debug_widget(widget_data: &WidgetData) {
+    let contours = [
+        (Vec2::new(0.0, 0.0), BLACK),
+        (widget_data.style.margin.vec2(), BLUE),
+        (-widget_data.style.pad.vec2(), ORANGE),
+    ];
+    let rect = widget_data.rect();
+    for (contour, color) in contours {
+        let drawn_rect = add_contour(rect, contour);
+        let rect_color = with_alpha(color, DEBUGGING_ALPHA);
+        draw_rect_lines(drawn_rect, DEBUGGING_THICKNESS, rect_color);
     }
 }

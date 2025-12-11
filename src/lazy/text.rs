@@ -1,10 +1,8 @@
-use crate::draw::{draw_rect_lines, to_rect};
-use crate::lazy::panel::{with_alpha, DEBUGGING_ALPHA, DEBUGGING_THICKNESS};
-use crate::lazy::{AsWidget, Style, Widget, WidgetData};
-use crate::widgets::text::draw_text;
+use crate::lazy::{add_contour, draw_debug_widget, AsWidget, Style, Widget, WidgetData};
+use crate::widgets::text::draw_text_v;
 use crate::SizeInPixels2d;
 use macroquad::math::Vec2;
-use macroquad::prelude::{measure_text, BLACK, BLUE, ORANGE};
+use macroquad::prelude::{measure_text, vec2};
 
 pub struct Text {
     pub widget_data: WidgetData,
@@ -34,28 +32,9 @@ impl Text {
         }
     }
     pub fn render(&self) {
-        let pos = self.widget_data.pos();
-        let size = self.widget_data.size();
-        let rect = to_rect(pos, size);
-        draw_rect_lines(
-            rect,
-            DEBUGGING_THICKNESS,
-            with_alpha(BLACK, DEBUGGING_ALPHA),
-        );
-        let margin = self.widget_data.style.margin.vec2();
-        let rect_margin = to_rect(pos - margin, size + margin * 2.0);
-        draw_rect_lines(
-            rect_margin,
-            DEBUGGING_THICKNESS,
-            with_alpha(BLUE, DEBUGGING_ALPHA),
-        );
-        let pad = self.widget_data.style.pad.vec2();
-        let rect_pad = to_rect(pos + pad, size - pad * 2.0);
-        draw_rect_lines(
-            rect_pad,
-            DEBUGGING_THICKNESS,
-            with_alpha(ORANGE, DEBUGGING_ALPHA),
-        );
+        let widget = &self.widget_data;
+        let rect_pad = add_contour(widget.rect(), -widget.style.pad.vec2());
+        draw_debug_widget(widget);
 
         // draw_text() draws from the baseline of the text
         // https://en.wikipedia.org/wiki/Baseline_(typography)
@@ -64,6 +43,17 @@ impl Text {
         let approx_height_from_baseline_to_top = 0.85 * self.reference_height;
         let x = rect_pad.x.round();
         let y = (rect_pad.y + approx_height_from_baseline_to_top).round();
+        Self::print_debug_pos(x, y);
+        draw_text_v(
+            &self.text,
+            vec2(x, y),
+            widget.style.font_size,
+            &widget.style.coloring.at_rest,
+            widget.style.font,
+        );
+    }
+
+    fn print_debug_pos(x: f32, y: f32) {
         let first = unsafe { FIRST };
         if first {
             println!("drawing text at {}, {}", x, y);
@@ -71,14 +61,6 @@ impl Text {
                 FIRST = false;
             }
         }
-        draw_text(
-            &self.text,
-            x,
-            y,
-            self.widget_data.style.font_size,
-            &self.widget_data.style.coloring.at_rest,
-            self.widget_data.style.font,
-        );
     }
 }
 //

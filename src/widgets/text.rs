@@ -1,5 +1,6 @@
 use crate::widgets::anchor::Anchor;
 use crate::widgets::{StateStyle, Style, Widget};
+use crate::PositionInPixels2d;
 use macroquad::prelude::{Color, Font, Rect, TextDimensions, Vec2};
 use macroquad::text::TextParams;
 use std::ops::AddAssign;
@@ -163,6 +164,16 @@ pub fn draw_text(
     } else {
         macroquad::text::draw_text(text, x, y, font_size, style.text_color)
     }
+}
+pub fn draw_text_v(
+    text: &str,
+    position: PositionInPixels2d,
+    font_size: f32,
+    style: &StateStyle,
+    font: Option<Font>,
+) {
+    let Vec2 { x, y } = position;
+    draw_text(text, x, y, font_size, style, font)
 }
 
 /// A nice combo is:

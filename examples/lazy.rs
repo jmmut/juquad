@@ -19,7 +19,7 @@ struct Buttons {
     some_text_2: Text,
     some_text_3: Text,
     //     toggle_alignment: Button,
-    //     exit: Button,
+    // exit: Button,
 }
 impl Buttons {
     pub fn render(&self) {
@@ -48,14 +48,10 @@ async fn main() {
         clear_background(BLACK);
         panel.render();
         buttons.render();
-        // panel with pad
-        // centered text
 
         if is_mouse_button_pressed(MouseButton::Left) {
             println!("{:?}", mouse_position())
         }
-        // draw_rectangle(pad, pad, screen.x - 2.0*pad, screen.y - 2.0*pad, LIGHTGRAY);
-        // draw_text("asdf", 100.0, 50.0, font_size, BLACK);
         next_frame().await
     }
 }
@@ -69,7 +65,7 @@ fn rebuild_ui(ui: &mut Ui, screen: SizeInPixels2d) -> (Panel, Buttons) {
         font: None,
         ..Default::default()
     }
-        .into();
+    .into();
     let mut text = Text::new("asdf", text_style.clone());
     let mut text_2 = Text::new("qwer", text_style.clone());
     let mut text_3 = Text::new("QWER", text_style.clone());
@@ -89,15 +85,10 @@ fn rebuild_ui(ui: &mut Ui, screen: SizeInPixels2d) -> (Panel, Buttons) {
     set_sizes(&mut panel_node);
     set_positions(&mut panel_node, vec2(2.0, 2.0));
 
-    // let container = ui.start_container(panel);
-    //
-    // panel = container.close();
-    (
-        panel,
-        Buttons {
-            some_text: text,
-            some_text_2: text_2,
-            some_text_3: text_3,
-        },
-    )
+    let buttons = Buttons {
+        some_text: text,
+        some_text_2: text_2,
+        some_text_3: text_3,
+    };
+    (panel, buttons)
 }
