@@ -2,7 +2,7 @@ use crate::widgets::anchor::{Anchor, Layout};
 use crate::widgets::button::Button;
 use crate::widgets::text::TextRect;
 use crate::widgets::Widget;
-use crate::PixelPosition;
+use crate::PositionInPixels2d;
 use macroquad::math::Rect;
 
 pub struct Anchorer {
@@ -11,7 +11,7 @@ pub struct Anchorer {
     pad: f32,
 }
 impl Anchorer {
-    pub fn new_pos(layout: Layout, start: PixelPosition, pad: f32) -> Self {
+    pub fn new_pos(layout: Layout, start: PositionInPixels2d, pad: f32) -> Self {
         Self::new(layout, Rect::new(start.x, start.y, 0.0, 0.0), pad)
     }
     pub fn new(layout: Layout, start: Rect, pad: f32) -> Self {

@@ -1,4 +1,4 @@
-use crate::PixelPosition;
+use crate::PositionInPixels2d;
 use macroquad::prelude::{KeyCode, MouseButton};
 
 pub trait InputTrait {
@@ -7,8 +7,8 @@ pub trait InputTrait {
     fn is_mouse_button_down(&self, button: MouseButton) -> bool;
     fn is_mouse_button_pressed(&self, button: MouseButton) -> bool;
     fn is_mouse_button_released(&self, button: MouseButton) -> bool;
-    fn mouse_position(&self) -> PixelPosition;
-    fn mouse_wheel(&self) -> PixelPosition;
+    fn mouse_position(&self) -> PositionInPixels2d;
+    fn mouse_wheel(&self) -> PositionInPixels2d;
 
     fn clone(&self) -> Box<dyn InputTrait>;
 }

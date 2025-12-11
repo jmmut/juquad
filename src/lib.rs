@@ -12,8 +12,8 @@ pub mod input {
     pub mod input_trait;
 }
 
-/// Represents an absolute position in pixels from the top left screen corner, e.g. (800.0, 600.0).
-pub type PixelPosition = Vec2;
+/// Represents an absolute position in pixels^2 from the top left screen corner, e.g. (800.0, 600.0).
+pub type PositionInPixels2d = Vec2;
 
-/// Represents a difference between 2 PixelPositions, e.g. the size of a Rect.
-pub type SizeInPixels = Vec2;
+/// Represents a difference between 2 PixelPosition2, e.g. the size of a Rect.
+pub type SizeInPixels2d = Vec2;

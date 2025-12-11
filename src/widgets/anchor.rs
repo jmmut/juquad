@@ -1,4 +1,4 @@
-use crate::{PixelPosition, SizeInPixels};
+use crate::{PositionInPixels2d, SizeInPixels2d};
 use macroquad::math::{Rect, Vec2};
 
 /// An Anchor helps you define positions for rectangles.
@@ -49,7 +49,7 @@ impl Anchor {
             y,
         }
     }
-    pub fn new_v(horizontal: Horizontal, vertical: Vertical, position: PixelPosition) -> Self {
+    pub fn new_v(horizontal: Horizontal, vertical: Vertical, position: PositionInPixels2d) -> Self {
         Self {
             horizontal,
             vertical,
@@ -85,31 +85,31 @@ impl Anchor {
         Self::new(H::Center, V::Bottom, x, y)
     }
 
-    pub fn center_v(position: PixelPosition) -> Self {
+    pub fn center_v(position: PositionInPixels2d) -> Self {
         Self::center(position.x, position.y)
     }
-    pub fn center_left_v(position: PixelPosition) -> Self {
+    pub fn center_left_v(position: PositionInPixels2d) -> Self {
         Self::center_left(position.x, position.y)
     }
-    pub fn center_right_v(position: PixelPosition) -> Self {
+    pub fn center_right_v(position: PositionInPixels2d) -> Self {
         Self::center_right(position.x, position.y)
     }
-    pub fn top_left_v(position: PixelPosition) -> Self {
+    pub fn top_left_v(position: PositionInPixels2d) -> Self {
         Self::top_left(position.x, position.y)
     }
-    pub fn top_right_v(position: PixelPosition) -> Self {
+    pub fn top_right_v(position: PositionInPixels2d) -> Self {
         Self::top_right(position.x, position.y)
     }
-    pub fn top_center_v(position: PixelPosition) -> Self {
+    pub fn top_center_v(position: PositionInPixels2d) -> Self {
         Self::top_center(position.x, position.y)
     }
-    pub fn bottom_left_v(position: PixelPosition) -> Self {
+    pub fn bottom_left_v(position: PositionInPixels2d) -> Self {
         Self::bottom_left(position.x, position.y)
     }
-    pub fn bottom_right_v(position: PixelPosition) -> Self {
+    pub fn bottom_right_v(position: PositionInPixels2d) -> Self {
         Self::bottom_right(position.x, position.y)
     }
-    pub fn bottom_center_v(position: PixelPosition) -> Self {
+    pub fn bottom_center_v(position: PositionInPixels2d) -> Self {
         Self::bottom_center(position.x, position.y)
     }
 
@@ -117,11 +117,11 @@ impl Anchor {
         self.x += x_diff;
         self.y += y_diff;
     }
-    pub fn offset_v(&mut self, diff: SizeInPixels) {
+    pub fn offset_v(&mut self, diff: SizeInPixels2d) {
         self.offset(diff.x, diff.y)
     }
 
-    pub fn get_top_left_pixel(&self, size: SizeInPixels) -> PixelPosition {
+    pub fn get_top_left_pixel(&self, size: SizeInPixels2d) -> PositionInPixels2d {
         let x = match self.horizontal {
             Horizontal::Left => self.x,
             Horizontal::Center => self.x - size.x * 0.5,
@@ -134,7 +134,7 @@ impl Anchor {
         };
         Vec2::new(x, y)
     }
-    pub fn get_rect(&self, size: SizeInPixels) -> Rect {
+    pub fn get_rect(&self, size: SizeInPixels2d) -> Rect {
         let pos = self.get_top_left_pixel(size);
         Rect::new(pos.x, pos.y, size.x, size.y)
     }
@@ -198,6 +198,24 @@ impl Layout {
         Self::Horizontal {
             direction,
             alignment,
+        }
+    }
+    pub fn parallel(&self, v: Vec2) -> f32 {
+        v[self.parallel_index()]
+    }
+    pub fn parallel_index(&self) -> usize {
+        match self {
+            Layout::Horizontal { .. } => 0,
+            Layout::Vertical { .. } => 1, 
+        }
+    }
+    pub fn perpendicular(&self, v: Vec2) -> f32 {
+        v[self.perpendicular_index()]
+    }
+    pub fn perpendicular_index(&self) -> usize {
+        match self {
+            Layout::Horizontal { .. } => 1,
+            Layout::Vertical { .. } => 0,
         }
     }
 }
