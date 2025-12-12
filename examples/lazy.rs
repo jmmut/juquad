@@ -14,6 +14,7 @@ use macroquad::prelude::{
 // const COLORING: Coloring = Coloring::new();
 
 struct Buttons {
+    panel: Panel,
     //     expand: Button,
     //     increase_font: Button,
     //     decrease_font: Button,
@@ -28,6 +29,7 @@ struct Buttons {
 impl Buttons {
     pub fn widgets(&self) -> Vec<&dyn Renderable> {
         vec![
+            &self.panel,
             &self.some_text,
             &self.some_text_2,
             &self.some_text_3,
@@ -55,7 +57,7 @@ async fn main() {
 
     let mut screen = vec2(screen_width(), screen_height());
     let mut recalculate_ui = false;
-    let (mut panel, mut buttons) = rebuild_ui(screen, style);
+    let mut buttons = rebuild_ui(screen, style);
     loop {
         let start = now();
         let new_screen = vec2(screen_width(), screen_height());
@@ -65,7 +67,7 @@ async fn main() {
         }
         if recalculate_ui {
             recalculate_ui = false;
-            (panel, buttons) = rebuild_ui(screen, style);
+            buttons = rebuild_ui(screen, style);
         }
 
         if is_key_pressed(KeyCode::Escape) {
@@ -95,7 +97,6 @@ async fn main() {
         }
 
         clear_background(BLACK);
-        panel.render();
         buttons.render();
 
         if is_mouse_button_pressed(MouseButton::Left) {
@@ -106,7 +107,7 @@ async fn main() {
     }
 }
 
-fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> (Panel, Buttons) {
+fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
     let start = now();
 
     let text_style: WidgetData = Style {
@@ -150,6 +151,7 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> (Panel, Buttons) {
     toggle.children = vec![Box::new(toggle_text)];
     exit.children = vec![Box::new(exit_text)];
     let buttons = Buttons {
+        panel,
         some_text: text,
         some_text_2: text_2,
         some_text_3: text_3,
@@ -157,7 +159,7 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> (Panel, Buttons) {
         exit,
     };
     print_time_since(start, "rebuilt ui in");
-    (panel, buttons)
+    buttons
 }
 
 fn print_time_since(_start_seconds: f64, _name: &str) {
