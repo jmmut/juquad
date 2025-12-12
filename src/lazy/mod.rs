@@ -42,50 +42,36 @@ pub trait Renderable {
     // fn render_generic?
 }
 pub trait RenderableWidget: Renderable + Widget {}
-pub trait AsWidget {
-    fn widget(&self) -> &dyn Widget;
-    fn widget_mut(&mut self) -> &mut dyn Widget;
-}
-
-impl<W: AsWidget> Widget for W {
-    fn size(&self) -> SizeInPixels2d {
-        self.widget().size()
-    }
-    fn pos(&self) -> PositionInPixels2d {
-        self.widget().pos()
-    }
-    fn set_pos(&mut self, position: PositionInPixels2d) {
-        self.widget_mut().set_pos(position)
-    }
-    fn set_size(&mut self, size: SizeInPixels2d) {
-        self.widget_mut().set_size(size)
-    }
-
-    fn style(&self) -> &Style {
-        self.widget().style()
-    }
-    // fn render_interactive(&self, interaction: Interaction) {
-    //     unimplemented!("Widgets need to implement Widget::render(&self)")
-    // }
-}
 
 #[derive(Copy, Clone)]
-pub struct WidgetData {
+pub struct WidgetData<Custom> {
     pos: PositionInPixels2d,
     size: Option<SizeInPixels2d>,
     style: Style,
-    // TODO: custom: C,  // from WidgetData<C>
+    pub custom: Custom,
+    // TODO: children?
 }
-impl Default for WidgetData {
+impl<Custom> WidgetData<Custom> {
+    pub fn new(style: Style, custom: Custom) -> Self {
+        Self {
+            pos: Default::default(),
+            size: Default::default(),
+            style,
+            custom,
+        }
+    }
+}
+impl<Custom: Default> Default for WidgetData<Custom> {
     fn default() -> Self {
         Self {
             pos: Default::default(),
             size: Default::default(),
             style: Default::default(),
+            custom: Default::default(),
         }
     }
 }
-impl Widget for WidgetData {
+impl<Custom> Widget for WidgetData<Custom> {
     fn size(&self) -> SizeInPixels2d {
         if let Some(size) = self.size {
             size
@@ -107,11 +93,8 @@ impl Widget for WidgetData {
     fn style(&self) -> &Style {
         &self.style
     }
-    // fn render_interactive(&self, interaction: Interaction) {
-    //     unimplemented!("Widgets need to implement Widget::render(&self)")
-    // }
 }
-impl From<Style> for WidgetData {
+impl<Custom: Default> From<Style> for WidgetData<Custom> {
     fn from(style: Style) -> Self {
         Self {
             style,
@@ -314,7 +297,7 @@ pub fn with_alpha(color: Color, alpha: f32) -> Color {
     Color::new(color.r, color.g, color.b, alpha)
 }
 
-fn draw_debug_widget(widget_data: &WidgetData) {
+fn draw_debug_widget<C>(widget_data: &WidgetData<C>) {
     let half_thickness = DEBUGGING_THICKNESS * 0.5;
     let contours = [
         (Vec2::new(0.0, 0.0), BLACK),

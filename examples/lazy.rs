@@ -110,30 +110,26 @@ async fn main() {
 fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
     let start = now();
 
-    let text_style: WidgetData = Style {
+    let text_style = Style {
         font: None,
+        ..style
+    };
+    let start_text = now();
+    let mut text = Text::new_text(text_style, "asdf");
+    let mut text_2 = Text::new_text(text_style, "qwer");
+    let mut text_3 = Text::new_text(text_style, "QWER");
+    let mut toggle_text = Text::new_text(text_style, "Toggle alignment");
+    let mut exit_text = Text::new_text(text_style, "Exit");
+    print_time_since(start_text, "time measuring text");
+
+    let mut toggle: Button = style.into();
+    let mut exit: Button = style.into();
+
+    let mut panel: Panel = Style {
+        size: Size::Grow,
         ..style
     }
     .into();
-    let start_text = now();
-    let mut text = Text::new("asdf", text_style);
-    let mut text_2 = Text::new("qwer", text_style);
-    let mut text_3 = Text::new("QWER", text_style);
-    let mut toggle_text = Text::new("Toggle alignment", text_style);
-    let mut exit_text = Text::new("Exit", text_style);
-    print_time_since(start_text, "time measuring text");
-
-    let button_style: WidgetData = style.into();
-    let mut toggle = Button::new(button_style, vec![]);
-    let mut exit = Button::new(button_style, vec![]);
-
-    let mut panel = Panel::new(
-        Style {
-            size: Size::Grow,
-            ..style
-        }
-        .into(),
-    );
 
     let mut panel_node = container(
         &mut panel,
@@ -148,8 +144,8 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
     set_sizes(&mut panel_node);
     set_positions(&mut panel_node, vec2(0.0, 0.0), screen, &style);
 
-    toggle.children = vec![Box::new(toggle_text)];
-    exit.children = vec![Box::new(exit_text)];
+    toggle.custom.children = vec![Box::new(toggle_text)];
+    exit.custom.children = vec![Box::new(exit_text)];
     let buttons = Buttons {
         panel,
         some_text: text,

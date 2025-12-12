@@ -1,6 +1,5 @@
 use crate::lazy::{
-    add_contour, draw_debug_widget, AsWidget, Renderable, RenderableWidget, Style, Widget,
-    WidgetData,
+    add_contour, draw_debug_widget, Renderable, RenderableWidget, Style, Widget, WidgetData,
 };
 use crate::widgets::text::draw_text_v;
 use crate::widgets::Interaction;
@@ -8,29 +7,26 @@ use crate::SizeInPixels2d;
 use macroquad::math::Vec2;
 use macroquad::prelude::{measure_text, vec2};
 
-pub struct Text {
-    pub widget_data: WidgetData,
+pub type Text = WidgetData<TextBase>;
+
+pub struct TextBase {
     pub text: String,
     pub reference_height: f32,
 }
-impl AsWidget for Text {
-    fn widget(&self) -> &dyn Widget {
-        &self.widget_data
-    }
-    fn widget_mut(&mut self) -> &mut dyn Widget {
-        &mut self.widget_data
-    }
-}
 impl Text {
-    pub fn new(text: &str, mut widget_data: WidgetData) -> Self {
-        let mut size = size_text(text, widget_data.style());
+    pub fn new_text(style: Style, text: &str) -> Self {
+        let mut size = size_text(text, &style);
         let reference_height = size.y;
-        size += 2.0 * widget_data.style.pad.vec2();
-        widget_data.set_size(size);
-        Self {
-            widget_data,
+        size += 2.0 * style.pad.vec2();
+        let custom = TextBase {
             text: text.to_string(),
             reference_height,
+        };
+        Self {
+            pos: Default::default(),
+            size: Some(size),
+            style,
+            custom,
         }
     }
     pub fn render(&self) {
@@ -40,14 +36,13 @@ impl Text {
 impl Renderable for Text {
     fn render_interactive(&self, interaction: Interaction) {
         render_text(
-            &self.widget_data,
-            self.reference_height,
-            &self.text,
+            self,
+            self.custom.reference_height,
+            &self.custom.text,
             interaction,
         );
     }
 }
-impl RenderableWidget for Text {}
 
 fn size_text(text: &str, style: &Style) -> SizeInPixels2d {
     // font_size doesn't seem to be in pixels across fonts
@@ -58,7 +53,7 @@ fn size_text(text: &str, style: &Style) -> SizeInPixels2d {
     let size = Vec2::new(text_dimensions.width.round(), reference_height.round());
     size
 }
-fn render_text(widget: &WidgetData, reference_height: f32, text: &str, interaction: Interaction) {
+fn render_text(widget: &Text, reference_height: f32, text: &str, interaction: Interaction) {
     let rect_pad = add_contour(widget.rect(), -widget.style.pad.vec2());
     draw_debug_widget(widget);
 
