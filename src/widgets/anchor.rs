@@ -180,6 +180,48 @@ impl Anchor {
         let y = alignment.y(other);
         Anchor::new(Horizontal::Right, alignment, other.left() - pad_x, y)
     }
+    
+    pub fn inside(other: Rect, layout: Layout, pad:f32) -> Anchor {
+        match layout {
+            Layout::Horizontal {
+                direction,
+                alignment,
+            } => {
+                if direction == Horizontal::Left {
+                    Self::from_right(other, alignment, pad)
+                } else {
+                    Self::from_left(other, alignment, pad)
+                }
+            }
+            Layout::Vertical {
+                direction,
+                alignment,
+            } => {
+                if direction == Vertical::Top {
+                    Self::from_bottom(other, alignment, pad)
+                } else {
+                    Self::from_top(other, alignment, pad)
+                }
+            }
+        }
+    }
+
+    pub fn from_top(other: Rect, alignment: Horizontal, pad_y: f32) -> Anchor {
+        let x = alignment.x(other);
+        Anchor::new(alignment, Vertical::Top, x, other.top() + pad_y)
+    }
+    pub fn from_bottom(other: Rect, alignment: Horizontal, pad_y: f32) -> Anchor {
+        let x = alignment.x(other);
+        Anchor::new(alignment, Vertical::Bottom, x, other.bottom() - pad_y)
+    }
+    pub fn from_left(other: Rect, alignment: Vertical, pad_x: f32) -> Anchor {
+        let y = alignment.y(other);
+        Anchor::new(Horizontal::Left, alignment, other.left() + pad_x, y)
+    }
+    pub fn from_right(other: Rect, alignment: Vertical, pad_x: f32) -> Anchor {
+        let y = alignment.y(other);
+        Anchor::new(Horizontal::Right, alignment, other.right() - pad_x, y)
+    }
 }
 
 impl Default for Anchor {
@@ -218,6 +260,7 @@ impl Layout {
             Layout::Vertical { .. } => 0,
         }
     }
+    
 }
 impl Horizontal {
     pub fn x(self, other: Rect) -> f32 {
@@ -239,9 +282,9 @@ impl Horizontal {
 impl Vertical {
     pub fn y(self, other: Rect) -> f32 {
         match self {
-            Self::Top => other.left(),
+            Self::Top => other.top(),
             Self::Center => other.center().y,
-            Self::Bottom => other.right(),
+            Self::Bottom => other.bottom(),
         }
     }
     pub fn opposite(self) -> Self {

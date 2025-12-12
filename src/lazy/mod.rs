@@ -264,15 +264,34 @@ pub fn set_positions(node: &mut UiNode, pos: PositionInPixels2d) {
     node.node.set_pos(accumulated_pos);
     // println!("pos: {}", node.node.pos());
     let pad = node.node.style().pad.vec2();
+    let padded_size = node.node.size() - pad*2.0;
     accumulated_pos += pad;
+    let style = node.node.style();
+    let parallel = style.layout.parallel_index();
+    let perpendicular = style.layout.perpendicular_index();
     for child in &mut node.children {
-        let style = child.node.style();
-        let parallel = style.layout.parallel_index();
-        set_positions(child, accumulated_pos);
-        accumulated_pos[parallel] +=
-            child.node.size()[parallel] + node.node.style().margin.vec2()[parallel];
-        let style = child.node.style();
-        accumulated_pos[parallel] += style.margin.vec2()[parallel];
+        let margin = child.node.style().margin.vec2();
+        let margined_size =  child.node.size() + margin*2.0;
+        let space = padded_size[perpendicular] - margined_size[perpendicular];
+        let mut child_pos = accumulated_pos;
+        child_pos[perpendicular] += match style.layout {
+            Layout::Horizontal { alignment, .. } => {
+                match alignment {
+                    Vertical::Top => {0.0}
+                    Vertical::Center => {space * 0.5}
+                    Vertical::Bottom => {space}
+                }
+            }
+            Layout::Vertical { alignment, .. } => {
+                match alignment {
+                    Horizontal::Left => {0.0}
+                    Horizontal::Center => {space * 0.5}
+                    Horizontal::Right => {space}
+                }
+            }
+        };
+        set_positions(child, child_pos);
+        accumulated_pos[parallel] += margined_size[parallel];
     }
 }
 

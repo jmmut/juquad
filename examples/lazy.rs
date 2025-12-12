@@ -10,6 +10,7 @@ use macroquad::prelude::{
     clear_background, is_key_pressed, is_mouse_button_pressed, mouse_position, next_frame,
     screen_height, screen_width, vec2, KeyCode, MouseButton, BLACK,
 };
+use juquad::widgets::anchor::{Horizontal, Layout, Vertical};
 // const COLORING: Coloring = Coloring::new();
 
 struct Buttons {
@@ -43,20 +44,53 @@ impl Buttons {
 
 #[macroquad::main("juquad button group")]
 async fn main() {
+    
+    let font_size: f32 = 22.0;
+    let pad = Pad::Symmetric(10.0);
+    let mut style = Style {
+        font_size,
+        pad,
+        margin: pad,
+        ..Default::default()
+    };
+    
     let mut screen = vec2(screen_width(), screen_height());
-    let (mut panel, mut buttons) = rebuild_ui(screen);
+    let mut recalculate_ui = false;
+    let (mut panel, mut buttons) = rebuild_ui(screen, style);
     loop {
         let start = now();
         let new_screen = vec2(screen_width(), screen_height());
         if new_screen != screen {
             screen = new_screen;
-            (panel, buttons) = rebuild_ui(screen);
+            recalculate_ui = true;
+        }
+        if recalculate_ui {
+            recalculate_ui = false;
+            (panel, buttons) = rebuild_ui(screen, style);
         }
 
         if is_key_pressed(KeyCode::Escape) {
             break;
         }
-        buttons.toggle_alignment.interact();
+        if buttons.toggle_alignment.interact().is_clicked() {
+            match &mut style.layout {
+                Layout::Horizontal { alignment, .. } => {
+                    *alignment = match *alignment {
+                        Vertical::Top => Vertical::Center,
+                        Vertical::Center => Vertical::Bottom,
+                        Vertical::Bottom => Vertical::Top,
+                    };
+                }
+                Layout::Vertical {  alignment, .. } => {
+                    *alignment = match *alignment {
+                        Horizontal::Left => Horizontal::Center,
+                        Horizontal::Center => Horizontal::Right,
+                        Horizontal::Right => Horizontal::Left,
+                    };
+                }
+            }
+            recalculate_ui = true; 
+        }
         if buttons.exit.interact().is_clicked() {
             break;
         }
@@ -73,17 +107,9 @@ async fn main() {
     }
 }
 
-fn rebuild_ui(_screen: SizeInPixels2d) -> (Panel, Buttons) {
+fn rebuild_ui(_screen: SizeInPixels2d, style: Style) -> (Panel, Buttons) {
     let start = now();
 
-    let font_size: f32 = 22.0;
-    let pad = Pad::Symmetric(10.0);
-    let style = Style {
-        font_size,
-        pad,
-        margin: pad,
-        ..Default::default()
-    };
 
     let text_style: WidgetData = Style {
         font: None,
