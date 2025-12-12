@@ -4,13 +4,13 @@ use juquad::lazy::text::Text;
 use juquad::lazy::{
     container, leaf, set_positions, set_sizes, Pad, Renderable, Size, Style, WidgetData,
 };
+use juquad::widgets::anchor::{Horizontal, Layout, Vertical};
 use juquad::SizeInPixels2d;
 use macroquad::miniquad::date::now;
 use macroquad::prelude::{
     clear_background, is_key_pressed, is_mouse_button_pressed, mouse_position, next_frame,
     screen_height, screen_width, vec2, KeyCode, MouseButton, BLACK,
 };
-use juquad::widgets::anchor::{Horizontal, Layout, Vertical};
 // const COLORING: Coloring = Coloring::new();
 
 struct Buttons {
@@ -44,7 +44,6 @@ impl Buttons {
 
 #[macroquad::main("juquad button group")]
 async fn main() {
-    
     let font_size: f32 = 22.0;
     let pad = Pad::Symmetric(10.0);
     let mut style = Style {
@@ -53,7 +52,7 @@ async fn main() {
         margin: pad,
         ..Default::default()
     };
-    
+
     let mut screen = vec2(screen_width(), screen_height());
     let mut recalculate_ui = false;
     let (mut panel, mut buttons) = rebuild_ui(screen, style);
@@ -81,7 +80,7 @@ async fn main() {
                         Vertical::Bottom => Vertical::Top,
                     };
                 }
-                Layout::Vertical {  alignment, .. } => {
+                Layout::Vertical { alignment, .. } => {
                     *alignment = match *alignment {
                         Horizontal::Left => Horizontal::Center,
                         Horizontal::Center => Horizontal::Right,
@@ -89,7 +88,7 @@ async fn main() {
                     };
                 }
             }
-            recalculate_ui = true; 
+            recalculate_ui = true;
         }
         if buttons.exit.interact().is_clicked() {
             break;
@@ -107,9 +106,8 @@ async fn main() {
     }
 }
 
-fn rebuild_ui(_screen: SizeInPixels2d, style: Style) -> (Panel, Buttons) {
+fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> (Panel, Buttons) {
     let start = now();
-
 
     let text_style: WidgetData = Style {
         font: None,
@@ -147,7 +145,7 @@ fn rebuild_ui(_screen: SizeInPixels2d, style: Style) -> (Panel, Buttons) {
         ],
     );
     set_sizes(&mut panel_node);
-    set_positions(&mut panel_node, vec2(2.0, 2.0));
+    set_positions(&mut panel_node, vec2(0.0, 0.0), screen, &style);
 
     toggle.children = vec![Box::new(toggle_text)];
     exit.children = vec![Box::new(exit_text)];

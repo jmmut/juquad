@@ -180,8 +180,8 @@ impl Anchor {
         let y = alignment.y(other);
         Anchor::new(Horizontal::Right, alignment, other.left() - pad_x, y)
     }
-    
-    pub fn inside(other: Rect, layout: Layout, pad:f32) -> Anchor {
+
+    pub fn inside(other: Rect, layout: Layout, pad: f32) -> Anchor {
         match layout {
             Layout::Horizontal {
                 direction,
@@ -260,7 +260,6 @@ impl Layout {
             Layout::Vertical { .. } => 0,
         }
     }
-    
 }
 impl Horizontal {
     pub fn x(self, other: Rect) -> f32 {

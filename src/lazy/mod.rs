@@ -238,11 +238,11 @@ pub fn container<'a>(node: &'a mut dyn Widget, children: Vec<UiNode<'a>>) -> UiN
 
 pub fn set_sizes(node: &mut UiNode) {
     let mut accumulated_size = SizeInPixels2d::new(0.0, 0.0);
+    let style = node.node.style();
+    let parallel = style.layout.parallel_index();
+    let perpendicular = style.layout.perpendicular_index();
     for child in &mut node.children {
         set_sizes(child);
-        let style = child.node.style();
-        let parallel = style.layout.parallel_index();
-        let perpendicular = style.layout.perpendicular_index();
         let size = child.node.size();
         let margin = style.margin.vec2();
         accumulated_size[parallel] += size[parallel] + 2.0 * margin[parallel];
@@ -258,41 +258,40 @@ pub fn set_sizes(node: &mut UiNode) {
     //     node.node.style().pad.vec2()
     // );
 }
-pub fn set_positions(node: &mut UiNode, pos: PositionInPixels2d) {
-    let mut accumulated_pos = pos;
-    accumulated_pos += node.node.style().margin.vec2();
-    node.node.set_pos(accumulated_pos);
-    // println!("pos: {}", node.node.pos());
-    let pad = node.node.style().pad.vec2();
-    let padded_size = node.node.size() - pad*2.0;
-    accumulated_pos += pad;
-    let style = node.node.style();
-    let parallel = style.layout.parallel_index();
-    let perpendicular = style.layout.perpendicular_index();
+pub fn set_positions(
+    node: &mut UiNode,
+    outer_pos: PositionInPixels2d,
+    outer_size: SizeInPixels2d,
+    outer_style: &Style,
+) -> PositionInPixels2d {
+    let parallel = outer_style.layout.parallel_index();
+    let perpendicular = outer_style.layout.perpendicular_index();
+    let margined_size = node.node.size() + node.node.style().margin.vec2() * 2.0;
+    let space = outer_size[perpendicular] - margined_size[perpendicular];
+
+    let margined_pos = outer_pos;
+    let mut pos = margined_pos + node.node.style().margin.vec2();
+    pos[perpendicular] += match outer_style.layout {
+        Layout::Horizontal { alignment, .. } => match alignment {
+            Vertical::Top => 0.0,
+            Vertical::Center => space * 0.5,
+            Vertical::Bottom => space,
+        },
+        Layout::Vertical { alignment, .. } => match alignment {
+            Horizontal::Left => 0.0,
+            Horizontal::Center => space * 0.5,
+            Horizontal::Right => space,
+        },
+    };
+    node.node.set_pos(pos);
+    let padded_size = node.node.size() - node.node.style().pad.vec2() * 2.0;
+    let mut accumulated_pos = pos + node.node.style().pad.vec2();
     for child in &mut node.children {
-        let margin = child.node.style().margin.vec2();
-        let margined_size =  child.node.size() + margin*2.0;
-        let space = padded_size[perpendicular] - margined_size[perpendicular];
-        let mut child_pos = accumulated_pos;
-        child_pos[perpendicular] += match style.layout {
-            Layout::Horizontal { alignment, .. } => {
-                match alignment {
-                    Vertical::Top => {0.0}
-                    Vertical::Center => {space * 0.5}
-                    Vertical::Bottom => {space}
-                }
-            }
-            Layout::Vertical { alignment, .. } => {
-                match alignment {
-                    Horizontal::Left => {0.0}
-                    Horizontal::Center => {space * 0.5}
-                    Horizontal::Right => {space}
-                }
-            }
-        };
-        set_positions(child, child_pos);
-        accumulated_pos[parallel] += margined_size[parallel];
+        accumulated_pos[parallel] =
+            set_positions(child, accumulated_pos, padded_size, node.node.style())[parallel];
     }
+    let rect = to_rect(margined_pos, margined_size);
+    vec2(rect.right(), rect.bottom())
 }
 
 pub fn add_contour(rect: Rect, size: SizeInPixels2d) -> Rect {
