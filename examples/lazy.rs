@@ -2,7 +2,7 @@ use juquad::lazy::button::Button;
 use juquad::lazy::panel::Panel;
 use juquad::lazy::text::Text;
 use juquad::lazy::{
-    container, leaf, set_positions, set_sizes, Pad, Size, Style, Ui, UiNode, WidgetData,
+    container, leaf, set_positions, set_sizes, Pad, Renderable, Size, Style, WidgetData,
 };
 use juquad::SizeInPixels2d;
 use macroquad::miniquad::date::now;
@@ -25,12 +25,19 @@ struct Buttons {
     exit: Button,
 }
 impl Buttons {
+    pub fn widgets(&self) -> Vec<&dyn Renderable> {
+        vec![
+            &self.some_text,
+            &self.some_text_2,
+            &self.some_text_3,
+            &self.toggle_alignment,
+            &self.exit,
+        ]
+    }
     pub fn render(&self) {
-        self.some_text.render();
-        self.some_text_2.render();
-        self.some_text_3.render();
-        self.toggle_alignment.render();
-        self.exit.render();
+        for widget in self.widgets() {
+            widget.render();
+        }
     }
 }
 

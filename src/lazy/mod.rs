@@ -36,6 +36,9 @@ pub trait Widget {
 }
 pub trait Renderable {
     fn render_interactive(&self, interaction: Interaction);
+    fn render(&self) {
+        self.render_interactive(Interaction::None)
+    }
     // fn render_generic?
 }
 pub trait RenderableWidget: Renderable + Widget {}
@@ -294,10 +297,11 @@ pub fn with_alpha(color: Color, alpha: f32) -> Color {
 }
 
 fn draw_debug_widget(widget_data: &WidgetData) {
+    let half_thickness = DEBUGGING_THICKNESS * 0.5;
     let contours = [
         (Vec2::new(0.0, 0.0), BLACK),
         (widget_data.style.margin.vec2(), BLUE),
-        (-widget_data.style.pad.vec2() + DEBUGGING_THICKNESS*0.5, ORANGE),
+        (-widget_data.style.pad.vec2() + half_thickness, ORANGE),
     ];
     let rect = widget_data.rect();
     for (contour, color) in contours {
