@@ -1,4 +1,4 @@
-use juquad::lazy::button::Button;
+use juquad::lazy::button::{Button, ButtonBase};
 use juquad::lazy::panel::Panel;
 use juquad::lazy::text::Text;
 use juquad::lazy::{
@@ -124,6 +124,7 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
 
     let mut toggle: Button = style.into();
     let mut exit: Button = style.into();
+    // let mut exit: Button = Button::new(style, ButtonBase::new(vec![Box::new(exit_text)]));
 
     let mut panel: Panel = Style {
         size: Size::Grow,

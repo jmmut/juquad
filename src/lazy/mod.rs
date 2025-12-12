@@ -204,41 +204,51 @@ impl<W: Widget> Container<W> {
         self.widget
     }
 }
-
-pub struct UiNode<'a> {
-    node: &'a mut dyn Widget,
-    children: Vec<UiNode<'a>>,
+pub trait UiNodeTrait {
+    
 }
-pub fn leaf(node: &mut dyn Widget) -> UiNode<'_> {
-    UiNode {
-        node,
-        children: Vec::new(),
+pub struct UiNode<'a, 'b> {
+    node_: &'a mut dyn Widget,
+    children_: Vec<UiNode<'b, 'b>>,
+}
+impl<'a, 'b> UiNode<'a, 'b> {
+    pub fn node(&'_ mut self) -> &'_ mut dyn Widget {
+        self.node_
+    }
+    pub fn children(&'_ mut self) -> &'_ mut Vec<UiNode<'b, 'b>> {
+        &mut self.children_
     }
 }
-pub fn container<'a>(node: &'a mut dyn Widget, children: Vec<UiNode<'a>>) -> UiNode<'a> {
-    UiNode { node, children }
+pub fn leaf(node: &mut dyn Widget) -> UiNode<'_, '_> {
+    UiNode {
+        node_: node,
+        children_: Vec::new(),
+    }
+}
+pub fn container<'a, 'b>(node: &'a mut dyn Widget, children: Vec<UiNode<'b, 'b>>) -> UiNode<'a, 'b> {
+    UiNode { node_: node, children_: children }
 }
 
 pub fn set_sizes(node: &mut UiNode) {
     let mut accumulated_size = SizeInPixels2d::new(0.0, 0.0);
-    let style = node.node.style();
+    let style = {*node.node().style()};
     let parallel = style.layout.parallel_index();
     let perpendicular = style.layout.perpendicular_index();
-    for child in &mut node.children {
+    for child in  node.children() {
         set_sizes(child);
-        let size = child.node.size();
+        let size = child.node().size();
         let margin = style.margin.vec2();
         accumulated_size[parallel] += size[parallel] + 2.0 * margin[parallel];
         accumulated_size[perpendicular] =
             accumulated_size[perpendicular].max(size[perpendicular] + 2.0 * margin[perpendicular]);
     }
-    accumulated_size += 2.0 * node.node.style().pad.vec2();
-    node.node.set_size(accumulated_size);
+    accumulated_size += 2.0 * node.node().style().pad.vec2();
+    node.node().set_size(accumulated_size);
     // println!(
     //     "size: {}, margin: {}, pad: {}",
-    //     node.node.size(),
-    //     node.node.style().margin.vec2(),
-    //     node.node.style().pad.vec2()
+    //     node.node().size(),
+    //     node.node().style().margin.vec2(),
+    //     node.node().style().pad.vec2()
     // );
 }
 pub fn set_positions(
@@ -249,11 +259,11 @@ pub fn set_positions(
 ) -> PositionInPixels2d {
     let parallel = outer_style.layout.parallel_index();
     let perpendicular = outer_style.layout.perpendicular_index();
-    let margined_size = node.node.size() + node.node.style().margin.vec2() * 2.0;
+    let margined_size = node.node().size() + node.node().style().margin.vec2() * 2.0;
     let space = outer_size[perpendicular] - margined_size[perpendicular];
 
     let margined_pos = outer_pos;
-    let mut pos = margined_pos + node.node.style().margin.vec2();
+    let mut pos = margined_pos + node.node().style().margin.vec2();
     pos[perpendicular] += match outer_style.layout {
         Layout::Horizontal { alignment, .. } => match alignment {
             Vertical::Top => 0.0,
@@ -266,12 +276,13 @@ pub fn set_positions(
             Horizontal::Right => space,
         },
     };
-    node.node.set_pos(pos);
-    let padded_size = node.node.size() - node.node.style().pad.vec2() * 2.0;
-    let mut accumulated_pos = pos + node.node.style().pad.vec2();
-    for child in &mut node.children {
+    node.node().set_pos(pos);
+    let padded_size = node.node().size() - node.node().style().pad.vec2() * 2.0;
+    let mut accumulated_pos = pos + node.node().style().pad.vec2();
+    let style = *node.node().style();
+    for child in  node.children() {
         accumulated_pos[parallel] =
-            set_positions(child, accumulated_pos, padded_size, node.node.style())[parallel];
+            set_positions(child, accumulated_pos, padded_size, &style)[parallel];
     }
     let rect = to_rect(margined_pos, margined_size);
     vec2(rect.right(), rect.bottom())
