@@ -1,7 +1,7 @@
 use crate::draw::draw_rect;
 use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
-use crate::lazy::{draw_debug_widget, Renderable, Style, Widget, WidgetData};
+use crate::lazy::{draw_debug_widget, Renderable, Style, WidgetTrait, WidgetData};
 use crate::widgets::button::draw_panel_border;
 use crate::widgets::text::TextRect;
 use crate::widgets::{interact, Interaction};
@@ -13,25 +13,16 @@ pub type Button = WidgetData<ButtonBase>;
 pub struct ButtonBase {
     pub interaction: Interaction,
     input: Box<dyn InputTrait>,
-    pub children: Widgets,
 }
 impl Default for ButtonBase {
     fn default() -> Self {
         Self {
             interaction: Interaction::None,
             input: Box::new(InputMacroquad),
-            children: Vec::new(),
         }
     }
 }
-impl ButtonBase {
-    pub fn new(children: Widgets) -> Self {
-        Self {
-            children,
-            ..Default::default()
-        }
-    }
-}
+
 impl Button {
     pub fn interact(&mut self) -> Interaction {
         self.custom.interaction = interact(self.rect(), &self.custom.input);
@@ -50,7 +41,7 @@ impl Renderable for Button {
         draw_rect(widget.rect(), state_style.bg_color);
         draw_panel_border(widget.rect(), state_style);
         draw_debug_widget(widget);
-        for child in &self.custom.children {
+        for child in self.children() {
             child.render_interactive(self.custom.interaction);
         }
     }

@@ -1,9 +1,7 @@
 use juquad::lazy::button::{Button, ButtonBase};
 use juquad::lazy::panel::Panel;
 use juquad::lazy::text::Text;
-use juquad::lazy::{
-    container, leaf, set_positions, set_sizes, Pad, Renderable, Size, Style, WidgetData,
-};
+use juquad::lazy::{container, leaf, set_positions, set_sizes, Pad, Renderable, RenderableWidget, Size, Style, WidgetData};
 use juquad::widgets::anchor::{Horizontal, Layout, Vertical};
 use juquad::SizeInPixels2d;
 use macroquad::miniquad::date::now;
@@ -73,7 +71,9 @@ async fn main() {
         if is_key_pressed(KeyCode::Escape) {
             break;
         }
-        if buttons.toggle_alignment.interact().is_clicked() {
+        if false 
+        // buttons.toggle_alignment.interact().is_clicked() 
+        {
             match &mut style.layout {
                 Layout::Horizontal { alignment, .. } => {
                     *alignment = match *alignment {
@@ -92,7 +92,9 @@ async fn main() {
             }
             recalculate_ui = true;
         }
-        if buttons.exit.interact().is_clicked() {
+        if false
+        // buttons.exit.interact().is_clicked() 
+        {
             break;
         }
 
@@ -107,7 +109,7 @@ async fn main() {
     }
 }
 
-fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
+fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Panel {
     let start = now();
 
     let text_style = Style {
@@ -122,41 +124,25 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
     let mut exit_text = Text::new_text(text_style, "Exit");
     print_time_since(start_text, "time measuring text");
 
-    let mut toggle: Button = style.into();
-    let mut exit: Button = style.into();
-    // let mut exit: Button = Button::new(style, ButtonBase::new(vec![Box::new(exit_text)]));
+    let mut toggle: Button = Button::container(style, vec![Box::new(toggle_text)]);
+    let mut exit: Button = Button::container(style, vec![Box::new(exit_text)]);
 
-    let mut panel: Panel = Style {
+    let mut panel= Panel::container(Style {
         size: Size::Grow,
         ..style
-    }
-    .into();
+    }, vec![
+        Box::new(text),
+        Box::new(text_2),
+        Box::new(text_3),
+        Box::new(toggle),
+        Box::new(exit),
+    ]);
 
-    let mut panel_node = container(
-        &mut panel,
-        vec![
-            leaf(&mut text),
-            leaf(&mut text_2),
-            leaf(&mut text_3),
-            container(&mut toggle, vec![leaf(&mut toggle_text)]),
-            container(&mut exit, vec![leaf(&mut exit_text)]),
-        ],
-    );
-    set_sizes(&mut panel_node);
-    set_positions(&mut panel_node, vec2(0.0, 0.0), screen, &style);
+    set_sizes(&mut panel);
+    set_positions(&mut panel, vec2(0.0, 0.0), screen, &style);
 
-    toggle.custom.children = vec![Box::new(toggle_text)];
-    exit.custom.children = vec![Box::new(exit_text)];
-    let buttons = Buttons {
-        panel,
-        some_text: text,
-        some_text_2: text_2,
-        some_text_3: text_3,
-        toggle_alignment: toggle,
-        exit,
-    };
     print_time_since(start, "rebuilt ui in");
-    buttons
+    panel
 }
 
 fn print_time_since(_start_seconds: f64, _name: &str) {

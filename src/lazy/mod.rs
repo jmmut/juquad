@@ -5,6 +5,7 @@ use crate::widgets::{Interaction, Style as Coloring};
 use crate::{PositionInPixels2d, SizeInPixels2d};
 use macroquad::color::{Color, BLACK, BLUE, ORANGE};
 use macroquad::prelude::{vec2, Font, Rect, Vec2};
+use crate::lazy::button::ButtonBase;
 
 pub mod button;
 pub mod panel;
@@ -12,7 +13,9 @@ pub mod text;
 
 pub const DEFAULT_FONT_SIZE: f32 = 16.0;
 
-pub trait Widget {
+pub type Widgets = Vec<Box<dyn RenderableWidget>>;
+
+pub trait WidgetTrait {
     fn rect(&self) -> Rect {
         let pos = self.pos();
         let size = self.size();
@@ -31,8 +34,8 @@ pub trait Widget {
     fn set_pos(&mut self, position: PositionInPixels2d);
     fn set_size(&mut self, size: SizeInPixels2d);
     fn style(&self) -> &Style;
-    // fn children_mut(&mut self) -> Vec<&mut dyn Widget>;
-    // fn children(&mut self) -> Vec<&dyn Widget>;
+    fn children_mut(&mut self) -> &mut Widgets;
+    fn children(&self) -> &Widgets;
 }
 pub trait Renderable {
     fn render_interactive(&self, interaction: Interaction);
@@ -41,23 +44,56 @@ pub trait Renderable {
     }
     // fn render_generic?
 }
-pub trait RenderableWidget: Renderable + Widget {}
+pub trait RenderableWidget: Renderable + WidgetTrait {}
 
-#[derive(Copy, Clone)]
+impl<T: Renderable + WidgetTrait> RenderableWidget for T {}
+
+
 pub struct WidgetData<Custom> {
     pos: PositionInPixels2d,
     size: Option<SizeInPixels2d>,
     style: Style,
     pub custom: Custom,
+    pub children: Widgets,
     // TODO: children?
 }
 impl<Custom> WidgetData<Custom> {
-    pub fn new(style: Style, custom: Custom) -> Self {
+    pub fn container_custom(style: Style, custom: Custom, children: Widgets) -> Self {
         Self {
             pos: Default::default(),
             size: Default::default(),
             style,
             custom,
+            children,
+        }
+    }
+    pub fn leaf_custom(style: Style, custom: Custom) -> Self {
+        Self {
+            pos: Default::default(),
+            size: Default::default(),
+            style,
+            custom,
+            children: Vec::new(),
+        }
+    }
+}
+impl<Custom: Default> WidgetData<Custom> {
+    pub fn container(style: Style, children: Widgets) -> Self {
+        Self {
+            pos: Default::default(),
+            size: Default::default(),
+            style,
+            custom: Default::default(),
+            children,
+        }
+    }
+    pub fn leaf(style: Style) -> Self {
+        Self {
+            pos: Default::default(),
+            size: Default::default(),
+            style,
+            custom: Default::default(),
+            children: Vec::new(),
         }
     }
 }
@@ -68,10 +104,11 @@ impl<Custom: Default> Default for WidgetData<Custom> {
             size: Default::default(),
             style: Default::default(),
             custom: Default::default(),
+            children: Default::default(),
         }
     }
 }
-impl<Custom> Widget for WidgetData<Custom> {
+impl<Custom> WidgetTrait for WidgetData<Custom> {
     fn size(&self) -> SizeInPixels2d {
         if let Some(size) = self.size {
             size
@@ -92,6 +129,14 @@ impl<Custom> Widget for WidgetData<Custom> {
     }
     fn style(&self) -> &Style {
         &self.style
+    }
+
+    fn children_mut(&mut self) -> &mut Widgets {
+        &mut self.children
+    }
+
+    fn children(&self) -> &Widgets {
+        &self.children
     }
 }
 impl<Custom: Default> From<Style> for WidgetData<Custom> {
@@ -177,7 +222,7 @@ impl Ui {
     pub fn set_screen_size(&mut self, size: SizeInPixels2d) {
         self.screen_size = size;
     }
-    pub fn start_container<W: Widget>(&self, widget: W) -> Container<W> {
+    pub fn start_container<W: WidgetTrait>(&self, widget: W) -> Container<W> {
         Container {
             widget,
             max_size: self.screen_size,
@@ -185,12 +230,12 @@ impl Ui {
         }
     }
 }
-pub struct Container<W: Widget> {
+pub struct Container<W: WidgetTrait> {
     pub max_size: SizeInPixels2d,
     pub widget: W,
-    pub children: Vec<Box<dyn Widget>>,
+    pub children: Vec<Box<dyn WidgetTrait>>,
 }
-impl<W: Widget> Container<W> {
+impl<W: WidgetTrait> Container<W> {
     pub fn close(mut self) -> W {
         let style = self.widget.style();
         match style.size {
@@ -208,42 +253,42 @@ pub trait UiNodeTrait {
     
 }
 pub struct UiNode<'a, 'b> {
-    node_: &'a mut dyn Widget,
+    node_: &'a mut dyn WidgetTrait,
     children_: Vec<UiNode<'b, 'b>>,
 }
 impl<'a, 'b> UiNode<'a, 'b> {
-    pub fn node(&'_ mut self) -> &'_ mut dyn Widget {
+    pub fn node(&'_ mut self) -> &'_ mut dyn WidgetTrait {
         self.node_
     }
     pub fn children(&'_ mut self) -> &'_ mut Vec<UiNode<'b, 'b>> {
         &mut self.children_
     }
 }
-pub fn leaf(node: &mut dyn Widget) -> UiNode<'_, '_> {
+pub fn leaf(node: &mut dyn WidgetTrait) -> UiNode<'_, '_> {
     UiNode {
         node_: node,
         children_: Vec::new(),
     }
 }
-pub fn container<'a, 'b>(node: &'a mut dyn Widget, children: Vec<UiNode<'b, 'b>>) -> UiNode<'a, 'b> {
+pub fn container<'a, 'b>(node: &'a mut dyn WidgetTrait, children: Vec<UiNode<'b, 'b>>) -> UiNode<'a, 'b> {
     UiNode { node_: node, children_: children }
 }
 
-pub fn set_sizes(node: &mut UiNode) {
+pub fn set_sizes(node: &mut dyn RenderableWidget) {
     let mut accumulated_size = SizeInPixels2d::new(0.0, 0.0);
-    let style = {*node.node().style()};
+    let style = {*node.style()};
     let parallel = style.layout.parallel_index();
     let perpendicular = style.layout.perpendicular_index();
-    for child in  node.children() {
-        set_sizes(child);
-        let size = child.node().size();
+    for child in  node.children_mut() {
+        set_sizes(&mut **child);
+        let size = child.size();
         let margin = style.margin.vec2();
         accumulated_size[parallel] += size[parallel] + 2.0 * margin[parallel];
         accumulated_size[perpendicular] =
             accumulated_size[perpendicular].max(size[perpendicular] + 2.0 * margin[perpendicular]);
     }
-    accumulated_size += 2.0 * node.node().style().pad.vec2();
-    node.node().set_size(accumulated_size);
+    accumulated_size += 2.0 * node.style().pad.vec2();
+    node.set_size(accumulated_size);
     // println!(
     //     "size: {}, margin: {}, pad: {}",
     //     node.node().size(),
@@ -252,18 +297,18 @@ pub fn set_sizes(node: &mut UiNode) {
     // );
 }
 pub fn set_positions(
-    node: &mut UiNode,
+    node: &mut dyn RenderableWidget,
     outer_pos: PositionInPixels2d,
     outer_size: SizeInPixels2d,
     outer_style: &Style,
 ) -> PositionInPixels2d {
     let parallel = outer_style.layout.parallel_index();
     let perpendicular = outer_style.layout.perpendicular_index();
-    let margined_size = node.node().size() + node.node().style().margin.vec2() * 2.0;
+    let margined_size = node.size() + node.style().margin.vec2() * 2.0;
     let space = outer_size[perpendicular] - margined_size[perpendicular];
 
     let margined_pos = outer_pos;
-    let mut pos = margined_pos + node.node().style().margin.vec2();
+    let mut pos = margined_pos + node.style().margin.vec2();
     pos[perpendicular] += match outer_style.layout {
         Layout::Horizontal { alignment, .. } => match alignment {
             Vertical::Top => 0.0,
@@ -276,13 +321,13 @@ pub fn set_positions(
             Horizontal::Right => space,
         },
     };
-    node.node().set_pos(pos);
-    let padded_size = node.node().size() - node.node().style().pad.vec2() * 2.0;
-    let mut accumulated_pos = pos + node.node().style().pad.vec2();
-    let style = *node.node().style();
-    for child in  node.children() {
+    node.set_pos(pos);
+    let padded_size = node.size() - node.style().pad.vec2() * 2.0;
+    let mut accumulated_pos = pos + node.style().pad.vec2();
+    let style = *node.style();
+    for child in node.children_mut() {
         accumulated_pos[parallel] =
-            set_positions(child, accumulated_pos, padded_size, &style)[parallel];
+            set_positions(&mut **child, accumulated_pos, padded_size, &style)[parallel];
     }
     let rect = to_rect(margined_pos, margined_size);
     vec2(rect.right(), rect.bottom())

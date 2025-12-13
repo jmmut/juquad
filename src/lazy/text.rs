@@ -1,5 +1,5 @@
 use crate::lazy::{
-    add_contour, draw_debug_widget, Renderable, RenderableWidget, Style, Widget, WidgetData,
+    add_contour, draw_debug_widget, Renderable, RenderableWidget, Style, WidgetTrait, WidgetData,
 };
 use crate::widgets::text::draw_text_v;
 use crate::widgets::Interaction;
@@ -27,6 +27,7 @@ impl Text {
             size: Some(size),
             style,
             custom,
+            children: Vec::new(),
         }
     }
     pub fn render(&self) {
