@@ -1,5 +1,6 @@
 use crate::{PositionInPixels2d, SizeInPixels2d};
 use macroquad::math::{Rect, Vec2};
+use macroquad::prelude::vec2;
 
 /// An Anchor helps you define positions for rectangles.
 /// All f32 values are in pixels units, e.g. (800.0, 600.0). Top left is (0.0, 0.0).
@@ -165,23 +166,35 @@ impl Anchor {
     }
 
     pub fn below(other: Rect, alignment: Horizontal, pad_y: f32) -> Anchor {
-        let x = alignment.x(other);
-        Anchor::new(alignment, Vertical::Top, x, other.bottom() + pad_y)
+        Self::below_v(other, alignment, vec2(0.0, pad_y))
     }
     pub fn above(other: Rect, alignment: Horizontal, pad_y: f32) -> Anchor {
-        let x = alignment.x(other);
-        Anchor::new(alignment, Vertical::Bottom, x, other.top() - pad_y)
+        Self::above_v(other, alignment, vec2(0.0, pad_y))
     }
     pub fn rightwards(other: Rect, alignment: Vertical, pad_x: f32) -> Anchor {
-        let y = alignment.y(other);
-        Anchor::new(Horizontal::Left, alignment, other.right() + pad_x, y)
+        Self::rightwards_v(other, alignment, vec2(pad_x, 0.0))
     }
     pub fn leftwards(other: Rect, alignment: Vertical, pad_x: f32) -> Anchor {
-        let y = alignment.y(other);
-        Anchor::new(Horizontal::Right, alignment, other.left() - pad_x, y)
+        Self::leftwards_v(other, alignment, vec2(pad_x, 0.0))
+    }
+    pub fn below_v(other: Rect, alignment: Horizontal, pad: SizeInPixels2d) -> Anchor {
+        let x = alignment.x(other, pad);
+        Anchor::new(alignment, Vertical::Top, x, other.bottom() + pad.y)
+    }
+    pub fn above_v(other: Rect, alignment: Horizontal, pad: SizeInPixels2d) -> Anchor {
+        let x = alignment.x(other, pad);
+        Anchor::new(alignment, Vertical::Bottom, x, other.top() - pad.y)
+    }
+    pub fn rightwards_v(other: Rect, alignment: Vertical, pad: SizeInPixels2d) -> Anchor {
+        let y = alignment.y(other, pad);
+        Anchor::new(Horizontal::Left, alignment, other.right() + pad.x, y)
+    }
+    pub fn leftwards_v(other: Rect, alignment: Vertical, pad: SizeInPixels2d) -> Anchor {
+        let y = alignment.y(other, pad);
+        Anchor::new(Horizontal::Right, alignment, other.left() - pad.x, y)
     }
 
-    pub fn inside(other: Rect, layout: Layout, pad: f32) -> Anchor {
+    pub fn inside(other: Rect, layout: Layout, pad: SizeInPixels2d) -> Anchor {
         match layout {
             Layout::Horizontal {
                 direction,
@@ -206,21 +219,27 @@ impl Anchor {
         }
     }
 
-    pub fn from_top(other: Rect, alignment: Horizontal, pad_y: f32) -> Anchor {
-        let x = alignment.x(other);
-        Anchor::new(alignment, Vertical::Top, x, other.top() + pad_y)
+    pub fn from_top(other: Rect, alignment: Horizontal, pad: SizeInPixels2d) -> Anchor {
+        Self::inside_concrete(other, alignment, Vertical::Top, pad)
     }
-    pub fn from_bottom(other: Rect, alignment: Horizontal, pad_y: f32) -> Anchor {
-        let x = alignment.x(other);
-        Anchor::new(alignment, Vertical::Bottom, x, other.bottom() - pad_y)
+    pub fn from_bottom(other: Rect, alignment: Horizontal, pad: SizeInPixels2d) -> Anchor {
+        Self::inside_concrete(other, alignment, Vertical::Bottom, pad)
     }
-    pub fn from_left(other: Rect, alignment: Vertical, pad_x: f32) -> Anchor {
-        let y = alignment.y(other);
-        Anchor::new(Horizontal::Left, alignment, other.left() + pad_x, y)
+    pub fn from_left(other: Rect, alignment: Vertical, pad: SizeInPixels2d) -> Anchor {
+        Self::inside_concrete(other, Horizontal::Left, alignment, pad)
     }
-    pub fn from_right(other: Rect, alignment: Vertical, pad_x: f32) -> Anchor {
-        let y = alignment.y(other);
-        Anchor::new(Horizontal::Right, alignment, other.right() - pad_x, y)
+    pub fn from_right(other: Rect, alignment: Vertical, pad: SizeInPixels2d) -> Anchor {
+        Self::inside_concrete(other, Horizontal::Right, alignment, pad)
+    }
+    pub fn inside_concrete(
+        other: Rect,
+        horiz: Horizontal,
+        vert: Vertical,
+        pad: SizeInPixels2d,
+    ) -> Anchor {
+        let x = horiz.x(other, pad);
+        let y = vert.y(other, pad);
+        Anchor::new(horiz, vert, x, y)
     }
 }
 
@@ -262,11 +281,11 @@ impl Layout {
     }
 }
 impl Horizontal {
-    pub fn x(self, other: Rect) -> f32 {
+    pub fn x(self, other: Rect, pad: SizeInPixels2d) -> f32 {
         match self {
-            Self::Left => other.left(),
+            Self::Left => other.left() + pad.x,
             Self::Center => other.center().x,
-            Self::Right => other.right(),
+            Self::Right => other.right() - pad.x,
         }
     }
     pub fn opposite(self) -> Self {
@@ -279,11 +298,11 @@ impl Horizontal {
 }
 
 impl Vertical {
-    pub fn y(self, other: Rect) -> f32 {
+    pub fn y(self, other: Rect, pad: SizeInPixels2d) -> f32 {
         match self {
-            Self::Top => other.top(),
+            Self::Top => other.top() + pad.y,
             Self::Center => other.center().y,
-            Self::Bottom => other.bottom(),
+            Self::Bottom => other.bottom() - pad.y,
         }
     }
     pub fn opposite(self) -> Self {

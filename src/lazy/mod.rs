@@ -323,25 +323,28 @@ pub fn set_positions(
     outer_size: SizeInPixels2d,
     outer_style: &Style,
 ) -> PositionInPixels2d {
+    let outer_rect = to_rect(outer_pos, outer_size);
+    let pos_anchor = Anchor::inside(outer_rect, outer_style.layout, node.style().margin.vec2());
     let parallel = outer_style.layout.parallel_index();
     let perpendicular = outer_style.layout.perpendicular_index();
     let margined_size = node.size() + node.style().margin.vec2() * 2.0;
-    let space = outer_size[perpendicular] - margined_size[perpendicular];
-
+    // let space = outer_size[perpendicular] - margined_size[perpendicular];
+    //
     let margined_pos = outer_pos;
-    let mut pos = margined_pos + node.style().margin.vec2();
-    pos[perpendicular] += match outer_style.layout {
-        Layout::Horizontal { alignment, .. } => match alignment {
-            Vertical::Top => 0.0,
-            Vertical::Center => space * 0.5,
-            Vertical::Bottom => space,
-        },
-        Layout::Vertical { alignment, .. } => match alignment {
-            Horizontal::Left => 0.0,
-            Horizontal::Center => space * 0.5,
-            Horizontal::Right => space,
-        },
-    };
+    // let mut pos = margined_pos + node.style().margin.vec2();
+    // pos[perpendicular] += match outer_style.layout {
+    //     Layout::Horizontal { alignment, .. } => match alignment {
+    //         Vertical::Top => 0.0,
+    //         Vertical::Center => space * 0.5,
+    //         Vertical::Bottom => space,
+    //     },
+    //     Layout::Vertical { alignment, .. } => match alignment {
+    //         Horizontal::Left => 0.0,
+    //         Horizontal::Center => space * 0.5,
+    //         Horizontal::Right => space,
+    //     },
+    // };
+    let pos = pos_anchor.get_top_left_pixel(node.size());
     node.set_pos(pos);
     let padded_size = node.size() - node.style().pad.vec2() * 2.0;
     let mut accumulated_pos = pos + node.style().pad.vec2();

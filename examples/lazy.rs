@@ -26,6 +26,7 @@ struct Buttons {
     some_text_2: Text,
     some_text_3: Text,
     toggle_alignment: Button,
+    toggle_direction: Button,
     exit: Button,
 }
 impl Buttons {
@@ -36,6 +37,7 @@ impl Buttons {
             &self.some_text_2,
             &self.some_text_3,
             &self.toggle_alignment,
+            &self.toggle_direction,
             &self.exit,
         ]
     }
@@ -68,6 +70,7 @@ impl WidgetTrait for Buttons {
             &mut self.some_text_2,
             &mut self.some_text_3,
             &mut self.toggle_alignment,
+            &mut self.toggle_direction,
             &mut self.exit,
         ]
     }
@@ -78,6 +81,7 @@ impl WidgetTrait for Buttons {
             &self.some_text_2,
             &self.some_text_3,
             &self.toggle_alignment,
+            &self.toggle_direction,
             &self.exit,
         ]
     }
@@ -123,22 +127,11 @@ async fn main() {
             break;
         }
         if buttons.toggle_alignment.interact().is_clicked() {
-            match &mut style.layout {
-                Layout::Horizontal { alignment, .. } => {
-                    *alignment = match *alignment {
-                        Vertical::Top => Vertical::Center,
-                        Vertical::Center => Vertical::Bottom,
-                        Vertical::Bottom => Vertical::Top,
-                    };
-                }
-                Layout::Vertical { alignment, .. } => {
-                    *alignment = match *alignment {
-                        Horizontal::Left => Horizontal::Center,
-                        Horizontal::Center => Horizontal::Right,
-                        Horizontal::Right => Horizontal::Left,
-                    };
-                }
-            }
+            rotate_alignment(&mut style);
+            recalculate_ui = true;
+        }
+        if buttons.toggle_direction.interact().is_clicked() {
+            rotate_direction(&mut style);
             recalculate_ui = true;
         }
         if buttons.exit.interact().is_clicked() {
@@ -156,6 +149,36 @@ async fn main() {
     }
 }
 
+fn rotate_alignment(style: &mut Style) {
+    match &mut style.layout {
+        Layout::Horizontal { alignment, .. } => *alignment = next_v(*alignment),
+        Layout::Vertical { alignment, .. } => *alignment = next_h(*alignment),
+    }
+}
+
+fn rotate_direction(style: &mut Style) {
+    match &mut style.layout {
+        Layout::Horizontal { direction, .. } => *direction = next_h(*direction),
+        Layout::Vertical { direction, .. } => *direction = next_v(*direction),
+    }
+}
+
+fn next_v(direction: Vertical) -> Vertical {
+    match direction {
+        Vertical::Top => Vertical::Center,
+        Vertical::Center => Vertical::Bottom,
+        Vertical::Bottom => Vertical::Top,
+    }
+}
+
+fn next_h(direction: Horizontal) -> Horizontal {
+    match direction {
+        Horizontal::Left => Horizontal::Center,
+        Horizontal::Center => Horizontal::Right,
+        Horizontal::Right => Horizontal::Left,
+    }
+}
+
 fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
     let start = now();
 
@@ -163,28 +186,25 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
         font: None,
         ..style
     };
-    let start_text = now();
-    let text = Text::new_text(text_style, "asdf");
-    let text_2 = Text::new_text(text_style, "qwer");
-    let text_3 = Text::new_text(text_style, "QWER");
-    let toggle_text = Text::new_text(text_style, "Toggle alignment");
-    let exit_text = Text::new_text(text_style, "Exit");
-    print_time_since(start_text, "time measuring text");
+    print_time_since(now(), "time measuring text");
 
-    let toggle: Button = Button::container(style, vec![Box::new(toggle_text)]);
-    let exit: Button = Button::container(style, vec![Box::new(exit_text)]);
-
-    let panel = Panel::leaf(Style {
-        size: Size::Grow,
-        ..style
-    });
     let mut buttons = Buttons {
-        panel,
-        some_text: text,
-        some_text_2: text_2,
-        some_text_3: text_3,
-        toggle_alignment: toggle,
-        exit,
+        panel: Panel::leaf(Style {
+            size: Size::Grow,
+            ..style
+        }),
+        some_text: Text::new_text(text_style, "asdf"),
+        some_text_2: Text::new_text(text_style, "qwer"),
+        some_text_3: Text::new_text(text_style, "QWER"),
+        toggle_alignment: Button::container(
+            style,
+            vec![Box::new(Text::new_text(text_style, "Toggle alignment"))],
+        ),
+        toggle_direction: Button::container(
+            style,
+            vec![Box::new(Text::new_text(text_style, "Toggle direction"))],
+        ),
+        exit: Button::container(style, vec![Box::new(Text::new_text(text_style, "Exit"))]),
     };
 
     set_sizes(&mut buttons);
