@@ -1,5 +1,5 @@
 use crate::lazy::{
-    add_contour, draw_debug_widget, Renderable, RenderableWidget, Style, WidgetTrait, WidgetData,
+    add_contour, draw_debug_widget, Renderable, RenderableWidget, Style, WidgetData, WidgetTrait,
 };
 use crate::widgets::text::draw_text_v;
 use crate::widgets::Interaction;

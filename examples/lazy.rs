@@ -1,9 +1,13 @@
 use juquad::lazy::button::{Button, ButtonBase};
 use juquad::lazy::panel::Panel;
 use juquad::lazy::text::Text;
-use juquad::lazy::{container, leaf, set_positions, set_sizes, Pad, Renderable, RenderableWidget, Size, Style, WidgetData};
+use juquad::lazy::{
+    container, leaf, set_positions, set_sizes, Pad, Renderable, RenderableWidget, Size, Style,
+    WidgetData, WidgetTrait, WidgetsView, WidgetsViewMut,
+};
 use juquad::widgets::anchor::{Horizontal, Layout, Vertical};
-use juquad::SizeInPixels2d;
+use juquad::widgets::Interaction;
+use juquad::{PositionInPixels2d, SizeInPixels2d};
 use macroquad::miniquad::date::now;
 use macroquad::prelude::{
     clear_background, is_key_pressed, is_mouse_button_pressed, mouse_position, next_frame,
@@ -35,7 +39,54 @@ impl Buttons {
             &self.exit,
         ]
     }
-    pub fn render(&self) {
+}
+
+impl WidgetTrait for Buttons {
+    fn size(&self) -> SizeInPixels2d {
+        self.panel.size()
+    }
+
+    fn pos(&self) -> PositionInPixels2d {
+        self.panel.pos()
+    }
+
+    fn set_pos(&mut self, position: PositionInPixels2d) {
+        self.panel.set_pos(position)
+    }
+
+    fn set_size(&mut self, size: SizeInPixels2d) {
+        self.panel.set_size(size)
+    }
+
+    fn style(&self) -> &Style {
+        self.panel.style()
+    }
+
+    fn children_mut(&mut self) -> WidgetsViewMut<'_> {
+        vec![
+            &mut self.some_text,
+            &mut self.some_text_2,
+            &mut self.some_text_3,
+            &mut self.toggle_alignment,
+            &mut self.exit,
+        ]
+    }
+
+    fn children(&self) -> WidgetsView<'_> {
+        vec![
+            &self.some_text,
+            &self.some_text_2,
+            &self.some_text_3,
+            &self.toggle_alignment,
+            &self.exit,
+        ]
+    }
+}
+impl Renderable for Buttons {
+    fn render_interactive(&self, _interaction: Interaction) {
+        self.render()
+    }
+    fn render(&self) {
         for widget in self.widgets() {
             widget.render();
         }
@@ -71,9 +122,7 @@ async fn main() {
         if is_key_pressed(KeyCode::Escape) {
             break;
         }
-        if false 
-        // buttons.toggle_alignment.interact().is_clicked() 
-        {
+        if buttons.toggle_alignment.interact().is_clicked() {
             match &mut style.layout {
                 Layout::Horizontal { alignment, .. } => {
                     *alignment = match *alignment {
@@ -92,9 +141,7 @@ async fn main() {
             }
             recalculate_ui = true;
         }
-        if false
-        // buttons.exit.interact().is_clicked() 
-        {
+        if buttons.exit.interact().is_clicked() {
             break;
         }
 
@@ -109,7 +156,7 @@ async fn main() {
     }
 }
 
-fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Panel {
+fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
     let start = now();
 
     let text_style = Style {
@@ -117,32 +164,34 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Panel {
         ..style
     };
     let start_text = now();
-    let mut text = Text::new_text(text_style, "asdf");
-    let mut text_2 = Text::new_text(text_style, "qwer");
-    let mut text_3 = Text::new_text(text_style, "QWER");
-    let mut toggle_text = Text::new_text(text_style, "Toggle alignment");
-    let mut exit_text = Text::new_text(text_style, "Exit");
+    let text = Text::new_text(text_style, "asdf");
+    let text_2 = Text::new_text(text_style, "qwer");
+    let text_3 = Text::new_text(text_style, "QWER");
+    let toggle_text = Text::new_text(text_style, "Toggle alignment");
+    let exit_text = Text::new_text(text_style, "Exit");
     print_time_since(start_text, "time measuring text");
 
-    let mut toggle: Button = Button::container(style, vec![Box::new(toggle_text)]);
-    let mut exit: Button = Button::container(style, vec![Box::new(exit_text)]);
+    let toggle: Button = Button::container(style, vec![Box::new(toggle_text)]);
+    let exit: Button = Button::container(style, vec![Box::new(exit_text)]);
 
-    let mut panel= Panel::container(Style {
+    let panel = Panel::leaf(Style {
         size: Size::Grow,
         ..style
-    }, vec![
-        Box::new(text),
-        Box::new(text_2),
-        Box::new(text_3),
-        Box::new(toggle),
-        Box::new(exit),
-    ]);
+    });
+    let mut buttons = Buttons {
+        panel,
+        some_text: text,
+        some_text_2: text_2,
+        some_text_3: text_3,
+        toggle_alignment: toggle,
+        exit,
+    };
 
-    set_sizes(&mut panel);
-    set_positions(&mut panel, vec2(0.0, 0.0), screen, &style);
+    set_sizes(&mut buttons);
+    set_positions(&mut buttons, vec2(0.0, 0.0), screen, &style);
 
     print_time_since(start, "rebuilt ui in");
-    panel
+    buttons
 }
 
 fn print_time_since(_start_seconds: f64, _name: &str) {

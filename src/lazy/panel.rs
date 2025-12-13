@@ -1,5 +1,5 @@
 use crate::draw::draw_rect;
-use crate::lazy::{draw_debug_widget, Renderable, WidgetTrait, WidgetData};
+use crate::lazy::{draw_debug_widget, Renderable, WidgetData, WidgetTrait};
 use crate::widgets::Interaction;
 
 pub type Panel = WidgetData<PanelBase>;

@@ -1,11 +1,11 @@
 use crate::draw::{draw_rect_lines, to_rect};
+use crate::lazy::button::ButtonBase;
 use crate::widgets::anchor::{Anchor, Horizontal, Layout, Vertical};
 use crate::widgets::text::Pixels;
 use crate::widgets::{Interaction, Style as Coloring};
 use crate::{PositionInPixels2d, SizeInPixels2d};
 use macroquad::color::{Color, BLACK, BLUE, ORANGE};
 use macroquad::prelude::{vec2, Font, Rect, Vec2};
-use crate::lazy::button::ButtonBase;
 
 pub mod button;
 pub mod panel;
@@ -14,6 +14,9 @@ pub mod text;
 pub const DEFAULT_FONT_SIZE: f32 = 16.0;
 
 pub type Widgets = Vec<Box<dyn RenderableWidget>>;
+// pub type WidgetsViewMut<'a, 'b> = Vec<&'a mut (dyn RenderableWidget + 'b)>;
+pub type WidgetsViewMut<'a> = Vec<&'a mut dyn RenderableWidget>;
+pub type WidgetsView<'a> = Vec<&'a dyn RenderableWidget>;
 
 pub trait WidgetTrait {
     fn rect(&self) -> Rect {
@@ -34,8 +37,10 @@ pub trait WidgetTrait {
     fn set_pos(&mut self, position: PositionInPixels2d);
     fn set_size(&mut self, size: SizeInPixels2d);
     fn style(&self) -> &Style;
-    fn children_mut(&mut self) -> &mut Widgets;
-    fn children(&self) -> &Widgets;
+    // fn children_mut(&mut self) -> &mut Widgets;
+    // fn children(&self) -> &Widgets;
+    fn children_mut(&mut self) -> WidgetsViewMut;
+    fn children(&self) -> WidgetsView;
 }
 pub trait Renderable {
     fn render_interactive(&self, interaction: Interaction);
@@ -47,7 +52,6 @@ pub trait Renderable {
 pub trait RenderableWidget: Renderable + WidgetTrait {}
 
 impl<T: Renderable + WidgetTrait> RenderableWidget for T {}
-
 
 pub struct WidgetData<Custom> {
     pos: PositionInPixels2d,
@@ -131,14 +135,27 @@ impl<Custom> WidgetTrait for WidgetData<Custom> {
         &self.style
     }
 
-    fn children_mut(&mut self) -> &mut Widgets {
-        &mut self.children
+    // fn children_mut(&mut self) -> &mut Widgets {
+    //     &mut self.children
+    // }
+    //
+    // fn children(&self) -> &Widgets {
+    //     &self.children
+    // }
+    fn children_mut(&mut self) -> WidgetsViewMut {
+        self.children
+            .iter_mut()
+            .map(|child| child.as_mut() as &mut dyn RenderableWidget)
+            .collect()
     }
-
-    fn children(&self) -> &Widgets {
-        &self.children
+    fn children(&self) -> WidgetsView {
+        self.children
+            .iter()
+            .map(|child| child.as_ref() as &dyn RenderableWidget)
+            .collect()
     }
 }
+
 impl<Custom: Default> From<Style> for WidgetData<Custom> {
     fn from(style: Style) -> Self {
         Self {
@@ -249,9 +266,7 @@ impl<W: WidgetTrait> Container<W> {
         self.widget
     }
 }
-pub trait UiNodeTrait {
-    
-}
+pub trait UiNodeTrait {}
 pub struct UiNode<'a, 'b> {
     node_: &'a mut dyn WidgetTrait,
     children_: Vec<UiNode<'b, 'b>>,
@@ -270,17 +285,23 @@ pub fn leaf(node: &mut dyn WidgetTrait) -> UiNode<'_, '_> {
         children_: Vec::new(),
     }
 }
-pub fn container<'a, 'b>(node: &'a mut dyn WidgetTrait, children: Vec<UiNode<'b, 'b>>) -> UiNode<'a, 'b> {
-    UiNode { node_: node, children_: children }
+pub fn container<'a, 'b>(
+    node: &'a mut dyn WidgetTrait,
+    children: Vec<UiNode<'b, 'b>>,
+) -> UiNode<'a, 'b> {
+    UiNode {
+        node_: node,
+        children_: children,
+    }
 }
 
 pub fn set_sizes(node: &mut dyn RenderableWidget) {
     let mut accumulated_size = SizeInPixels2d::new(0.0, 0.0);
-    let style = {*node.style()};
+    let style = { *node.style() };
     let parallel = style.layout.parallel_index();
     let perpendicular = style.layout.perpendicular_index();
-    for child in  node.children_mut() {
-        set_sizes(&mut **child);
+    for child in node.children_mut() {
+        set_sizes(child);
         let size = child.size();
         let margin = style.margin.vec2();
         accumulated_size[parallel] += size[parallel] + 2.0 * margin[parallel];
@@ -327,7 +348,7 @@ pub fn set_positions(
     let style = *node.style();
     for child in node.children_mut() {
         accumulated_pos[parallel] =
-            set_positions(&mut **child, accumulated_pos, padded_size, &style)[parallel];
+            set_positions(child, accumulated_pos, padded_size, &style)[parallel];
     }
     let rect = to_rect(margined_pos, margined_size);
     vec2(rect.right(), rect.bottom())

@@ -1,7 +1,7 @@
 use crate::draw::draw_rect;
 use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
-use crate::lazy::{draw_debug_widget, Renderable, Style, WidgetTrait, WidgetData};
+use crate::lazy::{draw_debug_widget, Renderable, Style, WidgetData, WidgetTrait};
 use crate::widgets::button::draw_panel_border;
 use crate::widgets::text::TextRect;
 use crate::widgets::{interact, Interaction};
