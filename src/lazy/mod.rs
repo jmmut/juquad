@@ -11,6 +11,7 @@ pub mod panel;
 pub mod text;
 
 pub const DEFAULT_FONT_SIZE: f32 = 16.0;
+pub static mut DEBUG_WIDGETS: bool = false;
 
 pub type Widgets = Vec<Box<dyn RenderableWidget>>;
 // pub type WidgetsViewMut<'a, 'b> = Vec<&'a mut (dyn RenderableWidget + 'b)>;
@@ -38,8 +39,8 @@ pub trait WidgetTrait {
     fn style(&self) -> &Style;
     // fn children_mut(&mut self) -> &mut Widgets;
     // fn children(&self) -> &Widgets;
-    fn children_mut(&mut self) -> WidgetsViewMut;
-    fn children(&self) -> WidgetsView;
+    fn children_mut(&mut self) -> WidgetsViewMut<'_>;
+    fn children(&self) -> WidgetsView<'_>;
 }
 pub trait Renderable {
     fn render_interactive(&self, interaction: Interaction);
@@ -141,13 +142,13 @@ impl<Custom> WidgetTrait for WidgetData<Custom> {
     // fn children(&self) -> &Widgets {
     //     &self.children
     // }
-    fn children_mut(&mut self) -> WidgetsViewMut {
+    fn children_mut(&mut self) -> WidgetsViewMut<'_> {
         self.children
             .iter_mut()
             .map(|child| child.as_mut() as &mut dyn RenderableWidget)
             .collect()
     }
-    fn children(&self) -> WidgetsView {
+    fn children(&self) -> WidgetsView<'_> {
         self.children
             .iter()
             .map(|child| child.as_ref() as &dyn RenderableWidget)

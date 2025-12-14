@@ -4,7 +4,7 @@ use juquad::lazy::panel::Panel;
 use juquad::lazy::text::Text;
 use juquad::lazy::{
     set_positions, set_sizes, Pad, Renderable, RenderableWidget, Size, Style, WidgetTrait,
-    WidgetsView, WidgetsViewMut,
+    WidgetsView, WidgetsViewMut, DEBUG_WIDGETS,
 };
 use juquad::widgets::anchor::{Anchor, Horizontal, Spot, Vertical};
 use juquad::widgets::Interaction;
@@ -24,10 +24,10 @@ struct Buttons {
     //     change_font: Button,
     //     toggle_borders: Button,
     some_text: Text,
-    some_text_2: Text,
     toggle_alignment: Button,
     toggle_direction: Button,
     rotate_layout: Button,
+    toggle_debug: Button,
     exit: Button,
 }
 impl Buttons {
@@ -35,10 +35,10 @@ impl Buttons {
         vec![
             &self.panel,
             &self.some_text,
-            &self.some_text_2,
             &self.toggle_alignment,
             &self.toggle_direction,
             &self.rotate_layout,
+            &self.toggle_debug,
             &self.exit,
         ]
     }
@@ -68,10 +68,10 @@ impl WidgetTrait for Buttons {
     fn children_mut(&mut self) -> WidgetsViewMut<'_> {
         vec![
             &mut self.some_text,
-            &mut self.some_text_2,
             &mut self.toggle_alignment,
             &mut self.toggle_direction,
             &mut self.rotate_layout,
+            &mut self.toggle_debug,
             &mut self.exit,
         ]
     }
@@ -108,7 +108,7 @@ async fn main() {
     let mut recalculate_ui = false;
     let mut buttons = rebuild_ui(screen, style);
     loop {
-        let start = now();
+        let _start = now();
         let new_screen = vec2(screen_width(), screen_height());
         if new_screen != screen {
             screen = new_screen;
@@ -134,6 +134,12 @@ async fn main() {
             rotate_layout(&mut style);
             recalculate_ui = true;
         }
+        if buttons.toggle_debug.interact().is_clicked() {
+            unsafe {
+                DEBUG_WIDGETS = !DEBUG_WIDGETS;
+            }
+            recalculate_ui = true;
+        }
         if buttons.exit.interact().is_clicked() {
             break;
         }
@@ -144,7 +150,7 @@ async fn main() {
         if is_mouse_button_pressed(MouseButton::Left) {
             println!("{:?}", mouse_position())
         }
-        print_time_since(start, "frame took");
+        // print_time_since(_start, "frame took");
         next_frame().await
     }
 }
@@ -212,7 +218,6 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
             ..style
         }),
         some_text: Text::new_text(text_style, "asdf"),
-        some_text_2: Text::new_text(text_style, "qwer"),
         toggle_alignment: Button::container(
             style,
             vec![Box::new(Text::new_text(text_style, "Toggle alignment"))],
@@ -224,6 +229,10 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
         rotate_layout: Button::container(
             style,
             vec![Box::new(Text::new_text(text_style, "Rotate layout"))],
+        ),
+        toggle_debug: Button::container(
+            style,
+            vec![Box::new(Text::new_text(text_style, "Debug widgets"))],
         ),
         exit: Button::container(style, vec![Box::new(Text::new_text(text_style, "Exit"))]),
     };

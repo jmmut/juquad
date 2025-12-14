@@ -1,5 +1,5 @@
 use crate::draw::draw_rect;
-use crate::lazy::{draw_debug_widget, Renderable, WidgetData, WidgetTrait};
+use crate::lazy::{draw_debug_widget, Renderable, WidgetData, WidgetTrait, DEBUG_WIDGETS};
 use crate::widgets::Interaction;
 
 pub type Panel = WidgetData<PanelBase>;
@@ -14,7 +14,9 @@ impl Renderable for Panel {
     fn render(&self) {
         let widget = self;
         draw_rect(widget.rect(), self.style().coloring.at_rest.bg_color);
-        draw_debug_widget(widget);
+        if unsafe { DEBUG_WIDGETS } {
+            draw_debug_widget(widget);
+        }
         for child in self.children() {
             child.render();
         }

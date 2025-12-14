@@ -68,10 +68,11 @@ pub enum Direction {
 //         alignment: Horizontal,
 //     },
 // }
+
 pub struct LayoutV2 {
-    direction: Direction,
-    sense: Sense,
-    alignment: Spot,
+    pub direction: Direction,
+    pub sense: Sense,
+    pub alignment: Spot,
 }
 
 use Horizontal as H;

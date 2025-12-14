@@ -1,4 +1,6 @@
-use crate::lazy::{add_contour, draw_debug_widget, Renderable, Style, WidgetData, WidgetTrait};
+use crate::lazy::{
+    add_contour, draw_debug_widget, Renderable, Style, WidgetData, WidgetTrait, DEBUG_WIDGETS,
+};
 use crate::widgets::text::draw_text_v;
 use crate::widgets::Interaction;
 use crate::SizeInPixels2d;
@@ -54,7 +56,9 @@ fn size_text(text: &str, style: &Style) -> SizeInPixels2d {
 }
 fn render_text(widget: &Text, reference_height: f32, text: &str, interaction: Interaction) {
     let rect_pad = add_contour(widget.rect(), -widget.style.pad.vec2());
-    draw_debug_widget(widget);
+    if unsafe { DEBUG_WIDGETS } {
+        draw_debug_widget(widget);
+    }
 
     // draw_text() draws from the baseline of the text
     // https://en.wikipedia.org/wiki/Baseline_(typography)
