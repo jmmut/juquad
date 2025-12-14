@@ -1,26 +1,37 @@
 use crate::lazy::{
     add_contour, draw_debug_widget, Renderable, Style, WidgetData, WidgetTrait, DEBUG_WIDGETS,
 };
-use crate::widgets::text::draw_text_v;
+use crate::widgets::text::{draw_text_v, MeasureText};
 use crate::widgets::Interaction;
 use crate::SizeInPixels2d;
 use macroquad::math::Vec2;
-use macroquad::prelude::{measure_text, vec2};
+use macroquad::prelude::vec2;
 
 pub type Text = WidgetData<TextBase>;
+pub type RenderText = fn(widget: &Text, interaction: Interaction);
 
 pub struct TextBase {
     pub text: String,
     pub reference_height: f32,
+    pub render_text: RenderText,
 }
 impl Text {
-    pub fn new_text(style: Style, text: &str) -> Self {
-        let mut size = size_text(text, &style);
+    pub fn new(style: Style, text: &str) -> Self {
+        Self::new_generic(style, text, macroquad::text::measure_text, render_text)
+    }
+    pub fn new_generic(
+        style: Style,
+        text: &str,
+        measure_text: MeasureText,
+        render_text: RenderText,
+    ) -> Self {
+        let mut size = size_text(text, &style, measure_text);
         let reference_height = size.y;
         size += 2.0 * style.pad.vec2();
         let custom = TextBase {
             text: text.to_string(),
             reference_height,
+            render_text,
         };
         Self {
             pos: Default::default(),
@@ -36,16 +47,11 @@ impl Text {
 }
 impl Renderable for Text {
     fn render_interactive(&self, interaction: Interaction) {
-        render_text(
-            self,
-            self.custom.reference_height,
-            &self.custom.text,
-            interaction,
-        );
+        (self.custom.render_text)(self, interaction);
     }
 }
 
-fn size_text(text: &str, style: &Style) -> SizeInPixels2d {
+pub fn size_text(text: &str, style: &Style, measure_text: MeasureText) -> SizeInPixels2d {
     // font_size doesn't seem to be in pixels across fonts
     let reference_size = measure_text("Odp", style.font, style.font_size as u16, 1.0);
     let reference_height = reference_size.height;
@@ -54,7 +60,9 @@ fn size_text(text: &str, style: &Style) -> SizeInPixels2d {
     let size = Vec2::new(text_dimensions.width.round(), reference_height.round());
     size
 }
-fn render_text(widget: &Text, reference_height: f32, text: &str, interaction: Interaction) {
+pub fn render_text(widget: &Text, interaction: Interaction) {
+    let reference_height = widget.custom.reference_height;
+    let text = &widget.custom.text;
     let rect_pad = add_contour(widget.rect(), -widget.style.pad.vec2());
     if unsafe { DEBUG_WIDGETS } {
         draw_debug_widget(widget);

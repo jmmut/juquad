@@ -145,6 +145,7 @@ pub fn draw_text_rect_generic(text_rect: &TextRect, style: &StateStyle, draw_tex
 pub type DrawText =
     fn(text: &str, x: f32, y: f32, font_size: f32, style: &StateStyle, font: Option<Font>);
 
+/// Here the x and y are the baseline of the text as macroquad expects.
 pub fn draw_text(
     text: &str,
     x: f32,

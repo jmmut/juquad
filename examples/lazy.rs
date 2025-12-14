@@ -6,7 +6,7 @@ use juquad::lazy::{
     set_positions, set_sizes, Pad, Renderable, RenderableWidget, Size, Style, WidgetTrait,
     WidgetsView, WidgetsViewMut, DEBUG_WIDGETS,
 };
-use juquad::widgets::anchor::{Anchor, Horizontal, Spot, Vertical};
+use juquad::widgets::anchor::{Anchor, Horizontal, Layout, Spot, Vertical};
 use juquad::widgets::Interaction;
 use juquad::{PositionInPixels2d, SizeInPixels2d};
 use macroquad::miniquad::date::now;
@@ -208,6 +208,22 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
 
     let text_style = Style {
         font: None,
+        pad: Pad::Asymmetric {
+            x: style.pad.vec2().x,
+            y: style.pad.vec2().y * 0.5,
+        },
+        margin: Pad::Asymmetric {
+            x: style.margin.vec2().x,
+            y: 0.0,
+        },
+        ..style
+    };
+    let button_style = Style {
+        layout: Layout::Horizontal {
+            direction: Horizontal::Right,
+            alignment: Vertical::Center,
+        },
+        pad: Pad::Symmetric(0.0),
         ..style
     };
     print_time_since(now(), "time measuring text");
@@ -217,24 +233,24 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
             size: Size::Grow,
             ..style
         }),
-        some_text: Text::new_text(text_style, "asdf"),
+        some_text: Text::new(text_style, "Title"),
         toggle_alignment: Button::container(
-            style,
-            vec![Box::new(Text::new_text(text_style, "Toggle alignment"))],
+            button_style,
+            vec![Box::new(Text::new(text_style, "Toggle alignment"))],
         ),
         toggle_direction: Button::container(
-            style,
-            vec![Box::new(Text::new_text(text_style, "Toggle direction"))],
+            button_style,
+            vec![Box::new(Text::new(text_style, "Toggle direction"))],
         ),
         rotate_layout: Button::container(
-            style,
-            vec![Box::new(Text::new_text(text_style, "Rotate layout"))],
+            button_style,
+            vec![Box::new(Text::new(text_style, "Rotate layout"))],
         ),
         toggle_debug: Button::container(
-            style,
-            vec![Box::new(Text::new_text(text_style, "Debug widgets"))],
+            button_style,
+            vec![Box::new(Text::new(text_style, "Debug widgets"))],
         ),
-        exit: Button::container(style, vec![Box::new(Text::new_text(text_style, "Exit"))]),
+        exit: Button::container(button_style, vec![Box::new(Text::new(text_style, "Exit"))]),
     };
 
     set_sizes(&mut buttons);

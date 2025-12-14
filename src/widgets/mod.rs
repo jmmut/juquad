@@ -1,7 +1,8 @@
 use crate::input::input_trait::InputTrait;
 use crate::widgets::anchor::Anchor;
 use crate::{PositionInPixels2d, SizeInPixels2d};
-use macroquad::color::{BLACK, DARKGRAY, GRAY, LIGHTGRAY, WHITE};
+use macroquad::color::BLACK;
+use macroquad::color_u8;
 use macroquad::prelude::{Color, MouseButton, Rect};
 
 pub mod anchor;
@@ -10,6 +11,26 @@ pub mod button;
 pub mod button_group;
 pub mod text;
 pub mod texture_button;
+
+pub const fn from_hexes<const N: usize>(hexes: &[u32]) -> [Color; N] {
+    let mut colors = [BLACK; N];
+    let mut i = 0;
+    while i < colors.len() {
+        colors[i] = from_hex(hexes[i]);
+        i += 1;
+    }
+    colors
+}
+
+const fn from_hex(hex: u32) -> Color {
+    color_u8!(hex / 0x10000, hex / 0x100 % 0x100, hex % 0x100, 255)
+}
+
+pub const WHITE_BLUE_BACKGROUND: Color = from_hex(0xF5F6FB);
+pub const LIGHT_BLUE_BACKGROUND: Color = from_hex(0xA7B5DD);
+pub const MID_BLUE_BACKGROUND: Color = from_hex(0x5D78B2);
+pub const DARK_BLUE_BACKGROUND: Color = from_hex(0x284168);
+pub const BLACK_BLUE_BACKGROUND: Color = from_hex(0x030913);
 
 pub trait Widget {
     fn rect(&self) -> Rect;
@@ -51,19 +72,19 @@ impl Style {
     pub const fn new() -> Self {
         Self {
             at_rest: StateStyle {
-                bg_color: LIGHTGRAY,
-                text_color: BLACK,
-                border_color: DARKGRAY,
+                bg_color: LIGHT_BLUE_BACKGROUND,
+                text_color: BLACK_BLUE_BACKGROUND,
+                border_color: DARK_BLUE_BACKGROUND,
             },
             hovered: StateStyle {
-                bg_color: WHITE,
-                text_color: BLACK,
-                border_color: LIGHTGRAY,
+                bg_color: WHITE_BLUE_BACKGROUND,
+                text_color: BLACK_BLUE_BACKGROUND,
+                border_color: LIGHT_BLUE_BACKGROUND,
             },
             pressed: StateStyle {
-                bg_color: GRAY,
-                text_color: WHITE,
-                border_color: DARKGRAY,
+                bg_color: MID_BLUE_BACKGROUND,
+                text_color: WHITE_BLUE_BACKGROUND,
+                border_color: DARK_BLUE_BACKGROUND,
             },
         }
     }

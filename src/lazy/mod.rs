@@ -370,3 +370,56 @@ fn draw_debug_widget<C>(widget_data: &WidgetData<C>) {
         draw_rect_lines(drawn_rect, DEBUGGING_THICKNESS, rect_color);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::lazy::button::Button;
+    use crate::lazy::panel::Panel;
+    use crate::lazy::text::{render_text, Text};
+    use macroquad::prelude::TextDimensions;
+
+    fn mock_measure(
+        text: &str,
+        _font: Option<Font>,
+        font_size: u16,
+        font_scale: f32,
+    ) -> TextDimensions {
+        let font_size = font_size as f32 * font_scale;
+        let height_to_width_coef = 0.75;
+        let height_to_offset_coef = 0.75;
+        TextDimensions {
+            width: height_to_width_coef * font_size * text.len() as f32,
+            height: font_size,
+            offset_y: height_to_offset_coef * font_size,
+        }
+    }
+    #[test]
+    fn test_basic_layout() {
+        let style = Style::default();
+        fn text(style: Style, s: &str) -> Box<Text> {
+            Box::new(Text::new_generic(style, s, mock_measure, render_text))
+        }
+        let mut panel = Panel::container(
+            style,
+            vec![
+                text(style, "some text"),
+                Box::new(Button::container(style, vec![text(style, "some button")])),
+            ],
+        );
+        set_sizes(&mut panel);
+        set_positions(&mut panel, Anchor::center(1000.0, 500.0));
+        assert_eq!(panel.rect(), Rect::new(854.0, 372.0, 292.0, 256.0));
+        assert_eq!(
+            panel.children()[0].rect(),
+            Rect::new(930.0, 404.0, 140.0, 48.0)
+        );
+
+        let button = panel.children()[1];
+        assert_eq!(button.rect(), Rect::new(886.0, 484.0, 228.0, 112.0));
+        assert_eq!(
+            button.children()[0].rect(),
+            Rect::new(918.0, 516.0, 164.0, 48.0)
+        );
+    }
+}
