@@ -8,6 +8,7 @@ use macroquad::prelude::{vec2, Font, Rect, Vec2};
 
 pub mod button;
 pub mod panel;
+pub mod slider;
 pub mod text;
 
 pub const DEFAULT_FONT_SIZE: f32 = 16.0;
@@ -43,7 +44,10 @@ pub trait WidgetTrait {
     fn children(&self) -> WidgetsView<'_>;
 }
 pub trait Renderable {
-    fn render_interactive(&self, interaction: Interaction);
+    /// parent_interaction is the state of the parent, e.g. if the nested text inside a button
+    /// needs to be rendered differently if the button is clicked. If a widget provides its own
+    /// interaction, this parameter can be ignored.
+    fn render_interactive(&self, parent_interaction: Interaction);
     fn render(&self) {
         self.render_interactive(Interaction::None)
     }

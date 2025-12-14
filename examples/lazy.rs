@@ -1,6 +1,7 @@
 use juquad::draw::to_rect;
 use juquad::lazy::button::Button;
 use juquad::lazy::panel::Panel;
+use juquad::lazy::slider::Slider;
 use juquad::lazy::text::Text;
 use juquad::lazy::{
     set_positions, set_sizes, Pad, Renderable, RenderableWidget, Size, Style, WidgetTrait,
@@ -28,6 +29,7 @@ struct Buttons {
     toggle_direction: Button,
     rotate_layout: Button,
     toggle_debug: Button,
+    pad: Slider,
     exit: Button,
 }
 impl Buttons {
@@ -35,6 +37,7 @@ impl Buttons {
         vec![
             &self.panel,
             &self.some_text,
+            &self.pad,
             &self.toggle_alignment,
             &self.toggle_direction,
             &self.rotate_layout,
@@ -68,6 +71,7 @@ impl WidgetTrait for Buttons {
     fn children_mut(&mut self) -> WidgetsViewMut<'_> {
         vec![
             &mut self.some_text,
+            &mut self.pad,
             &mut self.toggle_alignment,
             &mut self.toggle_direction,
             &mut self.rotate_layout,
@@ -140,6 +144,14 @@ async fn main() {
             }
             recalculate_ui = true;
         }
+        let pad = style.pad.vec2();
+        if !float_eq(buttons.pad.interact(), style.pad.vec2().y, 0.01) {
+            style.pad = Pad::Asymmetric {
+                x: pad.x,
+                y: buttons.pad.custom.current,
+            };
+            recalculate_ui = true;
+        }
         if buttons.exit.interact().is_clicked() {
             break;
         }
@@ -153,6 +165,9 @@ async fn main() {
         // print_time_since(_start, "frame took");
         next_frame().await
     }
+}
+fn float_eq(a: f32, b: f32, epsilon: f32) -> bool {
+    (a - b).abs() < epsilon
 }
 
 fn rotate_alignment(style: &mut Style) {
@@ -226,7 +241,6 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
         pad: Pad::Symmetric(0.0),
         ..style
     };
-    print_time_since(now(), "time measuring text");
 
     let mut buttons = Buttons {
         panel: Panel::leaf(Style {
@@ -250,6 +264,7 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
             button_style,
             vec![Box::new(Text::new(text_style, "Debug widgets"))],
         ),
+        pad: Slider::new(style, 0.0, 50.0, style.pad.vec2().y),
         exit: Button::container(button_style, vec![Box::new(Text::new(text_style, "Exit"))]),
     };
 
