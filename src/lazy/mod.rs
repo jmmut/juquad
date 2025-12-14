@@ -178,22 +178,22 @@ pub enum Size {
 }
 
 #[derive(Copy, Clone)]
-pub enum Pad {
-    Symmetric(f32),
-    Asymmetric { x: f32, y: f32 },
+pub struct Pad {
+    x: f32,
+    y: f32,
 }
 impl Pad {
+    pub fn new(x: f32, y: f32) -> Self {
+        Self { x, y} 
+    }
+    pub fn new_symmetric(pad: f32) -> Self {
+        Self::new(pad, pad)
+    }
     pub fn position(&self, position: PositionInPixels2d) -> PositionInPixels2d {
-        match self {
-            Pad::Symmetric(pad) => position + vec2(*pad, *pad),
-            Pad::Asymmetric { x, y } => position + vec2(*x, *y),
-        }
+        position + vec2(self.x, self.y)
     }
     pub fn vec2(&self) -> SizeInPixels2d {
-        match self {
-            Pad::Symmetric(pad) => vec2(*pad, *pad),
-            Pad::Asymmetric { x, y } => vec2(*x, *y),
-        }
+        vec2(self.x, self.y)
     }
 }
 #[derive(Copy, Clone)]
@@ -209,8 +209,8 @@ pub struct Style {
 impl Default for Style {
     fn default() -> Self {
         Self {
-            pad: Pad::Symmetric(DEFAULT_FONT_SIZE),
-            margin: Pad::Symmetric(DEFAULT_FONT_SIZE),
+            pad: Pad::new_symmetric(DEFAULT_FONT_SIZE),
+            margin: Pad::new_symmetric(DEFAULT_FONT_SIZE),
             layout: Layout::Vertical {
                 direction: Vertical::Bottom,
                 alignment: Horizontal::Center,

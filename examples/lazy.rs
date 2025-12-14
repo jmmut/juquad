@@ -29,7 +29,7 @@ struct Buttons {
     toggle_direction: Button,
     rotate_layout: Button,
     toggle_debug: Button,
-    pad: Slider,
+    pad_y: Slider,
     exit: Button,
 }
 impl Buttons {
@@ -37,7 +37,7 @@ impl Buttons {
         vec![
             &self.panel,
             &self.some_text,
-            &self.pad,
+            &self.pad_y,
             &self.toggle_alignment,
             &self.toggle_direction,
             &self.rotate_layout,
@@ -71,7 +71,7 @@ impl WidgetTrait for Buttons {
     fn children_mut(&mut self) -> WidgetsViewMut<'_> {
         vec![
             &mut self.some_text,
-            &mut self.pad,
+            &mut self.pad_y,
             &mut self.toggle_alignment,
             &mut self.toggle_direction,
             &mut self.rotate_layout,
@@ -100,7 +100,7 @@ impl Renderable for Buttons {
 #[macroquad::main("juquad button group")]
 async fn main() {
     let font_size: f32 = 22.0;
-    let pad = Pad::Symmetric(10.0);
+    let pad = Pad::new_symmetric(10.0);
     let mut style = Style {
         font_size,
         pad,
@@ -145,11 +145,11 @@ async fn main() {
             recalculate_ui = true;
         }
         let pad = style.pad.vec2();
-        if !float_eq(buttons.pad.interact(), style.pad.vec2().y, 0.01) {
-            style.pad = Pad::Asymmetric {
-                x: pad.x,
-                y: buttons.pad.custom.current,
-            };
+        if !float_eq(buttons.pad_y.interact(), style.pad.vec2().y, 0.01) {
+            style.pad = Pad::new(
+                pad.x,
+                buttons.pad_y.custom.current,
+            );
             recalculate_ui = true;
         }
         if buttons.exit.interact().is_clicked() {
@@ -223,25 +223,31 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
 
     let text_style = Style {
         font: None,
-        pad: Pad::Asymmetric {
-            x: style.pad.vec2().x,
-            y: style.pad.vec2().y * 0.5,
-        },
-        margin: Pad::Asymmetric {
-            x: style.margin.vec2().x,
-            y: 0.0,
-        },
+        pad: Pad::new(
+            style.pad.vec2().x,
+            style.pad.vec2().y * 0.5,
+        ),
+        margin: Pad::new(
+            style.margin.vec2().x,
+            0.0,
+            ),
         ..style
+    };
+    let horizontal_layout = Layout::Horizontal {
+        direction: Horizontal::Right,
+        alignment: Vertical::Center,
     };
     let button_style = Style {
-        layout: Layout::Horizontal {
-            direction: Horizontal::Right,
-            alignment: Vertical::Center,
-        },
-        pad: Pad::Symmetric(0.0),
+        layout: horizontal_layout,
+        pad: Pad::new_symmetric(0.0),
         ..style
     };
-
+    let slider_container_style = Style {
+        pad: Pad::new_symmetric(0.0),
+        margin: Pad::new_symmetric(0.0),
+        layout: horizontal_layout,
+        ..style
+    };
     let mut buttons = Buttons {
         panel: Panel::leaf(Style {
             size: Size::Grow,
@@ -264,7 +270,7 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
             button_style,
             vec![Box::new(Text::new(text_style, "Debug widgets"))],
         ),
-        pad: Slider::new(style, 0.0, 50.0, style.pad.vec2().y),
+        pad_y: Slider::new(style, 0.0, 50.0, style.pad.vec2().y),
         exit: Button::container(button_style, vec![Box::new(Text::new(text_style, "Exit"))]),
     };
 
