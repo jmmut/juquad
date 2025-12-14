@@ -37,6 +37,42 @@ pub enum Layout {
         alignment: Horizontal,
     },
 }
+// pub struct Spot2d {
+//     horizontal: Horizontal,
+//     vertical: Vertical,
+// }
+// pub struct Spot2d {
+//     horizontal: Spot,
+//     vertical: Spot,
+// }
+pub enum Spot {
+    Beginning,
+    Center,
+    End,
+}
+pub enum Sense {
+    Forwards,
+    Backwards,
+}
+pub enum Direction {
+    Horizontal,
+    Vertical,
+}
+// pub enum Layout {
+//     Horizontal {
+//         direction: Direction,
+//         alignment: Vertical,
+//     },
+//     Vertical {
+//         direction: Direction,
+//         alignment: Horizontal,
+//     },
+// }
+pub struct LayoutV2 {
+    direction: Direction,
+    sense: Sense,
+    alignment: Spot,
+}
 
 use Horizontal as H;
 use Vertical as V;
@@ -140,16 +176,16 @@ impl Anchor {
         Rect::new(pos.x, pos.y, size.x, size.y)
     }
 
-    pub fn next_to(other: Rect, layout: Layout, pad: f32) -> Anchor {
+    pub fn next_to(other: Rect, layout: Layout, margin: f32) -> Anchor {
         match layout {
             Layout::Horizontal {
                 direction,
                 alignment,
             } => {
                 if direction == Horizontal::Left {
-                    Self::leftwards(other, alignment, pad)
+                    Self::leftwards(other, alignment, margin)
                 } else {
-                    Self::rightwards(other, alignment, pad)
+                    Self::rightwards(other, alignment, margin)
                 }
             }
             Layout::Vertical {
@@ -157,9 +193,9 @@ impl Anchor {
                 alignment,
             } => {
                 if direction == Vertical::Top {
-                    Self::above(other, alignment, pad)
+                    Self::above(other, alignment, margin)
                 } else {
-                    Self::below(other, alignment, pad)
+                    Self::below(other, alignment, margin)
                 }
             }
         }
@@ -178,21 +214,27 @@ impl Anchor {
         Self::leftwards_v(other, alignment, vec2(pad_x, 0.0))
     }
     pub fn below_v(other: Rect, alignment: Horizontal, pad: SizeInPixels2d) -> Anchor {
-        let x = alignment.x(other, pad);
+        let x = alignment.x_pad(other, pad);
         Anchor::new(alignment, Vertical::Top, x, other.bottom() + pad.y)
     }
     pub fn above_v(other: Rect, alignment: Horizontal, pad: SizeInPixels2d) -> Anchor {
-        let x = alignment.x(other, pad);
+        let x = alignment.x_pad(other, pad);
         Anchor::new(alignment, Vertical::Bottom, x, other.top() - pad.y)
     }
     pub fn rightwards_v(other: Rect, alignment: Vertical, pad: SizeInPixels2d) -> Anchor {
-        let y = alignment.y(other, pad);
+        let y = alignment.y_pad(other, pad);
         Anchor::new(Horizontal::Left, alignment, other.right() + pad.x, y)
     }
     pub fn leftwards_v(other: Rect, alignment: Vertical, pad: SizeInPixels2d) -> Anchor {
-        let y = alignment.y(other, pad);
+        let y = alignment.y_pad(other, pad);
         Anchor::new(Horizontal::Right, alignment, other.left() - pad.x, y)
     }
+    // wrong: next_to is crossed, one dimension is inside the other outside
+    // pub fn next_to_concrete(other: Rect, horiz: Horizontal, vert: Vertical, margin: SizeInPixels2d) -> Anchor {
+    //     let x = horiz.x_margin(other, margin);
+    //     let y = vert.y_margin(other, margin);
+    //     Anchor::new(horiz, vert, x, y)
+    // }
 
     pub fn inside(other: Rect, layout: Layout, pad: SizeInPixels2d) -> Anchor {
         match layout {
@@ -200,21 +242,23 @@ impl Anchor {
                 direction,
                 alignment,
             } => {
-                if direction == Horizontal::Left {
-                    Self::from_right(other, alignment, pad)
-                } else {
-                    Self::from_left(other, alignment, pad)
-                }
+                // if direction == Horizontal::Left {
+                //     Self::from_right(other, alignment, pad)
+                // } else {
+                //     Self::from_left(other, alignment, pad)
+                // }
+                Self::inside_concrete(other, direction.opposite(), alignment, pad)
             }
             Layout::Vertical {
                 direction,
                 alignment,
             } => {
-                if direction == Vertical::Top {
-                    Self::from_bottom(other, alignment, pad)
-                } else {
-                    Self::from_top(other, alignment, pad)
-                }
+                // if direction == Vertical::Top {
+                //     Self::from_bottom(other, alignment, pad)
+                // } else {
+                //     Self::from_top(other, alignment, pad)
+                // }
+                Self::inside_concrete(other, alignment, direction.opposite(), pad)
             }
         }
     }
@@ -237,8 +281,8 @@ impl Anchor {
         vert: Vertical,
         pad: SizeInPixels2d,
     ) -> Anchor {
-        let x = horiz.x(other, pad);
-        let y = vert.y(other, pad);
+        let x = horiz.x_pad(other, pad);
+        let y = vert.y_pad(other, pad);
         Anchor::new(horiz, vert, x, y)
     }
 }
@@ -279,15 +323,185 @@ impl Layout {
             Layout::Vertical { .. } => 0,
         }
     }
+    pub fn get_horiz(&self) -> Horizontal {
+        match self {
+            Layout::Horizontal { direction, .. } => *direction,
+            Layout::Vertical { alignment, .. } => *alignment,
+        }
+    }
+    pub fn get_vert(&self) -> Vertical {
+        match self {
+            Layout::Vertical { direction, .. } => *direction,
+            Layout::Horizontal { alignment, .. } => *alignment,
+        }
+    }
+    #[must_use]
+    pub fn transpose(
+        self,
+        transform_h: fn(horiz: Horizontal) -> Vertical,
+        transform_v: fn(vert: Vertical) -> Horizontal,
+    ) -> Self {
+        let horiz: Horizontal = transform_v(self.get_vert());
+        let vert: Vertical = transform_h(self.get_horiz());
+        self.opposite(horiz, vert)
+        // match self {
+        //     Layout::Horizontal {
+        //         direction,
+        //         alignment,
+        //     } => {
+        //         let direction = transform_h(direction);
+        //         let alignment = transform_v(alignment);
+        //         Layout::Vertical {
+        //             direction,
+        //             alignment,
+        //         }
+        //     }
+        //     Layout::Vertical {
+        //         direction,
+        //         alignment,
+        //     } => {
+        //         let direction = transform_v(direction);
+        //         let alignment = transform_h(alignment);
+        //         Layout::Horizontal {
+        //             direction,
+        //             alignment,
+        //         }
+        //     }
+        // }
+    }
+    #[must_use]
+    pub fn opposite(self, horiz: Horizontal, vert: Vertical) -> Self {
+        match self {
+            Layout::Horizontal { .. } => Layout::Vertical {
+                direction: vert,
+                alignment: horiz,
+            },
+            Layout::Vertical { .. } => Layout::Horizontal {
+                direction: horiz,
+                alignment: vert,
+            },
+        }
+    }
+    pub fn get_alignment(&self) -> Spot {
+        match self {
+            Layout::Horizontal { alignment, .. } => (*alignment).into(),
+            Layout::Vertical { alignment, .. } => (*alignment).into(),
+        }
+    }
+    #[must_use]
+    pub fn with_alignment(self, alignment: Spot) -> Self {
+        match self {
+            Layout::Horizontal { direction, .. } => Layout::Horizontal {
+                alignment: alignment.into(),
+                direction,
+            },
+            Layout::Vertical { direction, .. } => Layout::Vertical {
+                alignment: alignment.into(),
+                direction,
+            },
+        }
+    }
+    #[must_use]
+    pub fn map_alignment(self, alignment_f: fn(Spot) -> Spot) -> Self {
+        match self {
+            Layout::Horizontal {
+                alignment,
+                direction,
+            } => Layout::Horizontal {
+                direction,
+                alignment: alignment_f(alignment.into()).into(),
+            },
+            Layout::Vertical {
+                alignment,
+                direction,
+            } => Layout::Vertical {
+                direction,
+                alignment: alignment_f(alignment.into()).into(),
+            },
+        }
+    }
+    pub fn get_direction(&self) -> Spot {
+        match self {
+            Layout::Horizontal { direction, .. } => (*direction).into(),
+            Layout::Vertical { direction, .. } => (*direction).into(),
+        }
+    }
+    #[must_use]
+    pub fn with_direction(self, direction: Spot) -> Self {
+        match self {
+            Layout::Horizontal { alignment, .. } => Layout::Horizontal {
+                direction: direction.into(),
+                alignment,
+            },
+            Layout::Vertical { alignment, .. } => Layout::Vertical {
+                direction: direction.into(),
+                alignment,
+            },
+        }
+    }
+    #[must_use]
+    pub fn map_direction(self, direction_f: fn(Spot) -> Spot) -> Self {
+        match self {
+            Layout::Horizontal {
+                alignment,
+                direction,
+            } => Layout::Horizontal {
+                direction: direction_f(direction.into()).into(),
+                alignment,
+            },
+            Layout::Vertical {
+                alignment,
+                direction,
+            } => Layout::Vertical {
+                direction: direction_f(direction.into()).into(),
+                alignment,
+            },
+        }
+    }
+    #[must_use]
+    pub fn map_h_v(
+        self,
+        transform_h: fn(horiz: Horizontal) -> Horizontal,
+        transform_v: fn(vert: Vertical) -> Vertical,
+    ) -> Self {
+        match self {
+            Layout::Horizontal {
+                direction,
+                alignment,
+            } => {
+                let direction = transform_h(direction);
+                let alignment = transform_v(alignment);
+                Layout::Horizontal {
+                    direction,
+                    alignment,
+                }
+            }
+            Layout::Vertical {
+                direction,
+                alignment,
+            } => {
+                let direction = transform_v(direction);
+                let alignment = transform_h(alignment);
+                Layout::Vertical {
+                    direction,
+                    alignment,
+                }
+            }
+        }
+    }
 }
 impl Horizontal {
-    pub fn x(self, other: Rect, pad: SizeInPixels2d) -> f32 {
+    pub fn x_pad(self, other: Rect, pad: SizeInPixels2d) -> f32 {
         match self {
             Self::Left => other.left() + pad.x,
             Self::Center => other.center().x,
             Self::Right => other.right() - pad.x,
         }
     }
+    pub fn x_margin(self, other: Rect, margin: SizeInPixels2d) -> f32 {
+        self.x_pad(other, -margin)
+    }
+    #[must_use]
     pub fn opposite(self) -> Self {
         match self {
             Self::Left => Self::Right,
@@ -295,21 +509,111 @@ impl Horizontal {
             Self::Right => Self::Left,
         }
     }
+    #[must_use]
+    pub fn next(self) -> Horizontal {
+        match self {
+            Horizontal::Left => Horizontal::Center,
+            Horizontal::Center => Horizontal::Right,
+            Horizontal::Right => Horizontal::Left,
+        }
+    }
+    #[must_use]
+    pub fn rotate(self) -> Vertical {
+        match self {
+            Horizontal::Left => Vertical::Bottom,
+            Horizontal::Center => Vertical::Center,
+            Horizontal::Right => Vertical::Top,
+        }
+    }
 }
 
 impl Vertical {
-    pub fn y(self, other: Rect, pad: SizeInPixels2d) -> f32 {
+    pub fn y_pad(self, other: Rect, pad: SizeInPixels2d) -> f32 {
         match self {
             Self::Top => other.top() + pad.y,
             Self::Center => other.center().y,
             Self::Bottom => other.bottom() - pad.y,
         }
     }
+    pub fn y_margin(self, other: Rect, margin: SizeInPixels2d) -> f32 {
+        self.y_pad(other, -margin)
+    }
+    #[must_use]
     pub fn opposite(self) -> Self {
         match self {
             Self::Top => Self::Bottom,
             Self::Center => Self::Center,
             Self::Bottom => Self::Top,
+        }
+    }
+    #[must_use]
+    pub fn next(self) -> Vertical {
+        match self {
+            Vertical::Top => Vertical::Center,
+            Vertical::Center => Vertical::Bottom,
+            Vertical::Bottom => Vertical::Top,
+        }
+    }
+    #[must_use]
+    pub fn rotate(self) -> Horizontal {
+        match self {
+            Self::Top => Horizontal::Left,
+            Self::Center => Horizontal::Center,
+            Self::Bottom => Horizontal::Right,
+        }
+    }
+}
+impl From<Horizontal> for Spot {
+    fn from(value: Horizontal) -> Self {
+        match value {
+            Horizontal::Left => Spot::Beginning,
+            Horizontal::Center => Spot::Center,
+            Horizontal::Right => Spot::End,
+        }
+    }
+}
+impl From<Vertical> for Spot {
+    fn from(value: Vertical) -> Self {
+        match value {
+            Vertical::Top => Spot::Beginning,
+            Vertical::Center => Spot::Center,
+            Vertical::Bottom => Spot::End,
+        }
+    }
+}
+impl From<Spot> for Horizontal {
+    fn from(value: Spot) -> Self {
+        match value {
+            Spot::Beginning => Horizontal::Left,
+            Spot::Center => Horizontal::Center,
+            Spot::End => Horizontal::Right,
+        }
+    }
+}
+impl From<Spot> for Vertical {
+    fn from(value: Spot) -> Self {
+        match value {
+            Spot::Beginning => Vertical::Top,
+            Spot::Center => Vertical::Center,
+            Spot::End => Vertical::Bottom,
+        }
+    }
+}
+impl Spot {
+    #[must_use]
+    pub fn opposite(self) -> Self {
+        match self {
+            Self::Beginning => Self::End,
+            Self::Center => Self::Center,
+            Self::End => Self::Beginning,
+        }
+    }
+    #[must_use]
+    pub fn next(self) -> Self {
+        match self {
+            Self::Beginning => Self::Center,
+            Self::Center => Self::End,
+            Self::End => Self::Beginning,
         }
     }
 }

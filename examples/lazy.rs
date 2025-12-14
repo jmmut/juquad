@@ -1,11 +1,12 @@
-use juquad::lazy::button::{Button, ButtonBase};
+use juquad::draw::to_rect;
+use juquad::lazy::button::Button;
 use juquad::lazy::panel::Panel;
 use juquad::lazy::text::Text;
 use juquad::lazy::{
-    container, leaf, set_positions, set_sizes, Pad, Renderable, RenderableWidget, Size, Style,
-    WidgetData, WidgetTrait, WidgetsView, WidgetsViewMut,
+    set_positions, set_sizes, Pad, Renderable, RenderableWidget, Size, Style, WidgetTrait,
+    WidgetsView, WidgetsViewMut,
 };
-use juquad::widgets::anchor::{Horizontal, Layout, Vertical};
+use juquad::widgets::anchor::{Anchor, Horizontal, Spot, Vertical};
 use juquad::widgets::Interaction;
 use juquad::{PositionInPixels2d, SizeInPixels2d};
 use macroquad::miniquad::date::now;
@@ -24,20 +25,20 @@ struct Buttons {
     //     toggle_borders: Button,
     some_text: Text,
     some_text_2: Text,
-    some_text_3: Text,
     toggle_alignment: Button,
     toggle_direction: Button,
+    rotate_layout: Button,
     exit: Button,
 }
 impl Buttons {
-    pub fn widgets(&self) -> Vec<&dyn Renderable> {
+    pub fn widgets(&self) -> Vec<&dyn RenderableWidget> {
         vec![
             &self.panel,
             &self.some_text,
             &self.some_text_2,
-            &self.some_text_3,
             &self.toggle_alignment,
             &self.toggle_direction,
+            &self.rotate_layout,
             &self.exit,
         ]
     }
@@ -68,22 +69,17 @@ impl WidgetTrait for Buttons {
         vec![
             &mut self.some_text,
             &mut self.some_text_2,
-            &mut self.some_text_3,
             &mut self.toggle_alignment,
             &mut self.toggle_direction,
+            &mut self.rotate_layout,
             &mut self.exit,
         ]
     }
 
     fn children(&self) -> WidgetsView<'_> {
-        vec![
-            &self.some_text,
-            &self.some_text_2,
-            &self.some_text_3,
-            &self.toggle_alignment,
-            &self.toggle_direction,
-            &self.exit,
-        ]
+        let mut iter = self.widgets().into_iter();
+        iter.next();
+        iter.collect()
     }
 }
 impl Renderable for Buttons {
@@ -131,7 +127,11 @@ async fn main() {
             recalculate_ui = true;
         }
         if buttons.toggle_direction.interact().is_clicked() {
-            rotate_direction(&mut style);
+            flip_direction(&mut style);
+            recalculate_ui = true;
+        }
+        if buttons.rotate_layout.interact().is_clicked() {
+            rotate_layout(&mut style);
             recalculate_ui = true;
         }
         if buttons.exit.interact().is_clicked() {
@@ -150,33 +150,51 @@ async fn main() {
 }
 
 fn rotate_alignment(style: &mut Style) {
-    match &mut style.layout {
-        Layout::Horizontal { alignment, .. } => *alignment = next_v(*alignment),
-        Layout::Vertical { alignment, .. } => *alignment = next_h(*alignment),
-    }
+    style.layout = style.layout.map_alignment(Spot::next);
+    // match &mut style.layout {
+    //     Layout::Horizontal { alignment, .. } => *alignment = alignment.next(),
+    //     Layout::Vertical { alignment, .. } => *alignment = alignment.next(),
+    // }
 }
 
+#[allow(unused)]
 fn rotate_direction(style: &mut Style) {
-    match &mut style.layout {
-        Layout::Horizontal { direction, .. } => *direction = next_h(*direction),
-        Layout::Vertical { direction, .. } => *direction = next_v(*direction),
-    }
+    // match &mut style.layout {
+    //     Layout::Horizontal { direction, .. } => *direction = direction.next(),
+    //     Layout::Vertical { direction, .. } => *direction = direction.next(),
+    // }
+    style.layout = style.layout.map_direction(Spot::next);
 }
 
-fn next_v(direction: Vertical) -> Vertical {
-    match direction {
-        Vertical::Top => Vertical::Center,
-        Vertical::Center => Vertical::Bottom,
-        Vertical::Bottom => Vertical::Top,
-    }
+fn flip_direction(style: &mut Style) {
+    // match &mut style.layout {
+    //     Layout::Horizontal { direction, .. } => *direction = direction.opposite(),
+    //     Layout::Vertical { direction, .. } => *direction = direction.opposite(),
+    // }
+    // style.layout = style
+    //     .layout
+    //     .with_direction(style.layout.get_direction().opposite())
+    style.layout = style.layout.map_direction(Spot::opposite)
 }
 
-fn next_h(direction: Horizontal) -> Horizontal {
-    match direction {
-        Horizontal::Left => Horizontal::Center,
-        Horizontal::Center => Horizontal::Right,
-        Horizontal::Right => Horizontal::Left,
-    }
+fn rotate_layout(style: &mut Style) {
+    // style.layout = match &mut style.layout {
+    //     Layout::Horizontal {
+    //         direction,
+    //         alignment,
+    //     } => Layout::Vertical {
+    //         direction: direction.rotate(),
+    //         alignment: alignment.rotate(),
+    //     },
+    //     Layout::Vertical {
+    //         direction,
+    //         alignment,
+    //     } => Layout::Horizontal {
+    //         direction: direction.rotate(),
+    //         alignment: alignment.rotate(),
+    //     },
+    // };
+    style.layout = style.layout.transpose(Horizontal::rotate, Vertical::rotate)
 }
 
 fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
@@ -195,7 +213,6 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
         }),
         some_text: Text::new_text(text_style, "asdf"),
         some_text_2: Text::new_text(text_style, "qwer"),
-        some_text_3: Text::new_text(text_style, "QWER"),
         toggle_alignment: Button::container(
             style,
             vec![Box::new(Text::new_text(text_style, "Toggle alignment"))],
@@ -204,11 +221,17 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
             style,
             vec![Box::new(Text::new_text(text_style, "Toggle direction"))],
         ),
+        rotate_layout: Button::container(
+            style,
+            vec![Box::new(Text::new_text(text_style, "Rotate layout"))],
+        ),
         exit: Button::container(style, vec![Box::new(Text::new_text(text_style, "Exit"))]),
     };
 
     set_sizes(&mut buttons);
-    set_positions(&mut buttons, vec2(0.0, 0.0), screen, &style);
+    let screen_rect = to_rect(vec2(0.0, 0.0), screen);
+    let anchor = Anchor::inside(screen_rect, style.layout, vec2(0.0, 0.0));
+    set_positions(&mut buttons, anchor);
 
     print_time_since(start, "rebuilt ui in");
     buttons
@@ -216,5 +239,5 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
 
 fn print_time_since(_start_seconds: f64, _name: &str) {
     let _end = now();
-    // println!("{} {:.3} ms", name, (end - start_seconds) * 1000.0);
+    println!("{} {:.3} ms", _name, (_end - _start_seconds) * 1000.0);
 }

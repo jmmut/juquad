@@ -1,6 +1,4 @@
-use crate::lazy::{
-    add_contour, draw_debug_widget, Renderable, RenderableWidget, Style, WidgetData, WidgetTrait,
-};
+use crate::lazy::{add_contour, draw_debug_widget, Renderable, Style, WidgetData, WidgetTrait};
 use crate::widgets::text::draw_text_v;
 use crate::widgets::Interaction;
 use crate::SizeInPixels2d;

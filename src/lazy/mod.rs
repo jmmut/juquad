@@ -1,5 +1,4 @@
 use crate::draw::{draw_rect_lines, to_rect};
-use crate::lazy::button::ButtonBase;
 use crate::widgets::anchor::{Anchor, Horizontal, Layout, Vertical};
 use crate::widgets::text::Pixels;
 use crate::widgets::{Interaction, Style as Coloring};
@@ -317,44 +316,22 @@ pub fn set_sizes(node: &mut dyn RenderableWidget) {
     //     node.node().style().pad.vec2()
     // );
 }
-pub fn set_positions(
-    node: &mut dyn RenderableWidget,
-    outer_pos: PositionInPixels2d,
-    outer_size: SizeInPixels2d,
-    outer_style: &Style,
-) -> PositionInPixels2d {
-    let outer_rect = to_rect(outer_pos, outer_size);
-    let pos_anchor = Anchor::inside(outer_rect, outer_style.layout, node.style().margin.vec2());
-    let parallel = outer_style.layout.parallel_index();
-    let perpendicular = outer_style.layout.perpendicular_index();
+pub fn set_positions(node: &mut dyn RenderableWidget, outer_anchor: Anchor) -> Rect {
     let margined_size = node.size() + node.style().margin.vec2() * 2.0;
-    // let space = outer_size[perpendicular] - margined_size[perpendicular];
-    //
-    let margined_pos = outer_pos;
-    // let mut pos = margined_pos + node.style().margin.vec2();
-    // pos[perpendicular] += match outer_style.layout {
-    //     Layout::Horizontal { alignment, .. } => match alignment {
-    //         Vertical::Top => 0.0,
-    //         Vertical::Center => space * 0.5,
-    //         Vertical::Bottom => space,
-    //     },
-    //     Layout::Vertical { alignment, .. } => match alignment {
-    //         Horizontal::Left => 0.0,
-    //         Horizontal::Center => space * 0.5,
-    //         Horizontal::Right => space,
-    //     },
-    // };
-    let pos = pos_anchor.get_top_left_pixel(node.size());
+    let margined_pos = outer_anchor.get_top_left_pixel(margined_size);
+    let pos = margined_pos + node.style().margin.vec2();
     node.set_pos(pos);
-    let padded_size = node.size() - node.style().pad.vec2() * 2.0;
-    let mut accumulated_pos = pos + node.style().pad.vec2();
+
+    // the first child has to Anchor::inside, and the next ones need to Anchor::next_to, so create an empty rect as first child
+    let initial_anchor = Anchor::inside(node.rect(), node.style().layout, node.style().pad.vec2());
+    let zero2d = SizeInPixels2d::default();
+    let mut previous_rect = to_rect(initial_anchor.get_top_left_pixel(zero2d), zero2d);
     let style = *node.style();
     for child in node.children_mut() {
-        accumulated_pos[parallel] =
-            set_positions(child, accumulated_pos, padded_size, &style)[parallel];
+        let anchor = Anchor::next_to(previous_rect, style.layout, 0.0);
+        previous_rect = set_positions(child, anchor);
     }
-    let rect = to_rect(margined_pos, margined_size);
-    vec2(rect.right(), rect.bottom())
+    to_rect(margined_pos, margined_size)
 }
 
 pub fn add_contour(rect: Rect, size: SizeInPixels2d) -> Rect {
@@ -363,6 +340,7 @@ pub fn add_contour(rect: Rect, size: SizeInPixels2d) -> Rect {
     let center = rect.center();
     for i in 0..1 {
         if new_size[i] < 0.0 {
+            // size reduced so much that the rect flips. collapse rather than invert
             new_position[i] = center[i];
             new_size[i] = 0.0;
         }
