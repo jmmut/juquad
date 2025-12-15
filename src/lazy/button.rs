@@ -2,10 +2,12 @@ use crate::draw::draw_rect;
 use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
 use crate::lazy::{
-    draw_debug_widget, Renderable, Style, WidgetData, WidgetTrait, Widgets, DEBUG_WIDGETS,
+    draw_debug_widget, Interactable, Renderable, Style, WidgetData, WidgetTrait, Widgets,
+    DEBUG_WIDGETS,
 };
 use crate::widgets::button::draw_panel_border;
 use crate::widgets::{interact, Interaction};
+use std::any::Any;
 
 pub type Button = WidgetData<ButtonBase>;
 pub type RenderButton = fn(widget: &Button, interaction: Interaction);
@@ -58,6 +60,11 @@ impl Button {
 impl Renderable for Button {
     fn render_interactive(&self, interaction: Interaction) {
         (self.custom.render_button)(self, interaction)
+    }
+}
+impl Interactable for Button {
+    fn interact(&mut self) -> Vec<Box<dyn Any>> {
+        vec![Box::new(self.interact())]
     }
 }
 

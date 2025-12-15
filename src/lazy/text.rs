@@ -1,5 +1,6 @@
 use crate::lazy::{
-    add_contour, draw_debug_widget, Renderable, Style, WidgetData, WidgetTrait, DEBUG_WIDGETS,
+    add_contour, draw_debug_widget, Interactable, Renderable, Style, WidgetData, WidgetTrait,
+    DEBUG_WIDGETS,
 };
 use crate::widgets::text::{draw_text_v, MeasureText};
 use crate::widgets::Interaction;
@@ -50,6 +51,7 @@ impl Renderable for Text {
         (self.custom.render_text)(self, interaction);
     }
 }
+impl Interactable for Text {}
 
 pub fn size_text(text: &str, style: &Style, measure_text: MeasureText) -> SizeInPixels2d {
     // font_size doesn't seem to be in pixels across fonts

@@ -5,6 +5,7 @@ use crate::widgets::{Interaction, Style as Coloring};
 use crate::{PositionInPixels2d, SizeInPixels2d};
 use macroquad::color::{Color, BLACK, BLUE, ORANGE};
 use macroquad::prelude::{vec2, Font, Rect, Vec2};
+use std::any::Any;
 
 pub mod button;
 pub mod panel;
@@ -37,6 +38,7 @@ pub trait WidgetTrait {
     }
     fn set_pos(&mut self, position: PositionInPixels2d);
     fn set_size(&mut self, size: SizeInPixels2d);
+
     fn style(&self) -> &Style;
     // fn children_mut(&mut self) -> &mut Widgets;
     // fn children(&self) -> &Widgets;
@@ -53,9 +55,14 @@ pub trait Renderable {
     }
     // fn render_generic?
 }
-pub trait RenderableWidget: Renderable + WidgetTrait {}
+pub trait Interactable {
+    fn interact(&mut self) -> Vec<Box<dyn Any>> {
+        Vec::new()
+    } // Any: I give up with the static typing
+}
+pub trait RenderableWidget: Renderable + WidgetTrait + Interactable {}
 
-impl<T: Renderable + WidgetTrait> RenderableWidget for T {}
+impl<T: Renderable + WidgetTrait + Interactable> RenderableWidget for T {}
 
 pub struct WidgetData<Custom> {
     pos: PositionInPixels2d,
@@ -184,7 +191,7 @@ pub struct Pad {
 }
 impl Pad {
     pub fn new(x: f32, y: f32) -> Self {
-        Self { x, y} 
+        Self { x, y }
     }
     pub fn new_symmetric(pad: f32) -> Self {
         Self::new(pad, pad)

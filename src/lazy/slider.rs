@@ -1,12 +1,15 @@
 use crate::draw::{draw_rect, draw_rect_lines};
 use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
-use crate::lazy::{draw_debug_widget, Renderable, Style, WidgetData, WidgetTrait, DEBUG_WIDGETS};
+use crate::lazy::{
+    draw_debug_widget, Interactable, Renderable, Style, WidgetData, WidgetTrait, DEBUG_WIDGETS,
+};
 use crate::widgets::Interaction;
 use crate::SizeInPixels2d;
 use macroquad::input::MouseButton;
 use macroquad::math::vec2;
 use macroquad::prelude::Rect;
+use std::any::Any;
 
 pub type Slider = WidgetData<SliderBase>;
 pub type RenderSlider = fn(widget: &Slider, interaction: Interaction);
@@ -63,7 +66,12 @@ impl Slider {
         }
     }
 
-    pub fn interact(&mut self) -> f32 {
+    fn handle_width(&self) -> f32 {
+        self.rect().h * 0.62
+    }
+}
+impl Interactable for Slider {
+    fn interact(&mut self) -> Vec<Box<dyn Any>> {
         let max = self.custom.max;
         let min = self.custom.min;
         let current = self.custom.current;
@@ -94,10 +102,7 @@ impl Slider {
         self.custom.interaction = interaction;
         let render_pos = Some(render_pos.clamp(min, max));
         self.custom.current = range * render_pos.unwrap() + min;
-        self.custom.current
-    }
-    fn handle_width(&self) -> f32 {
-        self.rect().h * 0.62
+        vec![Box::new(self.custom.current)]
     }
 }
 

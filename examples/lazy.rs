@@ -4,8 +4,8 @@ use juquad::lazy::panel::Panel;
 use juquad::lazy::slider::Slider;
 use juquad::lazy::text::Text;
 use juquad::lazy::{
-    set_positions, set_sizes, Pad, Renderable, RenderableWidget, Size, Style, WidgetTrait,
-    WidgetsView, WidgetsViewMut, DEBUG_WIDGETS,
+    set_positions, set_sizes, Interactable, Pad, Renderable, RenderableWidget, Size, Style,
+    WidgetTrait, WidgetsView, WidgetsViewMut, DEBUG_WIDGETS,
 };
 use juquad::widgets::anchor::{Anchor, Horizontal, Layout, Spot, Vertical};
 use juquad::widgets::Interaction;
@@ -29,7 +29,7 @@ struct Buttons {
     toggle_direction: Button,
     rotate_layout: Button,
     toggle_debug: Button,
-    pad_y: Slider,
+    pad_y: Panel,
     exit: Button,
 }
 impl Buttons {
@@ -96,6 +96,7 @@ impl Renderable for Buttons {
         }
     }
 }
+impl Interactable for Buttons {}
 
 #[macroquad::main("juquad button group")]
 async fn main() {
@@ -145,11 +146,9 @@ async fn main() {
             recalculate_ui = true;
         }
         let pad = style.pad.vec2();
-        if !float_eq(buttons.pad_y.interact(), style.pad.vec2().y, 0.01) {
-            style.pad = Pad::new(
-                pad.x,
-                buttons.pad_y.custom.current,
-            );
+        let slider_value: f32 = *buttons.pad_y.interact()[0].downcast_ref().unwrap();
+        if !float_eq(slider_value, style.pad.vec2().y, 0.01) {
+            style.pad = Pad::new(pad.x, slider_value);
             recalculate_ui = true;
         }
         if buttons.exit.interact().is_clicked() {
@@ -223,14 +222,8 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
 
     let text_style = Style {
         font: None,
-        pad: Pad::new(
-            style.pad.vec2().x,
-            style.pad.vec2().y * 0.5,
-        ),
-        margin: Pad::new(
-            style.margin.vec2().x,
-            0.0,
-            ),
+        pad: Pad::new(style.pad.vec2().x, style.pad.vec2().y * 0.5),
+        margin: Pad::new(style.margin.vec2().x, 0.0),
         ..style
     };
     let horizontal_layout = Layout::Horizontal {
@@ -270,7 +263,10 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
             button_style,
             vec![Box::new(Text::new(text_style, "Debug widgets"))],
         ),
-        pad_y: Slider::new(style, 0.0, 50.0, style.pad.vec2().y),
+        pad_y: Panel::container(
+            slider_container_style,
+            vec![Box::new(Slider::new(style, 0.0, 50.0, style.pad.vec2().y))],
+        ),
         exit: Button::container(button_style, vec![Box::new(Text::new(text_style, "Exit"))]),
     };
 
