@@ -308,13 +308,13 @@ pub fn container<'a, 'b>(
 
 pub fn set_sizes(node: &mut dyn RenderableWidget) {
     let mut accumulated_size = SizeInPixels2d::new(0.0, 0.0);
-    let style = { *node.style() };
+    let style = *node.style();
     let parallel = style.layout.parallel_index();
     let perpendicular = style.layout.perpendicular_index();
     for child in node.children_mut() {
         set_sizes(child);
         let size = child.size();
-        let margin = style.margin.vec2();
+        let margin = child.style().margin.vec2();
         accumulated_size[parallel] += size[parallel] + 2.0 * margin[parallel];
         accumulated_size[perpendicular] =
             accumulated_size[perpendicular].max(size[perpendicular] + 2.0 * margin[perpendicular]);

@@ -30,6 +30,7 @@ struct Buttons {
     rotate_layout: Button,
     toggle_debug: Button,
     pad_y: Panel,
+    margin_y: Panel,
     exit: Button,
 }
 impl Buttons {
@@ -38,6 +39,7 @@ impl Buttons {
             &self.panel,
             &self.some_text,
             &self.pad_y,
+            &self.margin_y,
             &self.toggle_alignment,
             &self.toggle_direction,
             &self.rotate_layout,
@@ -72,6 +74,7 @@ impl WidgetTrait for Buttons {
         vec![
             &mut self.some_text,
             &mut self.pad_y,
+            &mut self.margin_y,
             &mut self.toggle_alignment,
             &mut self.toggle_direction,
             &mut self.rotate_layout,
@@ -101,14 +104,19 @@ impl Interactable for Buttons {}
 #[macroquad::main("juquad button group")]
 async fn main() {
     let font_size: f32 = 22.0;
-    let pad = Pad::new_symmetric(10.0);
+    // let pad = Pad::new_symmetric(10.0);
+    let pad = Pad::new(0.0, 0.0);
+    let margin = Pad::new(0.0, 10.0);
     let mut style = Style {
         font_size,
         pad,
-        margin: pad,
+        margin,
         ..Default::default()
     };
 
+    unsafe {
+        DEBUG_WIDGETS = true;
+    }
     let mut screen = vec2(screen_width(), screen_height());
     let mut recalculate_ui = false;
     let mut buttons = rebuild_ui(screen, style);
@@ -149,6 +157,12 @@ async fn main() {
         let slider_value: f32 = *buttons.pad_y.interact()[0].downcast_ref().unwrap();
         if !float_eq(slider_value, style.pad.vec2().y, 0.01) {
             style.pad = Pad::new(pad.x, slider_value);
+            recalculate_ui = true;
+        }
+        let margin = style.margin.vec2();
+        let slider_value: f32 = *buttons.margin_y.interact()[0].downcast_ref().unwrap();
+        if !float_eq(slider_value, style.margin.vec2().y, 0.01) {
+            style.margin = Pad::new(pad.x, slider_value);
             recalculate_ui = true;
         }
         if buttons.exit.interact().is_clicked() {
@@ -266,8 +280,15 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
         pad_y: Panel::container(
             slider_container_style,
             vec![
-                Box::new(Text::new(style, "Pad y: ")),
+                Box::new(Text::new(style, &format!("Pad y: {:.1}", style.pad.vec2().y))),
                 Box::new(Slider::new(style, 0.0, 50.0, style.pad.vec2().y)),
+            ],
+        ),
+        margin_y: Panel::container(
+            slider_container_style,
+            vec![
+                Box::new(Text::new(style, &format!("Margin y: {:.1}", style.margin.vec2().y))),
+                Box::new(Slider::new(style, 0.0, 50.0, style.margin.vec2().y)),
             ],
         ),
         exit: Button::container(button_style, vec![Box::new(Text::new(text_style, "Exit"))]),
