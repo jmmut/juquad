@@ -265,7 +265,10 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
         ),
         pad_y: Panel::container(
             slider_container_style,
-            vec![Box::new(Slider::new(style, 0.0, 50.0, style.pad.vec2().y))],
+            vec![
+                Box::new(Text::new(style, "Pad y: ")),
+                Box::new(Slider::new(style, 0.0, 50.0, style.pad.vec2().y)),
+            ],
         ),
         exit: Button::container(button_style, vec![Box::new(Text::new(text_style, "Exit"))]),
     };

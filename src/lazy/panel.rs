@@ -4,7 +4,6 @@ use crate::lazy::{
 };
 use crate::widgets::Interaction;
 use std::any::Any;
-use std::marker::PhantomData;
 
 pub type Panel = WidgetData<PanelBase>;
 
