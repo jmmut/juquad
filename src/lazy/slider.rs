@@ -28,7 +28,7 @@ pub struct SliderBase {
 impl Slider {
     pub fn new(style: Style, min: f32, max: f32, current: f32) -> Self {
         let font_size = style.font_size;
-        let min_size = vec2(font_size * 15.0, font_size * 2.0);
+        let min_size = vec2(font_size * 15.0, font_size * 1.5);
         Self::new_generic(
             style,
             min,
@@ -100,7 +100,7 @@ impl Interactable for Slider {
             }
         };
         self.custom.interaction = interaction;
-        let render_pos = Some(render_pos.clamp(min, max));
+        let render_pos = Some(render_pos.clamp(0.0, 1.0));
         self.custom.current = range * render_pos.unwrap() + min;
         vec![Box::new(self.custom.current)]
     }

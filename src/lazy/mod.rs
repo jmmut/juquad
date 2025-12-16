@@ -6,6 +6,7 @@ use crate::{PositionInPixels2d, SizeInPixels2d};
 use macroquad::color::{Color, BLACK, BLUE, ORANGE};
 use macroquad::prelude::{vec2, Font, Rect, Vec2};
 use std::any::Any;
+use std::ops::{Index, IndexMut};
 
 pub mod button;
 pub mod panel;
@@ -203,6 +204,29 @@ impl Pad {
         vec2(self.x, self.y)
     }
 }
+impl Index<usize> for Pad {
+    type Output = f32;
+    fn index(&self, index: usize) -> &Self::Output {
+        if index == 0 {
+            &self.x
+        } else if index == 1 {
+            &self.y
+        } else {
+            panic!("Pad indexes must be 0 or 1 but was {}", index)
+        }
+    }
+}
+impl IndexMut<usize> for Pad {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        if index == 0 {
+            &mut self.x
+        } else if index == 1 {
+            &mut self.y
+        } else {
+            panic!("Pad indexes must be 0 or 1 but was {}", index)
+        }
+    }
+}
 #[derive(Copy, Clone)]
 pub struct Style {
     pub pad: Pad,
@@ -216,8 +240,8 @@ pub struct Style {
 impl Default for Style {
     fn default() -> Self {
         Self {
-            pad: Pad::new_symmetric(DEFAULT_FONT_SIZE),
-            margin: Pad::new_symmetric(DEFAULT_FONT_SIZE),
+            pad: Pad::new(DEFAULT_FONT_SIZE * 1.5, DEFAULT_FONT_SIZE),
+            margin: Pad::new_symmetric(0.0),
             layout: Layout::Vertical {
                 direction: Vertical::Bottom,
                 alignment: Horizontal::Center,
@@ -420,17 +444,43 @@ mod tests {
         );
         set_sizes(&mut panel);
         set_positions(&mut panel, Anchor::center(1000.0, 500.0));
-        assert_eq!(panel.rect(), Rect::new(854.0, 372.0, 292.0, 256.0));
+        assert_eq!(
+            panel.rect(),
+            Rect {
+                x: 862.0,
+                y: 420.0,
+                w: 276.0,
+                h: 160.0
+            }
+        );
         assert_eq!(
             panel.children()[0].rect(),
-            Rect::new(930.0, 404.0, 140.0, 48.0)
+            Rect {
+                x: 922.0,
+                y: 436.0,
+                w: 156.0,
+                h: 48.0
+            }
         );
 
         let button = panel.children()[1];
-        assert_eq!(button.rect(), Rect::new(886.0, 484.0, 228.0, 112.0));
+        assert_eq!(
+            button.rect(),
+            Rect {
+                x: 886.0,
+                y: 484.0,
+                w: 228.0,
+                h: 80.0
+            }
+        );
         assert_eq!(
             button.children()[0].rect(),
-            Rect::new(918.0, 516.0, 164.0, 48.0)
+            Rect {
+                x: 910.0,
+                y: 500.0,
+                w: 180.0,
+                h: 48.0
+            }
         );
     }
 }

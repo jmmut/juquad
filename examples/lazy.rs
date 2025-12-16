@@ -29,8 +29,8 @@ struct Buttons {
     toggle_direction: Button,
     rotate_layout: Button,
     toggle_debug: Button,
-    pad_y: Panel,
-    margin_y: Panel,
+    pad: Panel,
+    margin: Panel,
     exit: Button,
 }
 impl Buttons {
@@ -38,8 +38,8 @@ impl Buttons {
         vec![
             &self.panel,
             &self.some_text,
-            &self.pad_y,
-            &self.margin_y,
+            &self.pad,
+            &self.margin,
             &self.toggle_alignment,
             &self.toggle_direction,
             &self.rotate_layout,
@@ -73,8 +73,8 @@ impl WidgetTrait for Buttons {
     fn children_mut(&mut self) -> WidgetsViewMut<'_> {
         vec![
             &mut self.some_text,
-            &mut self.pad_y,
-            &mut self.margin_y,
+            &mut self.pad,
+            &mut self.margin,
             &mut self.toggle_alignment,
             &mut self.toggle_direction,
             &mut self.rotate_layout,
@@ -105,12 +105,12 @@ impl Interactable for Buttons {}
 async fn main() {
     let font_size: f32 = 22.0;
     // let pad = Pad::new_symmetric(10.0);
-    let pad = Pad::new(0.0, 0.0);
-    let margin = Pad::new(0.0, 10.0);
+    // let pad = Pad::new(0.0, 0.0);
+    // let margin = Pad::new(0.0, 10.0);
     let mut style = Style {
         font_size,
-        pad,
-        margin,
+        // pad,
+        // margin,
         ..Default::default()
     };
 
@@ -153,17 +153,21 @@ async fn main() {
             }
             recalculate_ui = true;
         }
-        let pad = style.pad.vec2();
-        let slider_value: f32 = *buttons.pad_y.interact()[0].downcast_ref().unwrap();
-        if !float_eq(slider_value, style.pad.vec2().y, 0.01) {
-            style.pad = Pad::new(pad.x, slider_value);
-            recalculate_ui = true;
+        for i in 0..=1 {
+            let pad = style.pad.vec2();
+            let slider_value: f32 = *buttons.pad.interact()[i].downcast_ref().unwrap();
+            if !float_eq(slider_value, pad[i], 0.01) {
+                style.pad[i] = slider_value;
+                recalculate_ui = true;
+            }
         }
-        let margin = style.margin.vec2();
-        let slider_value: f32 = *buttons.margin_y.interact()[0].downcast_ref().unwrap();
-        if !float_eq(slider_value, style.margin.vec2().y, 0.01) {
-            style.margin = Pad::new(pad.x, slider_value);
-            recalculate_ui = true;
+        for i in 0..=1 {
+            let margin = style.margin.vec2();
+            let slider_value: f32 = *buttons.margin.interact()[i].downcast_ref().unwrap();
+            if !float_eq(slider_value, margin[i], 0.01) {
+                style.margin[i] = slider_value;
+                recalculate_ui = true;
+            }
         }
         if buttons.exit.interact().is_clicked() {
             break;
@@ -277,17 +281,33 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
             button_style,
             vec![Box::new(Text::new(text_style, "Debug widgets"))],
         ),
-        pad_y: Panel::container(
+        pad: Panel::container(
             slider_container_style,
             vec![
-                Box::new(Text::new(style, &format!("Pad y: {:.1}", style.pad.vec2().y))),
+                Box::new(Text::new(
+                    style,
+                    &format!("Pad x: {:.1}", style.pad.vec2().x),
+                )),
+                Box::new(Slider::new(style, 0.0, 50.0, style.pad.vec2().x)),
+                Box::new(Text::new(
+                    style,
+                    &format!("Pad y: {:.1}", style.pad.vec2().y),
+                )),
                 Box::new(Slider::new(style, 0.0, 50.0, style.pad.vec2().y)),
             ],
         ),
-        margin_y: Panel::container(
+        margin: Panel::container(
             slider_container_style,
             vec![
-                Box::new(Text::new(style, &format!("Margin y: {:.1}", style.margin.vec2().y))),
+                Box::new(Text::new(
+                    style,
+                    &format!("Margin x: {:.1}", style.margin.vec2().x),
+                )),
+                Box::new(Slider::new(style, 0.0, 50.0, style.margin.vec2().x)),
+                Box::new(Text::new(
+                    style,
+                    &format!("Margin y: {:.1}", style.margin.vec2().y),
+                )),
                 Box::new(Slider::new(style, 0.0, 50.0, style.margin.vec2().y)),
             ],
         ),
