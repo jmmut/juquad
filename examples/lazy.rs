@@ -48,7 +48,6 @@ impl Buttons {
         ]
     }
 }
-
 impl WidgetTrait for Buttons {
     fn size(&self) -> SizeInPixels2d {
         self.panel.size()
@@ -153,19 +152,22 @@ async fn main() {
             }
             recalculate_ui = true;
         }
+
+        let slider_values = buttons.pad.interact_t::<f32>(2);
+        let style_pad = &mut style.pad;
         for i in 0..=1 {
-            let pad = style.pad.vec2();
-            let slider_value: f32 = *buttons.pad.interact()[i].downcast_ref().unwrap();
-            if !float_eq(slider_value, pad[i], 0.01) {
-                style.pad[i] = slider_value;
+            let slider_value: f32 = slider_values[i];
+            if !float_eq(slider_value, style_pad[i], 0.01) {
+                style_pad[i] = slider_value;
                 recalculate_ui = true;
             }
         }
+        let slider_values = buttons.margin.interact_t::<f32>(2);
+        let style_pad = &mut style.margin;
         for i in 0..=1 {
-            let margin = style.margin.vec2();
-            let slider_value: f32 = *buttons.margin.interact()[i].downcast_ref().unwrap();
-            if !float_eq(slider_value, margin[i], 0.01) {
-                style.margin[i] = slider_value;
+            let slider_value: f32 = slider_values[i];
+            if !float_eq(slider_value, style_pad[i], 0.01) {
+                style_pad[i] = slider_value;
                 recalculate_ui = true;
             }
         }
