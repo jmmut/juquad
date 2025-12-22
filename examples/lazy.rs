@@ -18,7 +18,7 @@ use macroquad::prelude::{
 // const COLORING: Coloring = Coloring::new();
 
 struct Buttons {
-    panel: Panel,
+    panel: Panel<()>,
     //     expand: Button,
     //     increase_font: Button,
     //     decrease_font: Button,
@@ -29,8 +29,8 @@ struct Buttons {
     toggle_direction: Button,
     rotate_layout: Button,
     toggle_debug: Button,
-    pad: Panel,
-    margin: Panel,
+    pad: Panel<f32>,
+    margin: Panel<f32>,
     exit: Button,
 }
 impl Buttons {
@@ -153,7 +153,7 @@ async fn main() {
             recalculate_ui = true;
         }
 
-        let slider_values = buttons.pad.interact_t::<f32>(2);
+        let slider_values = buttons.pad.interact_t(2);
         let style_pad = &mut style.pad;
         for i in 0..=1 {
             let slider_value: f32 = slider_values[i];
@@ -162,7 +162,7 @@ async fn main() {
                 recalculate_ui = true;
             }
         }
-        let slider_values = buttons.margin.interact_t::<f32>(2);
+        let slider_values = buttons.margin.interact_t(2);
         let style_pad = &mut style.margin;
         for i in 0..=1 {
             let slider_value: f32 = slider_values[i];

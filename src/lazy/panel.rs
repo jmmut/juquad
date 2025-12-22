@@ -4,18 +4,30 @@ use crate::lazy::{
 };
 use crate::widgets::Interaction;
 use std::any::Any;
+use std::marker::PhantomData;
 
-pub type Panel = WidgetData<PanelBase>;
+pub type Panel<Response> = WidgetData<PanelBase<Response>>;
 
-#[derive(Default)]
-pub struct PanelBase;
+pub struct PanelBase<Response> {
+    phantom_data: PhantomData<Response>,
+}
+impl<Response> Default for PanelBase<Response> {
+    fn default() -> Self {
+        Self {
+            phantom_data: Default::default(),
+        }
+    }
+}
 
-impl Panel {
-    pub fn interact_t<T: 'static>(&mut self, expected_elems_of_this_type: usize) -> Vec<T> {
+impl<Response: 'static> Panel<Response> {
+    pub fn interact_tt<OneOffResponse: 'static>(
+        &mut self,
+        expected_elems_of_this_type: usize,
+    ) -> Vec<OneOffResponse> {
         let anys = self.interact();
         let mut typeds = Vec::new();
         for any in anys {
-            let typed = any.downcast::<T>();
+            let typed = any.downcast::<OneOffResponse>();
             if let Ok(typed) = typed {
                 typeds.push(*typed);
             }
@@ -30,8 +42,11 @@ impl Panel {
         );
         typeds
     }
+    pub fn interact_t(&mut self, expected_elems_of_this_type: usize) -> Vec<Response> {
+        self.interact_tt::<Response>(expected_elems_of_this_type)
+    }
 }
-impl Renderable for Panel {
+impl<Response> Renderable for Panel<Response> {
     fn render_interactive(&self, _interaction: Interaction) {
         self.render()
     }
@@ -47,7 +62,7 @@ impl Renderable for Panel {
     }
 }
 
-impl Interactable for Panel {
+impl<Response> Interactable for Panel<Response> {
     fn interact(&mut self) -> Vec<Box<dyn Any>> {
         let mut interactions = Vec::new();
         for child in self.children_mut() {

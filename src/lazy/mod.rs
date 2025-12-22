@@ -435,7 +435,7 @@ mod tests {
         fn text(style: Style, s: &str) -> Box<Text> {
             Box::new(Text::new_generic(style, s, mock_measure, render_text))
         }
-        let mut panel = Panel::container(
+        let mut panel = Panel::<Interaction>::container(
             style,
             vec![
                 text(style, "some text"),
