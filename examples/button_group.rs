@@ -3,8 +3,8 @@ use juquad::widgets::anchor::{Anchor, Horizontal};
 use juquad::widgets::button::Button;
 use juquad::widgets::button_group::{Direction, LabelGroup};
 use juquad::widgets::text::TextRect;
-use juquad::widgets::Style;
-use macroquad::color::{Color, BLACK};
+use juquad::widgets::{Style, WHITE_BLUE_BACKGROUND};
+use macroquad::color::BLACK;
 use macroquad::math::Vec2;
 use macroquad::prelude::{clear_background, next_frame, screen_height, screen_width, Rect, RED};
 use macroquad::text::{draw_text, load_ttf_font_from_bytes, Font};
@@ -37,8 +37,13 @@ async fn main() {
     let mut show_borders = false;
     loop {
         let mut update_buttons = false;
-        clear_background(Color::new(0.85, 0.85, 0.85, 1.00));
-        clear_background(Color::new(0.5, 0.7, 0.8, 1.0));
+        // clear_background(Color::new(0.85, 0.85, 0.85, 1.00));
+        // clear_background(Color::new(0.5, 0.7, 0.8, 1.0));
+        clear_background(WHITE_BLUE_BACKGROUND);
+        // clear_background(LIGHT_BLUE_BACKGROUND);
+        // clear_background(MID_BLUE_BACKGROUND);
+        // clear_background(DARK_BLUE_BACKGROUND);
+        // clear_background(BLACK_BLUE_BACKGROUND);
         draw_text(
             &format!("{}", font_size),
             screen_width() * 0.5,

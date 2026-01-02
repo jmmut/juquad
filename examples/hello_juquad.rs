@@ -1,28 +1,31 @@
 //! This example showcases a few use cases of this crate:
-//! - How [`TextureLoader`] can be used to load a texture and render a loading screen while waiting for it to load.
+//! - How [`TexturePathLoader`] can be used to load a texture and render a loading screen while waiting for it to load.
 //! - How [`TextRect`] and [`Anchor`] can be used to draw text and a bar of similar size.
 //! - How to reuse a [`Button`] created once at the beginning.
 //! - How to reposition stuff when the window is resized.
 
-use juquad::draw::draw_rect;
+use juquad::draw::{draw_rect, draw_rect_lines};
 use juquad::fps::Seconds;
-use juquad::resource_loader::TextureLoader;
+use juquad::resource_loader::TexturePathLoader;
 use juquad::widgets::anchor::{Anchor, Horizontal};
 use juquad::widgets::button::Button;
 use juquad::widgets::text::TextRect;
-use juquad::widgets::{Style, Widget};
+use juquad::widgets::{
+    Style, Widget, BLACK_BLUE_BACKGROUND, MID_BLUE_BACKGROUND, WHITE_BLUE_BACKGROUND,
+};
 use macroquad::miniquad::date::now;
 use macroquad::prelude::{
     clear_background, draw_texture_ex, next_frame, screen_height, screen_width, DrawTextureParams,
-    FileError, Vec2, DARKGRAY, WHITE,
+    FileError, Vec2, WHITE,
 };
 
 const FONT_SIZE: f32 = 32.0;
+const TEXTURE_PATH: &'static str = "assets/ferris.png";
 
 #[macroquad::main("Hello juquad")]
 async fn main() -> Result<(), FileError> {
     let style: Style = Style::new();
-    let mut loader = TextureLoader::new(&["assets/ferris.png"]);
+    let mut loader = TexturePathLoader::new(vec![TEXTURE_PATH]);
     let mut textures_opt = None;
     let mut frame = 0;
     let mut button = Button::new("Reload", Anchor::top_left(0.0, 0.0), 16.0);
@@ -31,20 +34,20 @@ async fn main() -> Result<(), FileError> {
         frame += 1;
         let fps = calculate_fps(&mut previous_time);
 
-        clear_background(DARKGRAY);
+        clear_background(WHITE_BLUE_BACKGROUND);
         let center = Vec2::new(screen_width() * 0.5, screen_height() * 0.5);
         match &textures_opt {
             None => {
                 let rect = TextRect::new("Loading...", Anchor::center_v(center), 32.0);
-                rect.render_text(WHITE);
+                rect.render_text(BLACK_BLUE_BACKGROUND);
                 let mut bar_rect = rect.rect;
                 bar_rect.y += bar_rect.h;
                 bar_rect.w = frame as f32 * 5.0 % rect.rect.w;
-                draw_rect(bar_rect, WHITE);
+                draw_rect(bar_rect, MID_BLUE_BACKGROUND);
+                bar_rect.w = rect.rect.w;
+                draw_rect_lines(bar_rect, 4.0, BLACK_BLUE_BACKGROUND);
 
-                if let Some(loaded) = loader.get_resources()? {
-                    textures_opt = Some(loaded);
-                }
+                textures_opt = loader.get_resources()?;
             }
             Some(textures) => {
                 let dest_size = Vec2::new(300.0, 200.0);
@@ -62,14 +65,15 @@ async fn main() -> Result<(), FileError> {
                 let button_position = Anchor::center_v(center + Vec2::new(0.0, 200.0));
                 button.reanchor(button_position);
                 if button.interact().is_clicked() {
-                    textures_opt = None
+                    textures_opt = None;
+                    loader = TexturePathLoader::new(vec![TEXTURE_PATH]);
                 }
                 button.render_default(&style);
 
                 let fps_pos = Anchor::below(button.rect(), Horizontal::Center, 0.0);
                 let text_rect = TextRect::new(&format!("FPS: {:.1}", fps), fps_pos, FONT_SIZE);
                 // juquad::draw::draw_rect_lines(text_rect.rect, 2.0, macroquad::prelude::BLACK);
-                text_rect.render_text(WHITE);
+                text_rect.render_text(BLACK_BLUE_BACKGROUND);
             }
         }
         next_frame().await

@@ -26,11 +26,17 @@ const fn from_hex(hex: u32) -> Color {
     color_u8!(hex / 0x10000, hex / 0x100 % 0x100, hex % 0x100, 255)
 }
 
-pub const WHITE_BLUE_BACKGROUND: Color = from_hex(0xF5F6FB);
-pub const LIGHT_BLUE_BACKGROUND: Color = from_hex(0xA7B5DD);
-pub const MID_BLUE_BACKGROUND: Color = from_hex(0x5D78B2);
-pub const DARK_BLUE_BACKGROUND: Color = from_hex(0x284168);
-pub const BLACK_BLUE_BACKGROUND: Color = from_hex(0x030913);
+// pub const WHITE_BLUE_BACKGROUND: Color = from_hex(0xF5F6FB);
+// pub const LIGHT_BLUE_BACKGROUND: Color = from_hex(0xA7B5DD);
+// pub const MID_BLUE_BACKGROUND: Color = from_hex(0x5D78B2);
+// pub const DARK_BLUE_BACKGROUND: Color = from_hex(0x284168);
+// pub const BLACK_BLUE_BACKGROUND: Color = from_hex(0x030913);
+
+pub const BLACK_BLUE_BACKGROUND: Color = from_hex(0x091D2D);
+pub const DARK_BLUE_BACKGROUND: Color = from_hex(0x244770);
+pub const MID_BLUE_BACKGROUND: Color = from_hex(0x4A71B6);
+pub const LIGHT_BLUE_BACKGROUND: Color = from_hex(0x879FDE);
+pub const WHITE_BLUE_BACKGROUND: Color = from_hex(0xC8D0F2);
 
 pub trait Widget {
     fn rect(&self) -> Rect;
@@ -77,14 +83,14 @@ impl Style {
                 border_color: DARK_BLUE_BACKGROUND,
             },
             hovered: StateStyle {
-                bg_color: WHITE_BLUE_BACKGROUND,
-                text_color: BLACK_BLUE_BACKGROUND,
+                bg_color: MID_BLUE_BACKGROUND,
+                text_color: WHITE_BLUE_BACKGROUND,
                 border_color: LIGHT_BLUE_BACKGROUND,
             },
             pressed: StateStyle {
-                bg_color: MID_BLUE_BACKGROUND,
+                bg_color: BLACK_BLUE_BACKGROUND,
                 text_color: WHITE_BLUE_BACKGROUND,
-                border_color: DARK_BLUE_BACKGROUND,
+                border_color: LIGHT_BLUE_BACKGROUND,
             },
         }
     }
