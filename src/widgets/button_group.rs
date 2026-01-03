@@ -209,21 +209,25 @@ impl LabelGroup {
             match self.direction {
                 Direction::Top => {
                     top_left.y -= elem_size.y
+                    - self.margin
                     // - 1.0
                     ;
                 }
                 Direction::Bottom => {
                     top_left.y += elem_size.y
+                    + self.margin
                     // + 1.0
                     ;
                 }
                 Direction::Right => {
                     top_left.x += elem_size.x
+                    + self.margin
                     // + 1.0
                     ;
                 }
                 Direction::Left => {
                     top_left.x -= elem_size.x
+                    - self.margin
                     // - 1.0
                     ;
                 }
