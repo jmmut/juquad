@@ -12,21 +12,21 @@ pub struct Anchor {
     y: f32,
 }
 
-#[derive(Copy, Clone, PartialEq, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum Horizontal {
     Left,
     Center,
     Right,
 }
 
-#[derive(Copy, Clone, PartialEq, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum Vertical {
     Top,
     Center,
     Bottom,
 }
 
-#[derive(Copy, Clone, PartialEq, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum Layout {
     Horizontal {
         direction: Horizontal,
@@ -45,15 +45,18 @@ pub enum Layout {
 //     horizontal: Spot,
 //     vertical: Spot,
 // }
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Spot {
     Beginning,
     Center,
     End,
 }
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Sense {
     Forwards,
     Backwards,
 }
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Direction {
     Horizontal,
     Vertical,
