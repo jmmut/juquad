@@ -22,7 +22,7 @@ pub const fn from_hexes<const N: usize>(hexes: &[u32]) -> [Color; N] {
     colors
 }
 
-const fn from_hex(hex: u32) -> Color {
+pub const fn from_hex(hex: u32) -> Color {
     color_u8!(hex / 0x10000, hex / 0x100 % 0x100, hex % 0x100, 255)
 }
 
