@@ -1,5 +1,6 @@
 use crate::widgets::anchor::Anchor;
 use crate::widgets::{StateStyle, Style, Widget};
+use crate::PositionInPixels2d;
 use macroquad::prelude::{Color, Font, Rect, TextDimensions, Vec2};
 use macroquad::text::TextParams;
 use std::ops::AddAssign;
@@ -59,8 +60,8 @@ impl Widget for TextRect {
     fn rect(&self) -> Rect {
         TextRect::rect(self)
     }
-    fn rect_mut(&mut self) -> &mut Rect {
-        TextRect::rect_mut(self)
+    fn set_rect(&mut self, rect: Rect) {
+        self.rect = rect;
     }
 }
 
@@ -122,9 +123,6 @@ impl TextRect {
     fn rect(&self) -> Rect {
         self.rect
     }
-    fn rect_mut(&mut self) -> &mut Rect {
-        &mut self.rect
-    }
 }
 
 pub fn draw_text_rect_generic(text_rect: &TextRect, style: &StateStyle, draw_text: DrawText) {
@@ -147,6 +145,7 @@ pub fn draw_text_rect_generic(text_rect: &TextRect, style: &StateStyle, draw_tex
 pub type DrawText =
     fn(text: &str, x: f32, y: f32, font_size: f32, style: &StateStyle, font: Option<Font>);
 
+/// Here the x and y are the baseline of the text as macroquad expects.
 pub fn draw_text(
     text: &str,
     x: f32,
@@ -166,6 +165,16 @@ pub fn draw_text(
     } else {
         macroquad::text::draw_text(text, x, y, font_size, style.text_color)
     }
+}
+pub fn draw_text_v(
+    text: &str,
+    position: PositionInPixels2d,
+    font_size: f32,
+    style: &StateStyle,
+    font: Option<Font>,
+) {
+    let Vec2 { x, y } = position;
+    draw_text(text, x, y, font_size, style, font)
 }
 
 /// A nice combo is:

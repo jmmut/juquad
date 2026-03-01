@@ -15,8 +15,8 @@ impl Widget for TextureButton {
     fn rect(&self) -> Rect {
         self.rect
     }
-    fn rect_mut(&mut self) -> &mut Rect {
-        &mut self.rect
+    fn set_rect(&mut self, rect: Rect) {
+        self.rect = rect;
     }
 }
 

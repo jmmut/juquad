@@ -1,5 +1,5 @@
 use crate::input::input_trait::InputTrait;
-use crate::PixelPosition;
+use crate::PositionInPixels2d;
 use macroquad::prelude::{
     is_key_down, is_key_pressed, is_mouse_button_down, is_mouse_button_pressed,
     is_mouse_button_released, mouse_position, mouse_wheel, KeyCode, MouseButton,
@@ -28,12 +28,12 @@ impl InputTrait for InputMacroquad {
         is_mouse_button_released(button)
     }
 
-    fn mouse_position(&self) -> PixelPosition {
-        PixelPosition::from(mouse_position())
+    fn mouse_position(&self) -> PositionInPixels2d {
+        PositionInPixels2d::from(mouse_position())
     }
 
-    fn mouse_wheel(&self) -> PixelPosition {
-        PixelPosition::from(mouse_wheel())
+    fn mouse_wheel(&self) -> PositionInPixels2d {
+        PositionInPixels2d::from(mouse_wheel())
     }
 
     fn clone(&self) -> Box<dyn InputTrait> {

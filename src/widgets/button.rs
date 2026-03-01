@@ -3,7 +3,7 @@ use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
 use crate::widgets::anchor::Anchor;
 use crate::widgets::text::{MeasureText, TextRect};
-use crate::widgets::{interact, Interaction, Style, Widget};
+use crate::widgets::{interact, Interaction, StateStyle, Style, Widget};
 use macroquad::prelude::{draw_line, Rect};
 use macroquad::text::Font;
 
@@ -18,8 +18,8 @@ impl Widget for Button {
     fn rect(&self) -> Rect {
         Button::rect(self)
     }
-    fn rect_mut(&mut self) -> &mut Rect {
-        Button::rect_mut(self)
+    fn set_rect(&mut self, rect: Rect) {
+        self.text_rect.rect = rect;
     }
 }
 
@@ -76,13 +76,13 @@ pub fn render_button(interaction: Interaction, text_rect: &TextRect, style: &Sty
     let state_style = style.choose(interaction);
     let rect = text_rect.rect;
     draw_rect(rect, state_style.bg_color);
-    draw_panel_border(rect, interaction, &style);
+    draw_panel_border(rect, state_style);
     text_rect.render_text(state_style.text_color);
 }
 
-pub fn draw_panel_border(rect: Rect, interaction: Interaction, style: &Style) {
+pub fn draw_panel_border(rect: Rect, coloring: &StateStyle) {
     // draw_windows_95_border(rect, interaction, style);
-    draw_rect_lines(rect, 2.0, style.choose(interaction).border_color);
+    draw_rect_lines(rect, 2.0, coloring.border_color);
 }
 
 // I swear I didn't realise what I was doing until I saw it running XD

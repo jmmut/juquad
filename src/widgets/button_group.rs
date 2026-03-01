@@ -156,7 +156,7 @@ impl LabelGroup {
         } else {
             reference_height * 0.75
         };
-        
+
         let min_pad = vec2(pad_x, pad_y);
 
         for text in texts {
@@ -171,11 +171,12 @@ impl LabelGroup {
             (max_width + min_pad.x * 2.0).round(),
             (reference_height + min_pad.y * 2.0).round(),
         );
-        let panel_size = -self.margin + (elem_size + self.margin)
-            * match self.direction {
-                Direction::Top | Direction::Bottom => Vec2::new(1.0, N as f32),
-                Direction::Right | Direction::Left => Vec2::new(N as f32, 1.0),
-            };
+        let panel_size = -self.margin
+            + (elem_size + self.margin)
+                * match self.direction {
+                    Direction::Top | Direction::Bottom => Vec2::new(1.0, N as f32),
+                    Direction::Right | Direction::Left => Vec2::new(N as f32, 1.0),
+                };
         let mut top_left = self.anchor.get_top_left_pixel(panel_size);
 
         for (text, dimension) in dimensions {
@@ -208,21 +209,25 @@ impl LabelGroup {
             match self.direction {
                 Direction::Top => {
                     top_left.y -= elem_size.y
+                    - self.margin
                     // - 1.0
                     ;
                 }
                 Direction::Bottom => {
                     top_left.y += elem_size.y
+                    + self.margin
                     // + 1.0
                     ;
                 }
                 Direction::Right => {
                     top_left.x += elem_size.x
+                    + self.margin
                     // + 1.0
                     ;
                 }
                 Direction::Left => {
                     top_left.x -= elem_size.x
+                    - self.margin
                     // - 1.0
                     ;
                 }

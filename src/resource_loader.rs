@@ -4,23 +4,22 @@ use std::future::Future;
 use std::pin::Pin;
 use std::task::{Poll, RawWaker, RawWakerVTable, Waker};
 
-pub type TextureLoaderAlias<'a> = ResourceLoader<
-    'a,
+pub type TexturePathLoaderAlias<'a> = ResourceLoader<
     &'a str,
     Texture2D,
     FileError,
     fn(&'a str) -> std::pin::Pin<Box<dyn Future<Output = Result<Texture2D, FileError>> + 'a>>,
     std::pin::Pin<Box<dyn Future<Output = Result<Texture2D, FileError>> + 'a>>,
 >;
-impl<'a> TextureLoaderAlias<'a> {
+impl<'a> TexturePathLoaderAlias<'a> {
     #[deprecated = "use ResourceLoader.get_resources() resources"]
     pub fn get_textures(&mut self) -> Result<Option<Vec<Texture2D>>, FileError> {
         self.get_resources()
     }
 }
-pub struct TextureLoader;
-impl TextureLoader {
-    pub fn new<'a>(inputs: &'a [&'a str]) -> TextureLoaderAlias<'a> {
+pub struct TexturePathLoader;
+impl TexturePathLoader {
+    pub fn new(inputs: Vec<&str>) -> TexturePathLoaderAlias<'_> {
         ResourceLoader::new(|path| Box::pin(load_texture(path)), inputs)
     }
 }
@@ -36,12 +35,13 @@ impl TextureLoader {
 ///
 /// See [`examples/hello_juquad.rs:36`] for an example of how to do a loading screen while waiting
 /// for this to load.
-pub struct ResourceLoader<'a, In, Out, Er, Func, Fut>
+pub struct ResourceLoader<In, Out, Er, Func, Fut>
 where
     Func: Fn(In) -> Fut,
-    Fut: Future<Output = Result<Out, Er>> + 'a,
+    Fut: Future<Output = Result<Out, Er>>,
 {
-    resources_input: &'a [In],
+    resources_input: Vec<In>,
+    to_load: usize,
     resources: Vec<Out>,
     in_progress: Option<Pin<Box<Fut>>>,
     load_func: Func,
@@ -52,15 +52,16 @@ pub struct Progress {
     pub total_to_load: usize,
 }
 
-impl<'a, I, O, E, F, Fut> ResourceLoader<'a, I, O, E, F, Fut>
+impl<I, O, E, F, Fut> ResourceLoader<I, O, E, F, Fut>
 where
     F: Fn(I) -> Fut,
-    Fut: Future<Output = Result<O, E>> + 'a,
-    I: Copy,
+    Fut: Future<Output = Result<O, E>>,
 {
-    pub fn new(load_func: F, resources_bytes: &'a [I]) -> Self {
+    pub fn new(load_func: F, resources_bytes: Vec<I>) -> Self {
+        let to_load = resources_bytes.len();
         Self {
-            resources_input: resources_bytes,
+            resources_input: resources_bytes.into_iter().rev().collect(),
+            to_load,
             resources: Vec::new(),
             in_progress: None,
             load_func,
@@ -74,15 +75,13 @@ where
         }
     }
 
-    /// returns Ok(None) until all textures are loaded, and then returns Ok(Some(textures))
-    /// returns Err() if a file couldn't be read for any reason
+    /// returns Ok(None) until all textures are loaded, and then returns Ok(Some(textures)).
+    /// returns Err() if a file couldn't be read for any reason.
+    /// panics if get_resources is called after results were returned.
     pub fn get_resources(&mut self) -> Result<Option<Vec<O>>, E> {
-        if self.resources.len() < self.resources_input.len() {
-            let next_unloaded_index = self.resources.len();
-
+        if self.resources.len() < self.to_load {
             if let Some(in_progress) = &mut self.in_progress {
                 // the loading of some texture was started
-
                 match resume(in_progress.as_mut()) {
                     Some(res) => {
                         // the texture finished loading
@@ -96,8 +95,12 @@ where
                 }
             } else {
                 // no texture is loading
-                let resource_fut = (self.load_func)(self.resources_input[next_unloaded_index]);
-                self.in_progress = Some(Box::pin(resource_fut));
+                if let Some(resource_input) = self.resources_input.pop() {
+                    let resource_fut = (self.load_func)(resource_input);
+                    self.in_progress = Some(Box::pin(resource_fut));
+                } else {
+                    panic!("logic error: get_resources was probably called after producing the resources");
+                }
             }
             Ok(None)
         } else {
