@@ -11,7 +11,7 @@ pub const ALERT_COLOR: Color = Color::new(0.98, 0.95, 0.3, 1.00);
 pub const TEXT_PANEL_COLOR: Color = Color::new(1.0, 0.97, 0.8, 1.00);
 
 pub type MeasureText =
-    fn(text: &str, font: Option<Font>, font_size: u16, font_scale: f32) -> TextDimensions;
+    fn(text: &str, font: Option<&Font>, font_size: u16, font_scale: f32) -> TextDimensions;
 
 /// Renders some text in some anchor position.
 ///
@@ -80,7 +80,7 @@ impl TextRect {
         text: &str,
         position_pixels: Anchor,
         font_size: f32,
-        font: Option<Font>,
+        font: Option<&Font>,
         measure_text: MeasureText,
     ) -> Self {
         // font_size doesn't seem to be in pixels across fonts
@@ -100,7 +100,7 @@ impl TextRect {
             text: text.to_string(),
             rect,
             font_size,
-            font,
+            font: if let Some(font) = font { Some(font.clone())} else {None},
             pad,
             offset_y: text_dimensions.offset_y,
             text_width: text_dimensions.width,
@@ -138,12 +138,12 @@ pub fn draw_text_rect_generic(text_rect: &TextRect, style: &StateStyle, draw_tex
         (text_rect.rect.y + text_rect.pad.y + approx_height_from_baseline_to_top).round(),
         text_rect.font_size,
         &style,
-        text_rect.font,
+        text_rect.font.as_ref(),
     );
 }
 
 pub type DrawText =
-    fn(text: &str, x: f32, y: f32, font_size: f32, style: &StateStyle, font: Option<Font>);
+    fn(text: &str, x: f32, y: f32, font_size: f32, style: &StateStyle, font: Option<&Font>);
 
 /// Here the x and y are the baseline of the text as macroquad expects.
 pub fn draw_text(
@@ -152,26 +152,22 @@ pub fn draw_text(
     y: f32,
     font_size: f32,
     style: &StateStyle,
-    font: Option<Font>,
+    font: Option<&Font>,
 ) {
-    if let Some(font) = font {
-        let params = TextParams {
-            font,
-            font_size: font_size as u16,
-            color: style.text_color,
-            ..TextParams::default()
-        };
-        macroquad::text::draw_text_ex(text, x, y, params)
-    } else {
-        macroquad::text::draw_text(text, x, y, font_size, style.text_color)
-    }
+    let params = TextParams {
+        font,
+        font_size: font_size as u16,
+        color: style.text_color,
+        ..TextParams::default()
+    };
+    macroquad::text::draw_text_ex(text, x, y, params);
 }
 pub fn draw_text_v(
     text: &str,
     position: PositionInPixels2d,
     font_size: f32,
     style: &StateStyle,
-    font: Option<Font>,
+    font: Option<&Font>,
 ) {
     let Vec2 { x, y } = position;
     draw_text(text, x, y, font_size, style, font)
@@ -252,7 +248,7 @@ pub fn wrap_or_hide_text_generic<F>(
     measure_text: &F,
 ) -> Vec<String>
 where
-    F: Fn(&str, Option<Font>, u16, f32) -> TextDimensions,
+    F: Fn(&str, Option<&Font>, u16, f32) -> TextDimensions,
 {
     if panel_width < 0.0 || panel_height < 0.0 {
         return Vec::new();

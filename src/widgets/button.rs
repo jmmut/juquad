@@ -31,7 +31,7 @@ impl Button {
         text: &str,
         position_pixels: Anchor,
         font_size: f32,
-        font: Option<Font>,
+        font: Option<&Font>,
         measure_text: MeasureText,
         input: Box<dyn InputTrait>,
     ) -> Self {

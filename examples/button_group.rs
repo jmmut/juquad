@@ -101,7 +101,7 @@ async fn main() {
             draw_rect_lines(text_border(&buttons.exit.text_rect), 2.0, RED);
         }
         if update_buttons {
-            let font_option = if custom_font { Some(font) } else { None };
+            let font_option = if custom_font { Some(font.clone()) } else { None };
             buttons = create_button_group(font_option, font_size, alignment);
         }
 

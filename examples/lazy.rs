@@ -118,7 +118,7 @@ async fn main() {
     }
     let mut screen = vec2(screen_width(), screen_height());
     let mut recalculate_ui = false;
-    let mut buttons = rebuild_ui(screen, style);
+    let mut buttons = rebuild_ui(screen, &style);
     loop {
         let _start = now();
         let new_screen = vec2(screen_width(), screen_height());
@@ -128,7 +128,7 @@ async fn main() {
         }
         if recalculate_ui {
             recalculate_ui = false;
-            buttons = rebuild_ui(screen, style);
+            buttons = rebuild_ui(screen, &style);
         }
 
         if is_key_pressed(KeyCode::Escape) {
@@ -237,14 +237,14 @@ fn rotate_layout(style: &mut Style) {
     style.layout = style.layout.transpose(Horizontal::rotate, Vertical::rotate)
 }
 
-fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
+fn rebuild_ui(screen: SizeInPixels2d, style: &Style) -> Buttons {
     let start = now();
 
     let text_style = Style {
         font: None,
         pad: Pad::new(style.pad.vec2().x, style.pad.vec2().y * 0.5),
         margin: Pad::new(style.margin.vec2().x, 0.0),
-        ..style
+        ..*style
     };
     let horizontal_layout = Layout::Horizontal {
         direction: Horizontal::Right,
@@ -253,67 +253,70 @@ fn rebuild_ui(screen: SizeInPixels2d, style: Style) -> Buttons {
     let button_style = Style {
         layout: horizontal_layout,
         pad: Pad::new_symmetric(0.0),
-        ..style
+        font: style.font.clone(),
+        ..*style
     };
     let slider_container_style = Style {
         pad: Pad::new_symmetric(0.0),
         margin: Pad::new_symmetric(0.0),
         layout: horizontal_layout,
-        ..style
+        font: style.font.clone(),
+        ..*style
     };
     let mut buttons = Buttons {
         panel: Panel::leaf(Style {
             size: Size::Grow,
-            ..style
+            font: style.font.clone(),
+            ..*style
         }),
-        some_text: Text::new(text_style, "Title"),
+        some_text: Text::new(&text_style, "Title"),
         toggle_alignment: Button::container(
-            button_style,
-            vec![Box::new(Text::new(text_style, "Toggle alignment"))],
+            button_style.clone(),
+            vec![Box::new(Text::new(&text_style, "Toggle alignment"))],
         ),
         toggle_direction: Button::container(
-            button_style,
-            vec![Box::new(Text::new(text_style, "Toggle direction"))],
+            button_style.clone(),
+            vec![Box::new(Text::new(&text_style, "Toggle direction"))],
         ),
         rotate_layout: Button::container(
-            button_style,
-            vec![Box::new(Text::new(text_style, "Rotate layout"))],
+            button_style.clone(),
+            vec![Box::new(Text::new(&text_style, "Rotate layout"))],
         ),
         toggle_debug: Button::container(
-            button_style,
-            vec![Box::new(Text::new(text_style, "Debug widgets"))],
+            button_style.clone(),
+            vec![Box::new(Text::new(&text_style, "Debug widgets"))],
         ),
         pad: Panel::container(
-            slider_container_style,
+            slider_container_style.clone(),
             vec![
                 Box::new(Text::new(
                     style,
                     &format!("Pad x: {:.1}", style.pad.vec2().x),
                 )),
-                Box::new(Slider::new(style, 0.0, 50.0, style.pad.vec2().x)),
+                Box::new(Slider::new(style.clone(), 0.0, 50.0, style.pad.vec2().x)),
                 Box::new(Text::new(
                     style,
                     &format!("Pad y: {:.1}", style.pad.vec2().y),
                 )),
-                Box::new(Slider::new(style, 0.0, 50.0, style.pad.vec2().y)),
+                Box::new(Slider::new(style.clone(), 0.0, 50.0, style.pad.vec2().y)),
             ],
         ),
         margin: Panel::container(
-            slider_container_style,
+            slider_container_style.clone(),
             vec![
                 Box::new(Text::new(
                     style,
                     &format!("Margin x: {:.1}", style.margin.vec2().x),
                 )),
-                Box::new(Slider::new(style, 0.0, 50.0, style.margin.vec2().x)),
+                Box::new(Slider::new(style.clone(), 0.0, 50.0, style.margin.vec2().x)),
                 Box::new(Text::new(
                     style,
                     &format!("Margin y: {:.1}", style.margin.vec2().y),
                 )),
-                Box::new(Slider::new(style, 0.0, 50.0, style.margin.vec2().y)),
+                Box::new(Slider::new(style.clone(), 0.0, 50.0, style.margin.vec2().y)),
             ],
         ),
-        exit: Button::container(button_style, vec![Box::new(Text::new(text_style, "Exit"))]),
+        exit: Button::container(button_style, vec![Box::new(Text::new(&text_style, "Exit"))]),
     };
 
     set_sizes(&mut buttons);

@@ -17,11 +17,11 @@ pub struct TextBase {
     pub render_text: RenderText,
 }
 impl Text {
-    pub fn new(style: Style, text: &str) -> Self {
+    pub fn new(style: &Style, text: &str) -> Self {
         Self::new_generic(style, text, macroquad::text::measure_text, render_text)
     }
     pub fn new_generic(
-        style: Style,
+        style: &Style,
         text: &str,
         measure_text: MeasureText,
         render_text: RenderText,
@@ -37,7 +37,7 @@ impl Text {
         Self {
             pos: Default::default(),
             size: Some(size),
-            style,
+            style: style.clone(),
             custom,
             children: Vec::new(),
         }
@@ -55,9 +55,9 @@ impl Interactable for Text {}
 
 pub fn size_text(text: &str, style: &Style, measure_text: MeasureText) -> SizeInPixels2d {
     // font_size doesn't seem to be in pixels across fonts
-    let reference_size = measure_text("Odp", style.font, style.font_size as u16, 1.0);
+    let reference_size = measure_text("Odp", style.font.as_ref(), style.font_size as u16, 1.0);
     let reference_height = reference_size.height;
-    let text_dimensions = measure_text(text, style.font, style.font_size as u16, 1.0);
+    let text_dimensions = measure_text(text, style.font.as_ref(), style.font_size as u16, 1.0);
 
     let size = Vec2::new(text_dimensions.width.round(), reference_height.round());
     size
@@ -83,7 +83,7 @@ pub fn render_text(widget: &Text, interaction: Interaction) {
         vec2(x, y),
         widget.style.font_size,
         &widget.style.coloring.choose(interaction),
-        widget.style.font,
+        widget.style.font.as_ref(),
     );
 }
 
