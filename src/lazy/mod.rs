@@ -179,11 +179,21 @@ impl<Custom: Default> From<Style> for WidgetData<Custom> {
 
 #[derive(Copy, Clone)]
 pub enum Size {
+    /// minimum possible
     Fit,
+    /// maximum possible
     Grow,
-    Size { w: Pixels, h: Pixels },
-    Ratio { w: f32, h: f32 },
+    Fixed {
+        w: Pixels,
+        h: Pixels,
+    },
+    Ratio {
+        w: f32,
+        h: f32,
+    },
 }
+
+pub type Margin = Pad;
 
 #[derive(Copy, Clone)]
 pub struct Pad {
@@ -297,7 +307,7 @@ impl<W: WidgetTrait> Container<W> {
             Size::Grow => {
                 self.widget.set_size(self.max_size);
             }
-            Size::Fit | Size::Size { .. } | Size::Ratio { .. } => {
+            Size::Fit | Size::Fixed { .. } | Size::Ratio { .. } => {
                 unimplemented!()
             }
         }
