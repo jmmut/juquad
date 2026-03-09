@@ -1,8 +1,8 @@
 use macroquad::texture::{load_texture, Texture2D};
+use macroquad::Error;
 use std::future::Future;
 use std::pin::Pin;
 use std::task::{Poll, RawWaker, RawWakerVTable, Waker};
-use macroquad::Error;
 
 pub type TexturePathLoaderAlias<'a> = ResourceLoader<
     &'a str,

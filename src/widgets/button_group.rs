@@ -161,7 +161,8 @@ impl LabelGroup {
 
         for text in texts {
             let text = text.as_ref().to_string();
-            let text_dimensions = measure_text(&text, self.font.as_ref(), self.font_size as u16, 1.0);
+            let text_dimensions =
+                measure_text(&text, self.font.as_ref(), self.font_size as u16, 1.0);
             if text_dimensions.width > max_width {
                 max_width = text_dimensions.width;
             }

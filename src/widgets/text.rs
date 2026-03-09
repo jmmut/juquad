@@ -100,7 +100,11 @@ impl TextRect {
             text: text.to_string(),
             rect,
             font_size,
-            font: if let Some(font) = font { Some(font.clone())} else {None},
+            font: if let Some(font) = font {
+                Some(font.clone())
+            } else {
+                None
+            },
             pad,
             offset_y: text_dimensions.offset_y,
             text_width: text_dimensions.width,

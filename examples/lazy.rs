@@ -246,10 +246,7 @@ fn rebuild_ui(screen: SizeInPixels2d, style: &Style) -> Buttons {
         margin: Pad::new(style.margin.vec2().x, 0.0),
         ..*style
     };
-    let horizontal_layout = Layout::Horizontal {
-        direction: Horizontal::Right,
-        alignment: Vertical::Center,
-    };
+    let horizontal_layout = Layout::horizontal(Horizontal::Right, Vertical::Center);
     let button_style = Style {
         layout: horizontal_layout,
         pad: Pad::new_symmetric(0.0),

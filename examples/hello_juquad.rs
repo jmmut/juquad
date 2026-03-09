@@ -4,7 +4,6 @@
 //! - How to reuse a [`Button`] created once at the beginning.
 //! - How to reposition stuff when the window is resized.
 
-use macroquad::Error;
 use juquad::draw::{draw_rect, draw_rect_lines};
 use juquad::fps::Seconds;
 use juquad::resource_loader::TexturePathLoader;
@@ -19,6 +18,7 @@ use macroquad::prelude::{
     clear_background, draw_texture_ex, next_frame, screen_height, screen_width, DrawTextureParams,
     Vec2, WHITE,
 };
+use macroquad::Error;
 
 const FONT_SIZE: f32 = 32.0;
 const TEXTURE_PATH: &'static str = "assets/ferris.png";

@@ -364,7 +364,7 @@ pub fn set_positions(node: &mut dyn RenderableWidget, outer_anchor: Anchor) -> R
     // the first child has to Anchor::inside, and the next ones need to Anchor::next_to, so create an empty rect as first child
     let initial_anchor = Anchor::inside(node.rect(), node.style().layout, node.style().pad.vec2());
     let zero2d = SizeInPixels2d::default();
-    let mut previous_rect = to_rect(initial_anchor.get_top_left_pixel(zero2d), zero2d);
+    let mut previous_rect = initial_anchor.get_rect(zero2d);
     let style = node.style().clone();
     for child in node.children_mut() {
         let anchor = Anchor::next_to(previous_rect, style.layout, 0.0);
@@ -442,7 +442,10 @@ mod tests {
             style.clone(),
             vec![
                 text(style, "some text"),
-                Box::new(Button::container(style.clone(), vec![text(style, "some button")])),
+                Box::new(Button::container(
+                    style.clone(),
+                    vec![text(style, "some button")],
+                )),
             ],
         );
         set_sizes(&mut panel);
