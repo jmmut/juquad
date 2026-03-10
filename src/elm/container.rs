@@ -1,7 +1,9 @@
 use crate::draw::draw_rect;
 use crate::elm::style::Style;
 use crate::elm::text::Text;
-use crate::elm::widget::{Interactable, Renderable, Widget, WidgetTrait, Widgets};
+use crate::elm::widget::{
+    Interactable, Renderable, RenderableWidget, ToWidgets, Widget, WidgetTrait, Widgets, W,
+};
 use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
 use crate::widgets::button::draw_panel_border;
@@ -10,14 +12,62 @@ use crate::widgets::{interact, Interaction};
 pub type Container<I> = Widget<(), I>;
 
 pub fn container<I, Sty: Into<Style>>(style: Sty, children: Widgets<I>) -> Container<I> {
-    Widget {
-        pos: Default::default(),
-        size: Default::default(),
-        style: style.into(),
-        custom: (),
-        children,
+    Container::new_boxes(style, children)
+}
+
+impl<I> Container<I> {
+    pub fn new_boxes<Sty: Into<Style>>(style: Sty, children: Widgets<I>) -> Container<I> {
+        Widget {
+            pos: Default::default(),
+            size: Default::default(),
+            style: style.into(),
+            custom: (),
+            children,
+        }
     }
 }
+pub trait ContainerTuple<W, I> {
+    fn new<Sty: Into<Style>>(style: Sty, children: W) -> Container<I>;
+}
+impl<I, A: RenderableWidget<I> + 'static, B: RenderableWidget<I> + 'static>
+    ContainerTuple<(A, B), I> for Container<I>
+{
+    fn new<Sty: Into<Style>>(style: Sty, children: (A, B)) -> Container<I> {
+        Self::new_boxes(style, W::widgets(children))
+    }
+}
+impl<
+        I,
+        A: RenderableWidget<I> + 'static,
+        B: RenderableWidget<I> + 'static,
+        C: RenderableWidget<I> + 'static,
+    > ContainerTuple<(A, B, C), I> for Container<I>
+{
+    fn new<Sty: Into<Style>>(style: Sty, children: (A, B, C)) -> Container<I> {
+        Self::new_boxes(style, W::widgets(children))
+    }
+}
+impl<
+        I,
+        A: RenderableWidget<I> + 'static,
+        B: RenderableWidget<I> + 'static,
+        C: RenderableWidget<I> + 'static,
+        D: RenderableWidget<I> + 'static,
+    > ContainerTuple<(A, B, C, D), I> for Container<I>
+{
+    fn new<Sty: Into<Style>>(style: Sty, children: (A, B, C, D)) -> Container<I> {
+        Self::new_boxes(style, W::widgets(children))
+    }
+}
+// pub fn container2<Ws, I, Sty: Into<Style>>(style: Sty, children: Ws) -> Container<I> {
+//     Widget {
+//         pos: Default::default(),
+//         size: Default::default(),
+//         style: style.into(),
+//         custom: (),
+//         children: W::w(children),
+//     }
+// }
 
 impl<I> Renderable for Container<I> {
     fn render_interactive(&self, parent_interaction: Interaction) {

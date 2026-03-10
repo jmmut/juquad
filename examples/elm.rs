@@ -1,9 +1,11 @@
 use juquad::draw::to_rect;
 use juquad::elm::button::Button;
-use juquad::elm::container::container;
+use juquad::elm::container::{container, Container, ContainerTuple};
 use juquad::elm::style::Style;
 use juquad::elm::text::Text;
-use juquad::elm::widget::{compute_layout, Interactable, Renderable, RenderableWidget, Widget};
+use juquad::elm::widget::{
+    compute_layout, Interactable, Renderable, RenderableWidget, ToWidgets, Widget, W,
+};
 use juquad::widgets::anchor::{Anchor, Horizontal, Layout, Spot, Vertical};
 use juquad::{PositionInPixels2d, SizeInPixels2d};
 use macroquad::miniquad::date::now;
@@ -259,14 +261,19 @@ fn rebuild_ui(screen: SizeInPixels2d, style: &Style) -> impl RenderableWidget<Me
     let start = now();
 
     let text = Text::new(style, "Some text");
-    let button = Button::new(
+    let useless = Button::new(
         style,
         Message::None,
         vec![Box::new(Text::new(style, "Useless"))],
     );
     let button = Button::new_text(style, Message::Exit, "Exit");
 
-    let mut ui = container(style, vec![Box::new(text), Box::new(button)]);
+    // let mut ui = container(
+    //     style,
+    //     vec![text.into(), useless.into(), button.into()],
+    // );
+    // let mut ui = container(style, W::widgets((text, useless, button)));
+    let mut ui = Container::new(style, (text, useless, button));
     // let text_style = Style {
     //     font: None,
     //     pad: Pad::new(style.pad.vec2().x, style.pad.vec2().y * 0.5),
