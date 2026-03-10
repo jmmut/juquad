@@ -19,6 +19,7 @@ use macroquad::prelude::{
     mouse_position, next_frame, screen_height, screen_width, vec2, KeyCode, MouseButton, BLACK,
 };
 
+#[derive(Copy, Clone)]
 pub enum Message {
     None,
     Exit,
@@ -265,13 +266,7 @@ fn rebuild_ui(screen: SizeInPixels2d, style: &Style) -> Button<Message> {
     let start = now();
 
     // let mut text = Text::new(style, "Some text");
-    let mut text = Button::new_text(style, "Exit", |interaction| {
-        if interaction.is_clicked() {
-            Message::Exit
-        } else {
-            Message::None
-        }
-    });
+    let mut text = Button::new_text(style, "Exit", Message::Exit);
 
     // let text_style = Style {
     //     font: None,

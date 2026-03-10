@@ -9,43 +9,44 @@ use crate::widgets::{interact, Interaction};
 
 pub type Button<I> = Widget<ButtonBase<I>, I>;
 pub type RenderButton<I> = fn(widget: &Button<I>, interaction: Interaction);
-pub type BuildMessage<I> = fn(interaction: Interaction) -> I;
+pub type OnPress<I> = fn(interaction: Interaction) -> I;
 
 pub struct ButtonBase<I> {
     pub interaction: Interaction,
     pub input: Box<dyn InputTrait>,
     pub render_button: RenderButton<I>,
-    pub build_message: BuildMessage<I>,
+    pub on_press: I,
 }
 
-impl<I: 'static> Button<I> {
+impl<I: Clone + 'static> Button<I> {
     pub fn new_text<Sty: Into<Style>>(
         style: Sty,
         text: &str,
-        build_message: BuildMessage<I>,
+        on_press: I,
     ) -> Self {
         let style = style.into();
-        let text = Text::new(&style, text);
+        let text = Text::<I>::new(&style, text);
+        let text = Box::new(text);
         Self::new_generic(
             style,
             Box::new(InputMacroquad),
             render_interactive,
-            build_message,
-            vec![Box::new(text)],
+            on_press,
+            vec![text],
         )
     }
     pub fn new_generic(
         style: Style,
         input: Box<dyn InputTrait>,
         render_button: RenderButton<I>,
-        build_message: BuildMessage<I>,
+        on_press: I,
         children: Widgets<I>,
     ) -> Self {
         let custom = ButtonBase {
             interaction: Interaction::None,
             input,
             render_button,
-            build_message,
+            on_press,
         };
         Self {
             pos: Default::default(),
@@ -71,10 +72,13 @@ impl<I> Renderable for Button<I> {
     }
 }
 
-impl<I: 'static> Interactable<I> for Button<I> {
+impl<I: Clone + 'static> Interactable<I> for Button<I> {
     fn interact(&mut self) -> Vec<I> {
-        let i = (self.custom.build_message)(self.interact_raw());
-        vec![i]
+        let mut messages = Vec::new();
+        if self.interact_raw().is_clicked() {
+            messages.push(self.custom.on_press.clone());
+        }
+        messages
     }
 }
 fn render_interactive<I>(widget: &Button<I>, _unused: Interaction) {
