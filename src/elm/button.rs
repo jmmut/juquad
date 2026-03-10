@@ -1,7 +1,9 @@
 use crate::draw::draw_rect;
 use crate::elm::style::Style;
 use crate::elm::text::Text;
-use crate::elm::widget::{Interactable, Renderable, Widget, WidgetTrait, Widgets};
+use crate::elm::widget::{
+    Interactable, Renderable, RenderableWidget, Widget, WidgetTrait, Widgets,
+};
 use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
 use crate::widgets::button::draw_panel_border;
@@ -18,7 +20,14 @@ pub struct ButtonBase<I> {
 }
 
 impl<I: Clone + 'static> Button<I> {
-    pub fn new<Sty: Into<Style>>(style: Sty, on_press: I, children: Widgets<I>) -> Self {
+    pub fn new<Sty: Into<Style>>(
+        style: Sty,
+        on_press: I,
+        children: Widgets<I>,
+    ) -> Box<dyn RenderableWidget<I>> {
+        Box::new(Self::new_raw(style, on_press, children))
+    }
+    pub fn new_raw<Sty: Into<Style>>(style: Sty, on_press: I, children: Widgets<I>) -> Self {
         Self::new_generic(
             style.into(),
             Box::new(InputMacroquad),
@@ -27,11 +36,16 @@ impl<I: Clone + 'static> Button<I> {
             children,
         )
     }
-    pub fn new_text<Sty: Into<Style>>(style: Sty, on_press: I, text: &str) -> Self {
+    pub fn new_text<Sty: Into<Style>>(
+        style: Sty,
+        on_press: I,
+        text: &str,
+    ) -> Box<dyn RenderableWidget<I>> {
+        Box::new(Self::new_text_raw(style, on_press, text))
+    }
+    pub fn new_text_raw<Sty: Into<Style>>(style: Sty, on_press: I, text: &str) -> Self {
         let style = style.into();
-        let text = Text::<I>::new(&style, text);
-        let text = Box::new(text);
-        Self::new(style, on_press, vec![text])
+        Self::new_raw(style.clone(), on_press, vec![Text::new(style, text)])
     }
     pub fn new_generic(
         style: Style,

@@ -260,20 +260,51 @@ fn rotate_layout(style: &mut Style) {
 fn rebuild_ui(screen: SizeInPixels2d, style: &Style) -> impl RenderableWidget<Message> {
     let start = now();
 
-    let text = Text::new(style, "Some text");
-    let useless = Button::new(
+    let text = Text::new_raw(style, "Some text");
+    let useless = Button::new_raw(
         style,
         Message::None,
-        vec![Box::new(Text::new(style, "Useless"))],
+        // vec![Box::new(Text::new(style, "Useless"))],
+        vec![Text::new_raw(style, "Useless").into()],
+        // W::widgets((Text::new(style, "Useless"),)),
     );
-    let button = Button::new_text(style, Message::Exit, "Exit");
+    let button = Button::new_text_raw(style, Message::Exit, "Exit");
 
     // let mut ui = container(
     //     style,
     //     vec![text.into(), useless.into(), button.into()],
     // );
     // let mut ui = container(style, W::widgets((text, useless, button)));
-    let mut ui = Container::new(style, (text, useless, button));
+    let mut ui = Container::new_tuples(style, (text, useless, button));
+
+    // let mut ui = container(
+    //     style,
+    //     vec![text.into(), useless.into(), button.into()],
+    // );
+    // let mut ui = container(style, W::widgets((text, useless, button)));
+    let mut ui = Container::new_tuples(
+        style,
+        (
+            Text::new_raw(style, "Some text"),
+            Button::new_raw(style, Message::None, vec![Text::new(style, "Useless")]),
+            Button::new_text_raw(style, Message::Exit, "Exit"),
+        ),
+    );
+
+    // let mut ui = container(
+    //     style,
+    //     vec![text.into(), useless.into(), button.into()],
+    // );
+    // let mut ui = container(style, W::widgets((text, useless, button)));
+    let mut ui = Container::new(
+        style,
+        vec![
+            Text::new(style, "Some text"),
+            Button::new(style, Message::None, vec![Text::new(style, "Useless")]),
+            Button::new_text(style, Message::Exit, "Exit"),
+        ],
+    );
+
     // let text_style = Style {
     //     font: None,
     //     pad: Pad::new(style.pad.vec2().x, style.pad.vec2().y * 0.5),

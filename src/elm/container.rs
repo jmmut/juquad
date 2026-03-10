@@ -12,11 +12,11 @@ use crate::widgets::{interact, Interaction};
 pub type Container<I> = Widget<(), I>;
 
 pub fn container<I, Sty: Into<Style>>(style: Sty, children: Widgets<I>) -> Container<I> {
-    Container::new_boxes(style, children)
+    Container::new(style, children)
 }
 
 impl<I> Container<I> {
-    pub fn new_boxes<Sty: Into<Style>>(style: Sty, children: Widgets<I>) -> Container<I> {
+    pub fn new<Sty: Into<Style>>(style: Sty, children: Widgets<I>) -> Container<I> {
         Widget {
             pos: Default::default(),
             size: Default::default(),
@@ -27,13 +27,14 @@ impl<I> Container<I> {
     }
 }
 pub trait ContainerTuple<W, I> {
-    fn new<Sty: Into<Style>>(style: Sty, children: W) -> Container<I>;
+    fn new_tuples<Sty: Into<Style>>(style: Sty, children: W) -> Container<I>;
 }
+
 impl<I, A: RenderableWidget<I> + 'static, B: RenderableWidget<I> + 'static>
     ContainerTuple<(A, B), I> for Container<I>
 {
-    fn new<Sty: Into<Style>>(style: Sty, children: (A, B)) -> Container<I> {
-        Self::new_boxes(style, W::widgets(children))
+    fn new_tuples<Sty: Into<Style>>(style: Sty, children: (A, B)) -> Container<I> {
+        Self::new(style, W::widgets(children))
     }
 }
 impl<
@@ -43,8 +44,8 @@ impl<
         C: RenderableWidget<I> + 'static,
     > ContainerTuple<(A, B, C), I> for Container<I>
 {
-    fn new<Sty: Into<Style>>(style: Sty, children: (A, B, C)) -> Container<I> {
-        Self::new_boxes(style, W::widgets(children))
+    fn new_tuples<Sty: Into<Style>>(style: Sty, children: (A, B, C)) -> Container<I> {
+        Self::new(style, W::widgets(children))
     }
 }
 impl<
@@ -55,8 +56,8 @@ impl<
         D: RenderableWidget<I> + 'static,
     > ContainerTuple<(A, B, C, D), I> for Container<I>
 {
-    fn new<Sty: Into<Style>>(style: Sty, children: (A, B, C, D)) -> Container<I> {
-        Self::new_boxes(style, W::widgets(children))
+    fn new_tuples<Sty: Into<Style>>(style: Sty, children: (A, B, C, D)) -> Container<I> {
+        Self::new(style, W::widgets(children))
     }
 }
 // pub fn container2<Ws, I, Sty: Into<Style>>(style: Sty, children: Ws) -> Container<I> {
