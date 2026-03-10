@@ -1,13 +1,15 @@
 use juquad::draw::to_rect;
+use juquad::elm::button::Button;
 use juquad::elm::style::Style;
 use juquad::elm::text::Text;
-use juquad::lazy::button::Button;
 use juquad::lazy::panel::Panel;
 use juquad::lazy::slider::Slider;
 // use juquad::lazy::{
 //     set_positions, set_sizes, Interactable, Pad, Renderable, RenderableWidget, Size, Style,
 //     WidgetTrait, WidgetsView, WidgetsViewMut, DEBUG_WIDGETS,
 // };
+use juquad::elm::widget::{compute_layout, Interactable, Renderable};
+use juquad::lazy::Pad;
 use juquad::widgets::anchor::{Anchor, Horizontal, Layout, Spot, Vertical};
 use juquad::widgets::Interaction;
 use juquad::{PositionInPixels2d, SizeInPixels2d};
@@ -16,6 +18,12 @@ use macroquad::prelude::{
     clear_background, is_key_pressed, is_mouse_button_pressed, load_ttf_font_from_bytes,
     mouse_position, next_frame, screen_height, screen_width, vec2, KeyCode, MouseButton, BLACK,
 };
+
+pub enum Message {
+    None,
+    Exit,
+}
+
 // const COLORING: Coloring = Coloring::new();
 //
 // struct Buttons {
@@ -124,7 +132,7 @@ async fn main() {
     let mut screen = vec2(screen_width(), screen_height());
     let mut recalculate_ui = false;
     let mut ui = rebuild_ui(screen, &style);
-    loop {
+    'main_loop: loop {
         let _start = now();
         let new_screen = vec2(screen_width(), screen_height());
         if new_screen != screen {
@@ -138,6 +146,13 @@ async fn main() {
 
         if is_key_pressed(KeyCode::Escape) {
             break;
+        }
+
+        for message in ui.interact() {
+            match message {
+                Message::None => {}
+                Message::Exit => break 'main_loop,
+            }
         }
 
         clear_background(style.coloring.at_rest.bg_color);
@@ -246,10 +261,17 @@ fn rotate_layout(style: &mut Style) {
     style.layout = style.layout.transpose(Horizontal::rotate, Vertical::rotate)
 }
 
-fn rebuild_ui(screen: SizeInPixels2d, style: &Style) -> Text {
+fn rebuild_ui(screen: SizeInPixels2d, style: &Style) -> Button<Message> {
     let start = now();
 
-    let text = Text::new(style, "Some text");
+    // let mut text = Text::new(style, "Some text");
+    let mut text = Button::new_text(style, "Exit", |interaction| {
+        if interaction.is_clicked() {
+            Message::Exit
+        } else {
+            Message::None
+        }
+    });
 
     // let text_style = Style {
     //     font: None,
@@ -334,6 +356,9 @@ fn rebuild_ui(screen: SizeInPixels2d, style: &Style) -> Text {
     //
     // print_time_since(start, "rebuilt ui in");
     // buttons
+
+    let screen_rect = to_rect(vec2(0.0, 0.0), screen);
+    compute_layout(&mut text, screen_rect, style.layout);
 
     text
 }

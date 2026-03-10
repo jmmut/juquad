@@ -8,6 +8,7 @@ pub mod texture_loader;
 pub mod widgets;
 
 pub mod elm {
+    pub mod button;
     pub mod style;
     pub mod text;
     pub mod widget;
