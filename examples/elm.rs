@@ -1,17 +1,15 @@
 use juquad::draw::to_rect;
 use juquad::elm::button::Button;
-use juquad::elm::container::{container, Container, ContainerTuple};
+use juquad::elm::container::Container;
 use juquad::elm::style::Style;
 use juquad::elm::text::Text;
-use juquad::elm::widget::{
-    compute_layout, Interactable, Renderable, RenderableWidget, ToWidgets, Widget, W,
-};
-use juquad::widgets::anchor::{Anchor, Horizontal, Layout, Spot, Vertical};
-use juquad::{PositionInPixels2d, SizeInPixels2d};
+use juquad::elm::widget::{compute_layout, Interactable, Renderable, RenderableWidget};
+use juquad::widgets::anchor::{Horizontal, Spot, Vertical};
+use juquad::SizeInPixels2d;
 use macroquad::miniquad::date::now;
 use macroquad::prelude::{
     clear_background, is_key_pressed, is_mouse_button_pressed, load_ttf_font_from_bytes,
-    mouse_position, next_frame, screen_height, screen_width, vec2, KeyCode, MouseButton, BLACK,
+    mouse_position, next_frame, screen_height, screen_width, vec2, KeyCode, MouseButton,
 };
 
 #[derive(Copy, Clone)]
@@ -260,42 +258,6 @@ fn rotate_layout(style: &mut Style) {
 fn rebuild_ui(screen: SizeInPixels2d, style: &Style) -> impl RenderableWidget<Message> {
     let start = now();
 
-    let text = Text::new_raw(style, "Some text");
-    let useless = Button::new_raw(
-        style,
-        Message::None,
-        // vec![Box::new(Text::new(style, "Useless"))],
-        vec![Text::new_raw(style, "Useless").into()],
-        // W::widgets((Text::new(style, "Useless"),)),
-    );
-    let button = Button::new_text_raw(style, Message::Exit, "Exit");
-
-    // let mut ui = container(
-    //     style,
-    //     vec![text.into(), useless.into(), button.into()],
-    // );
-    // let mut ui = container(style, W::widgets((text, useless, button)));
-    let mut ui = Container::new_tuples(style, (text, useless, button));
-
-    // let mut ui = container(
-    //     style,
-    //     vec![text.into(), useless.into(), button.into()],
-    // );
-    // let mut ui = container(style, W::widgets((text, useless, button)));
-    let mut ui = Container::new_tuples(
-        style,
-        (
-            Text::new_raw(style, "Some text"),
-            Button::new_raw(style, Message::None, vec![Text::new(style, "Useless")]),
-            Button::new_text_raw(style, Message::Exit, "Exit"),
-        ),
-    );
-
-    // let mut ui = container(
-    //     style,
-    //     vec![text.into(), useless.into(), button.into()],
-    // );
-    // let mut ui = container(style, W::widgets((text, useless, button)));
     let mut ui = Container::new(
         style,
         vec![

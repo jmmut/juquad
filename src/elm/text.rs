@@ -1,5 +1,5 @@
 use crate::elm::style::Style;
-use crate::elm::widget::{Interactable, Renderable, RenderableWidget, Widget, WidgetTrait};
+use crate::elm::widget::{Interactable, Renderable, RenderableWidget, Widget};
 use crate::lazy::text::size_text_generic;
 use crate::widgets::{Interaction, StateColor};
 use macroquad::math::Vec2;
@@ -19,7 +19,10 @@ impl<I: 'static> Text<I> {
     ) -> Box<dyn RenderableWidget<I>> {
         Box::new(Self::new_raw(style, text))
     }
-    pub fn new_raw<Str: Into<String>, Sty: Into<Style>>(style: Sty, text: Str) -> Widget<TextBase, I> {
+    pub fn new_raw<Str: Into<String>, Sty: Into<Style>>(
+        style: Sty,
+        text: Str,
+    ) -> Widget<TextBase, I> {
         let style = style.into();
         let text = text.into();
         let size = size_text_generic(

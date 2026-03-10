@@ -4,7 +4,6 @@ use crate::widgets::anchor::{Anchor, Layout};
 use crate::widgets::Interaction;
 use crate::{PositionInPixels2d, SizeInPixels2d};
 use macroquad::math::{vec2, Rect};
-use std::any::Any;
 
 pub type Widgets<I> = Vec<Box<dyn RenderableWidget<I>>>;
 // pub type WidgetsViewMut<'a, 'b> = Vec<&'a mut (dyn RenderableWidget + 'b)>;
@@ -101,75 +100,11 @@ impl<C, I> WidgetTrait<I> for Widget<C, I> {
     }
 }
 
-pub fn widgets_2<I, A: RenderableWidget<I> + 'static, B: RenderableWidget<I> + 'static>(
-    (a, b): (A, B),
-) -> Widgets<I> {
-    vec![Box::new(a), Box::new(b)]
-}
-pub fn widgets_3<
-    I,
-    A: RenderableWidget<I> + 'static,
-    B: RenderableWidget<I> + 'static,
-    C: RenderableWidget<I> + 'static,
->(
-    (a, b, c): (A, B, C),
-) -> Widgets<I> {
-    vec![Box::new(a), Box::new(b), Box::new(c)]
-}
-
-pub trait ToWidgets<T, I> {
-    fn widgets(t: T) -> Widgets<I>;
-}
-pub struct W;
-
-impl<I, A: RenderableWidget<I> + 'static, B: RenderableWidget<I> + 'static> ToWidgets<(A, B), I>
-    for W
-{
-    fn widgets((a, b): (A, B)) -> Widgets<I> {
-        vec![Box::new(a), Box::new(b)]
-    }
-}
-
-impl<
-        I,
-        A: RenderableWidget<I> + 'static,
-        B: RenderableWidget<I> + 'static,
-        C: RenderableWidget<I> + 'static,
-    > ToWidgets<(A, B, C), I> for W
-{
-    fn widgets((a, b, c): (A, B, C)) -> Widgets<I> {
-        vec![Box::new(a), Box::new(b), Box::new(c)]
-    }
-}
-impl<
-        I,
-        A: RenderableWidget<I> + 'static,
-        B: RenderableWidget<I> + 'static,
-        C: RenderableWidget<I> + 'static,
-        D: RenderableWidget<I> + 'static,
-    > ToWidgets<(A, B, C, D), I> for W
-{
-    fn widgets((a, b, c, d): (A, B, C, D)) -> Widgets<I> {
-        vec![Box::new(a), Box::new(b), Box::new(c), Box::new(d)]
-    }
-}
-
 impl<W: RenderableWidget<I> + 'static, I> From<W> for Box<dyn RenderableWidget<I>> {
     fn from(value: W) -> Self {
         Box::new(value)
     }
 }
-
-// impl<I, A: RenderableWidget<I>, B: RenderableWidget<I>> From<(A, B)> for Widgets<I> {
-//     fn from((a, b): (A, B)) -> Self {
-//         vec![Box::new(a), Box::new(b)]
-//     }
-// }
-// impl<I, A: RenderableWidget<I>, B: RenderableWidget<I>, C: RenderableWidget<I>> From<(A, B, C)> for Widgets<I> {
-//     fn from((a, b, c): (A, B, C)) -> Self {
-//         vec![Box::new(a), Box::new(b), Box::new(c)]
-//     }
-// }
 
 pub fn compute_layout<I>(ui: &mut dyn WidgetTrait<I>, rect: Rect, layout: Layout) {
     set_sizes(ui);
