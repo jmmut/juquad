@@ -9,7 +9,6 @@ use crate::widgets::{interact, Interaction};
 
 pub type Button<I> = Widget<ButtonBase<I>, I>;
 pub type RenderButton<I> = fn(widget: &Button<I>, interaction: Interaction);
-pub type OnPress<I> = fn(interaction: Interaction) -> I;
 
 pub struct ButtonBase<I> {
     pub interaction: Interaction,
@@ -19,21 +18,20 @@ pub struct ButtonBase<I> {
 }
 
 impl<I: Clone + 'static> Button<I> {
-    pub fn new_text<Sty: Into<Style>>(
-        style: Sty,
-        text: &str,
-        on_press: I,
-    ) -> Self {
-        let style = style.into();
-        let text = Text::<I>::new(&style, text);
-        let text = Box::new(text);
+    pub fn new<Sty: Into<Style>>(style: Sty, on_press: I, children: Widgets<I>) -> Self {
         Self::new_generic(
-            style,
+            style.into(),
             Box::new(InputMacroquad),
             render_interactive,
             on_press,
-            vec![text],
+            children,
         )
+    }
+    pub fn new_text<Sty: Into<Style>>(style: Sty, on_press: I, text: &str) -> Self {
+        let style = style.into();
+        let text = Text::<I>::new(&style, text);
+        let text = Box::new(text);
+        Self::new(style, on_press, vec![text])
     }
     pub fn new_generic(
         style: Style,

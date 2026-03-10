@@ -9,6 +9,7 @@ pub mod widgets;
 
 pub mod elm {
     pub mod button;
+    pub mod container;
     pub mod style;
     pub mod text;
     pub mod widget;

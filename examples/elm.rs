@@ -1,17 +1,10 @@
 use juquad::draw::to_rect;
 use juquad::elm::button::Button;
+use juquad::elm::container::container;
 use juquad::elm::style::Style;
 use juquad::elm::text::Text;
-use juquad::lazy::panel::Panel;
-use juquad::lazy::slider::Slider;
-// use juquad::lazy::{
-//     set_positions, set_sizes, Interactable, Pad, Renderable, RenderableWidget, Size, Style,
-//     WidgetTrait, WidgetsView, WidgetsViewMut, DEBUG_WIDGETS,
-// };
-use juquad::elm::widget::{compute_layout, Interactable, Renderable};
-use juquad::lazy::Pad;
+use juquad::elm::widget::{compute_layout, Interactable, Renderable, RenderableWidget, Widget};
 use juquad::widgets::anchor::{Anchor, Horizontal, Layout, Spot, Vertical};
-use juquad::widgets::Interaction;
 use juquad::{PositionInPixels2d, SizeInPixels2d};
 use macroquad::miniquad::date::now;
 use macroquad::prelude::{
@@ -262,12 +255,18 @@ fn rotate_layout(style: &mut Style) {
     style.layout = style.layout.transpose(Horizontal::rotate, Vertical::rotate)
 }
 
-fn rebuild_ui(screen: SizeInPixels2d, style: &Style) -> Button<Message> {
+fn rebuild_ui(screen: SizeInPixels2d, style: &Style) -> impl RenderableWidget<Message> {
     let start = now();
 
-    // let mut text = Text::new(style, "Some text");
-    let mut text = Button::new_text(style, "Exit", Message::Exit);
+    let text = Text::new(style, "Some text");
+    let button = Button::new(
+        style,
+        Message::None,
+        vec![Box::new(Text::new(style, "Useless"))],
+    );
+    let button = Button::new_text(style, Message::Exit, "Exit");
 
+    let mut ui = container(style, vec![Box::new(text), Box::new(button)]);
     // let text_style = Style {
     //     font: None,
     //     pad: Pad::new(style.pad.vec2().x, style.pad.vec2().y * 0.5),
@@ -353,9 +352,9 @@ fn rebuild_ui(screen: SizeInPixels2d, style: &Style) -> Button<Message> {
     // buttons
 
     let screen_rect = to_rect(vec2(0.0, 0.0), screen);
-    compute_layout(&mut text, screen_rect, style.layout);
+    compute_layout(&mut ui, screen_rect, style.layout);
 
-    text
+    ui
 }
 
 fn print_time_since(_start_seconds: f64, _name: &str) {
