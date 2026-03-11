@@ -1,4 +1,4 @@
-use crate::draw::draw_rect;
+use crate::draw::{draw_rect, draw_rect_lines};
 use crate::elm::style::Style;
 use crate::elm::text::Text;
 use crate::elm::widget::{
@@ -6,7 +6,7 @@ use crate::elm::widget::{
 };
 use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
-use crate::widgets::button::draw_panel_border;
+use crate::lazy::{Margin, Pad};
 use crate::widgets::{interact, Interaction};
 
 pub type Button<I> = Widget<ButtonBase<I>, I>;
@@ -44,8 +44,11 @@ impl<I: Clone + 'static> Button<I> {
         Box::new(Self::new_text_raw(style, on_press, text))
     }
     pub fn new_text_raw<Sty: Into<Style>>(style: Sty, on_press: I, text: &str) -> Self {
-        let style = style.into();
-        Self::new_raw(style.clone(), on_press, vec![Text::new(style, text)])
+        let mut button_style = style.into();
+        let mut text_style = button_style.clone();
+        button_style.pad = Pad::new_symmetric(0.0);
+        text_style.margin = Margin::new_symmetric(0.0);
+        Self::new_raw(button_style, on_press, vec![Text::new(text_style, text)])
     }
     pub fn new_generic(
         style: Style,
@@ -78,12 +81,6 @@ impl<I: Clone + 'static> Button<I> {
     }
 }
 
-impl<I> Renderable for Button<I> {
-    fn render_interactive(&self, interaction: Interaction) {
-        (self.custom.render_button)(self, interaction)
-    }
-}
-
 impl<I: Clone + 'static> Interactable<I> for Button<I> {
     fn interact(&mut self) -> Vec<I> {
         let mut messages = Vec::new();
@@ -93,10 +90,21 @@ impl<I: Clone + 'static> Interactable<I> for Button<I> {
         messages
     }
 }
+
+impl<I> Renderable for Button<I> {
+    fn render_interactive(&self, interaction: Interaction) {
+        (self.custom.render_button)(self, interaction)
+    }
+}
+
 fn render_interactive<I>(widget: &Button<I>, _unused: Interaction) {
     let state_style = widget.style().coloring.choose(widget.custom.interaction);
     draw_rect(widget.rect(), state_style.bg_color);
-    draw_panel_border(widget.rect(), state_style);
+    draw_rect_lines(
+        widget.rect(),
+        widget.style.border * 2.0,
+        state_style.border_color,
+    );
     // if unsafe { DEBUG_WIDGETS } {
     //     draw_debug_widget(widget);
     // }

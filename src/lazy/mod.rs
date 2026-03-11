@@ -197,8 +197,8 @@ pub type Margin = Pad;
 
 #[derive(Copy, Clone)]
 pub struct Pad {
-    x: f32,
-    y: f32,
+    pub x: f32,
+    pub y: f32,
 }
 impl Pad {
     pub fn new(x: f32, y: f32) -> Self {
@@ -212,6 +212,11 @@ impl Pad {
     }
     pub fn vec2(&self) -> SizeInPixels2d {
         vec2(self.x, self.y)
+    }
+}
+impl From<Vec2> for Pad {
+    fn from(value: Vec2) -> Self {
+        Pad::new(value.x, value.y)
     }
 }
 impl Index<usize> for Pad {

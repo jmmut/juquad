@@ -7,6 +7,7 @@ use macroquad::prelude::Font;
 pub struct Style {
     pub pad: Pad,
     pub margin: Margin,
+    pub border: f32,
     pub layout: Layout,
     pub font_size: f32,
     pub font: Option<Font>,
@@ -24,11 +25,9 @@ impl Default for Style {
     fn default() -> Self {
         Self {
             pad: Pad::new(DEFAULT_FONT_SIZE * 1.5, DEFAULT_FONT_SIZE),
-            margin: Pad::new_symmetric(0.0),
-            layout: Layout::Vertical {
-                direction: Vertical::Bottom,
-                alignment: Horizontal::Center,
-            },
+            margin: Margin::new_symmetric(0.0),
+            border: 1.0,
+            layout: Layout::vertical(Vertical::Bottom, Horizontal::Center),
             font_size: DEFAULT_FONT_SIZE,
             font: None,
             size: Size::Fit,

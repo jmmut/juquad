@@ -1,10 +1,11 @@
 use juquad::draw::to_rect;
 use juquad::elm::button::Button;
 use juquad::elm::container::Container;
+use juquad::elm::slider::Slider;
 use juquad::elm::style::Style;
 use juquad::elm::text::Text;
-use juquad::elm::widget::{compute_layout, Interactable, Renderable, RenderableWidget};
-use juquad::widgets::anchor::{Horizontal, Spot, Vertical};
+use juquad::elm::widget::{compute_layout, RenderableWidget};
+use juquad::widgets::anchor::{Horizontal, Layout, Spot, Vertical};
 use juquad::SizeInPixels2d;
 use macroquad::miniquad::date::now;
 use macroquad::prelude::{
@@ -16,96 +17,15 @@ use macroquad::prelude::{
 pub enum Message {
     None,
     Exit,
+    PadX(f32),
+    PadY(f32),
+    MarginX(f32),
+    MarginY(f32),
 }
-
-// const COLORING: Coloring = Coloring::new();
-//
-// struct Buttons {
-//     panel: Panel<()>,
-//     //     expand: Button,
-//     //     increase_font: Button,
-//     //     decrease_font: Button,
-//     //     change_font: Button,
-//     //     toggle_borders: Button,
-//     some_text: Text,
-//     toggle_alignment: Button,
-//     toggle_direction: Button,
-//     rotate_layout: Button,
-//     toggle_debug: Button,
-//     pad: Panel<f32>,
-//     margin: Panel<f32>,
-//     exit: Button,
-// }
-// impl Buttons {
-//     pub fn widgets(&self) -> Vec<&dyn RenderableWidget> {
-//         vec![
-//             &self.panel,
-//             &self.some_text,
-//             &self.pad,
-//             &self.margin,
-//             &self.toggle_alignment,
-//             &self.toggle_direction,
-//             &self.rotate_layout,
-//             &self.toggle_debug,
-//             &self.exit,
-//         ]
-//     }
-// }
-// impl WidgetTrait for Buttons {
-//     fn size(&self) -> SizeInPixels2d {
-//         self.panel.size()
-//     }
-//
-//     fn pos(&self) -> PositionInPixels2d {
-//         self.panel.pos()
-//     }
-//
-//     fn set_pos(&mut self, position: PositionInPixels2d) {
-//         self.panel.set_pos(position)
-//     }
-//
-//     fn set_size(&mut self, size: SizeInPixels2d) {
-//         self.panel.set_size(size)
-//     }
-//
-//     fn style(&self) -> &Style {
-//         self.panel.style()
-//     }
-//
-//     fn children_mut(&mut self) -> WidgetsViewMut<'_> {
-//         vec![
-//             &mut self.some_text,
-//             &mut self.pad,
-//             &mut self.margin,
-//             &mut self.toggle_alignment,
-//             &mut self.toggle_direction,
-//             &mut self.rotate_layout,
-//             &mut self.toggle_debug,
-//             &mut self.exit,
-//         ]
-//     }
-//
-//     fn children(&self) -> WidgetsView<'_> {
-//         let mut iter = self.widgets().into_iter();
-//         iter.next();
-//         iter.collect()
-//     }
-// }
-// impl Renderable for Buttons {
-//     fn render_interactive(&self, _interaction: Interaction) {
-//         self.render()
-//     }
-//     fn render(&self) {
-//         for widget in self.widgets() {
-//             widget.render();
-//         }
-//     }
-// }
-// impl Interactable for Buttons {}
 
 #[macroquad::main("juquad elm ui")]
 async fn main() {
-    let font_size: f32 = 22.0;
+    let font_size: f32 = 16.0;
     // let font_bytes = include_bytes!("../assets/Saira-Regular.ttf");
     let font_bytes = include_bytes!("../assets/Roboto-Regular.ttf");
     let font = Some(load_ttf_font_from_bytes(font_bytes).unwrap());
@@ -146,55 +66,23 @@ async fn main() {
             match message {
                 Message::None => {}
                 Message::Exit => break 'main_loop,
+                Message::PadX(new_value) => {
+                    maybe_modify(&mut style.pad.x, new_value, &mut recalculate_ui);
+                }
+                Message::PadY(new_value) => {
+                    maybe_modify(&mut style.pad.y, new_value, &mut recalculate_ui);
+                }
+                Message::MarginX(new_value) => {
+                    maybe_modify(&mut style.margin.x, new_value, &mut recalculate_ui);
+                }
+                Message::MarginY(new_value) => {
+                    maybe_modify(&mut style.margin.y, new_value, &mut recalculate_ui);
+                }
             }
         }
 
         clear_background(style.coloring.at_rest.bg_color);
         ui.render();
-
-        // if buttons.toggle_alignment.interact().is_clicked() {
-        //     rotate_alignment(&mut style);
-        //     recalculate_ui = true;
-        // }
-        // if buttons.toggle_direction.interact().is_clicked() {
-        //     flip_direction(&mut style);
-        //     recalculate_ui = true;
-        // }
-        // if buttons.rotate_layout.interact().is_clicked() {
-        //     rotate_layout(&mut style);
-        //     recalculate_ui = true;
-        // }
-        // if buttons.toggle_debug.interact().is_clicked() {
-        //     unsafe {
-        //         DEBUG_WIDGETS = !DEBUG_WIDGETS;
-        //     }
-        //     recalculate_ui = true;
-        // }
-        //
-        // let slider_values = buttons.pad.interact_t(2);
-        // let style_pad = &mut style.pad;
-        // for i in 0..=1 {
-        //     let slider_value: f32 = slider_values[i];
-        //     if !float_eq(slider_value, style_pad[i], 0.01) {
-        //         style_pad[i] = slider_value;
-        //         recalculate_ui = true;
-        //     }
-        // }
-        // let slider_values = buttons.margin.interact_t(2);
-        // let style_pad = &mut style.margin;
-        // for i in 0..=1 {
-        //     let slider_value: f32 = slider_values[i];
-        //     if !float_eq(slider_value, style_pad[i], 0.01) {
-        //         style_pad[i] = slider_value;
-        //         recalculate_ui = true;
-        //     }
-        // }
-        // if buttons.exit.interact().is_clicked() {
-        //     break;
-        // }
-        //
-        // clear_background(BLACK);
-        // buttons.render();
 
         if is_mouse_button_pressed(MouseButton::Left) {
             println!("{:?}", mouse_position())
@@ -203,6 +91,14 @@ async fn main() {
         next_frame().await
     }
 }
+
+fn maybe_modify(current: &mut f32, new_value: f32, recalculate_ui: &mut bool) {
+    if !float_eq(*current, new_value, 0.0001) {
+        *current = new_value;
+        *recalculate_ui = true;
+    }
+}
+
 fn float_eq(a: f32, b: f32, epsilon: f32) -> bool {
     (a - b).abs() < epsilon
 }
@@ -255,105 +151,43 @@ fn rotate_layout(style: &mut Style) {
     style.layout = style.layout.transpose(Horizontal::rotate, Vertical::rotate)
 }
 
-fn rebuild_ui(screen: SizeInPixels2d, style: &Style) -> impl RenderableWidget<Message> {
+fn rebuild_ui(screen: SizeInPixels2d, style: &Style) -> Box<dyn RenderableWidget<Message>> {
     let start = now();
+    let style_horizontal = &Style {
+        layout: Layout::horizontal(Horizontal::Right, Vertical::Center),
+        ..style.clone()
+    };
 
     let mut ui = Container::new(
         style,
         vec![
             Text::new(style, "Some text"),
-            Button::new(style, Message::None, vec![Text::new(style, "Useless")]),
+            Container::new(
+                style_horizontal,
+                vec![
+                    Text::new(style, format!("Pad x: {:0>6.2}", style.pad.x)),
+                    Slider::new(style, 0.0, 100.0, style.pad.x, Message::PadX),
+                    Text::new(style, format!("Pad y: {:0>6.2}", style.pad.y)),
+                    Slider::new(style, 0.0, 100.0, style.pad.y, Message::PadY),
+                ],
+            ),
+            Container::new(
+                style_horizontal,
+                vec![
+                    Text::new(style, format!("Margin x: {:0>6.2}", style.margin.x)),
+                    Slider::new(style, 0.0, 100.0, style.margin.x, Message::MarginX),
+                    Text::new(style, format!("Margin y: {:0>6.2}", style.margin.y)),
+                    Slider::new(style, 0.0, 100.0, style.margin.y, Message::MarginY),
+                ],
+            ),
             Button::new_text(style, Message::Exit, "Exit"),
         ],
     );
 
-    // let text_style = Style {
-    //     font: None,
-    //     pad: Pad::new(style.pad.vec2().x, style.pad.vec2().y * 0.5),
-    //     margin: Pad::new(style.margin.vec2().x, 0.0),
-    //     ..*style
-    // };
-    // let horizontal_layout = Layout::horizontal(Horizontal::Right, Vertical::Center);
-    // let button_style = Style {
-    //     layout: horizontal_layout,
-    //     pad: Pad::new_symmetric(0.0),
-    //     font: style.font.clone(),
-    //     ..*style
-    // };
-    // let slider_container_style = Style {
-    //     pad: Pad::new_symmetric(0.0),
-    //     margin: Pad::new_symmetric(0.0),
-    //     layout: horizontal_layout,
-    //     font: style.font.clone(),
-    //     ..*style
-    // };
-    // let mut buttons = Buttons {
-    //     panel: Panel::leaf(Style {
-    //         size: Size::Grow,
-    //         font: style.font.clone(),
-    //         ..*style
-    //     }),
-    //     some_text: Text::new(&text_style, "Title"),
-    //     toggle_alignment: Button::container(
-    //         button_style.clone(),
-    //         vec![Box::new(Text::new(&text_style, "Toggle alignment"))],
-    //     ),
-    //     toggle_direction: Button::container(
-    //         button_style.clone(),
-    //         vec![Box::new(Text::new(&text_style, "Toggle direction"))],
-    //     ),
-    //     rotate_layout: Button::container(
-    //         button_style.clone(),
-    //         vec![Box::new(Text::new(&text_style, "Rotate layout"))],
-    //     ),
-    //     toggle_debug: Button::container(
-    //         button_style.clone(),
-    //         vec![Box::new(Text::new(&text_style, "Debug widgets"))],
-    //     ),
-    //     pad: Panel::container(
-    //         slider_container_style.clone(),
-    //         vec![
-    //             Box::new(Text::new(
-    //                 style,
-    //                 &format!("Pad x: {:.1}", style.pad.vec2().x),
-    //             )),
-    //             Box::new(Slider::new(style.clone(), 0.0, 50.0, style.pad.vec2().x)),
-    //             Box::new(Text::new(
-    //                 style,
-    //                 &format!("Pad y: {:.1}", style.pad.vec2().y),
-    //             )),
-    //             Box::new(Slider::new(style.clone(), 0.0, 50.0, style.pad.vec2().y)),
-    //         ],
-    //     ),
-    //     margin: Panel::container(
-    //         slider_container_style.clone(),
-    //         vec![
-    //             Box::new(Text::new(
-    //                 style,
-    //                 &format!("Margin x: {:.1}", style.margin.vec2().x),
-    //             )),
-    //             Box::new(Slider::new(style.clone(), 0.0, 50.0, style.margin.vec2().x)),
-    //             Box::new(Text::new(
-    //                 style,
-    //                 &format!("Margin y: {:.1}", style.margin.vec2().y),
-    //             )),
-    //             Box::new(Slider::new(style.clone(), 0.0, 50.0, style.margin.vec2().y)),
-    //         ],
-    //     ),
-    //     exit: Button::container(button_style, vec![Box::new(Text::new(&text_style, "Exit"))]),
-    // };
-
-    // set_sizes(&mut buttons);
-    // let screen_rect = to_rect(vec2(0.0, 0.0), screen);
-    // let anchor = Anchor::inside(screen_rect, style.layout, vec2(0.0, 0.0));
-    // set_positions(&mut buttons, anchor);
-    //
-    // print_time_since(start, "rebuilt ui in");
-    // buttons
-
     let screen_rect = to_rect(vec2(0.0, 0.0), screen);
-    compute_layout(&mut ui, screen_rect, style.layout);
+    compute_layout(&mut *ui, screen_rect, style.layout);
 
+    print_time_since(start, "rebuilt ui in");
     ui
 }
 
