@@ -16,14 +16,15 @@ use juquad::widgets::{
 use macroquad::miniquad::date::now;
 use macroquad::prelude::{
     clear_background, draw_texture_ex, next_frame, screen_height, screen_width, DrawTextureParams,
-    FileError, Vec2, WHITE,
+    Vec2, WHITE,
 };
+use macroquad::Error;
 
 const FONT_SIZE: f32 = 32.0;
 const TEXTURE_PATH: &'static str = "assets/ferris.png";
 
 #[macroquad::main("Hello juquad")]
-async fn main() -> Result<(), FileError> {
+async fn main() -> Result<(), Error> {
     let style: Style = Style::new();
     let mut loader = TexturePathLoader::new(vec![TEXTURE_PATH]);
     let mut textures_opt = None;
@@ -53,7 +54,7 @@ async fn main() -> Result<(), FileError> {
                 let dest_size = Vec2::new(300.0, 200.0);
                 let position = center - 0.5 * dest_size;
                 draw_texture_ex(
-                    textures[0],
+                    &textures[0],
                     position.x,
                     position.y,
                     WHITE,

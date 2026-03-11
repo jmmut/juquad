@@ -1,5 +1,5 @@
-use macroquad::file::FileError;
 use macroquad::texture::{load_texture, Texture2D};
+use macroquad::Error;
 use std::future::Future;
 use std::pin::Pin;
 use std::task::{Poll, RawWaker, RawWakerVTable, Waker};
@@ -7,13 +7,13 @@ use std::task::{Poll, RawWaker, RawWakerVTable, Waker};
 pub type TexturePathLoaderAlias<'a> = ResourceLoader<
     &'a str,
     Texture2D,
-    FileError,
-    fn(&'a str) -> std::pin::Pin<Box<dyn Future<Output = Result<Texture2D, FileError>> + 'a>>,
-    std::pin::Pin<Box<dyn Future<Output = Result<Texture2D, FileError>> + 'a>>,
+    Error,
+    fn(&'a str) -> std::pin::Pin<Box<dyn Future<Output = Result<Texture2D, Error>> + 'a>>,
+    std::pin::Pin<Box<dyn Future<Output = Result<Texture2D, Error>> + 'a>>,
 >;
 impl<'a> TexturePathLoaderAlias<'a> {
     #[deprecated = "use ResourceLoader.get_resources() resources"]
-    pub fn get_textures(&mut self) -> Result<Option<Vec<Texture2D>>, FileError> {
+    pub fn get_textures(&mut self) -> Result<Option<Vec<Texture2D>>, Error> {
         self.get_resources()
     }
 }

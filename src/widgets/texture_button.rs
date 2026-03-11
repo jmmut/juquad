@@ -50,7 +50,7 @@ impl TextureButton {
         };
         self.interaction
     }
-    pub fn render(&self, textures: Vec<Texture2D>, textures_highlighted: Option<Vec<Texture2D>>) {
+    pub fn render(&self, textures: Vec<&Texture2D>, textures_highlighted: Option<Vec<&Texture2D>>) {
         let chosen_textures = match self.interaction {
             Interaction::Clicked | Interaction::Pressing => textures,
             Interaction::Hovered => textures_highlighted.unwrap_or(textures),

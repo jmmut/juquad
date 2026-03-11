@@ -135,7 +135,7 @@ impl LabelGroup {
         let mut max_width = 0.0;
         let mut dimensions = Vec::new();
         // font_size doesn't seem to be in pixels across fonts
-        let reference_size = measure_text("Odp", self.font, self.font_size as u16, 1.0);
+        let reference_size = measure_text("Odp", self.font.as_ref(), self.font_size as u16, 1.0);
         // let reference_size1 = measure_text("O", self.font, self.font_size as u16, 1.0);
         // let reference_size2 = measure_text(
         //     "some button to expand",
@@ -161,7 +161,8 @@ impl LabelGroup {
 
         for text in texts {
             let text = text.as_ref().to_string();
-            let text_dimensions = measure_text(&text, self.font, self.font_size as u16, 1.0);
+            let text_dimensions =
+                measure_text(&text, self.font.as_ref(), self.font_size as u16, 1.0);
             if text_dimensions.width > max_width {
                 max_width = text_dimensions.width;
             }
@@ -198,7 +199,7 @@ impl LabelGroup {
                 text,
                 rect,
                 font_size: self.font_size,
-                font: self.font,
+                font: self.font.clone(),
                 pad,
                 offset_y: dimension.offset_y,
                 text_width: dimension.width,

@@ -179,16 +179,26 @@ impl<Custom: Default> From<Style> for WidgetData<Custom> {
 
 #[derive(Copy, Clone)]
 pub enum Size {
+    /// minimum possible
     Fit,
+    /// maximum possible
     Grow,
-    Size { w: Pixels, h: Pixels },
-    Ratio { w: f32, h: f32 },
+    Fixed {
+        w: Pixels,
+        h: Pixels,
+    },
+    Ratio {
+        w: f32,
+        h: f32,
+    },
 }
+
+pub type Margin = Pad;
 
 #[derive(Copy, Clone)]
 pub struct Pad {
-    x: f32,
-    y: f32,
+    pub x: f32,
+    pub y: f32,
 }
 impl Pad {
     pub fn new(x: f32, y: f32) -> Self {
@@ -202,6 +212,11 @@ impl Pad {
     }
     pub fn vec2(&self) -> SizeInPixels2d {
         vec2(self.x, self.y)
+    }
+}
+impl From<Vec2> for Pad {
+    fn from(value: Vec2) -> Self {
+        Pad::new(value.x, value.y)
     }
 }
 impl Index<usize> for Pad {
@@ -227,7 +242,10 @@ impl IndexMut<usize> for Pad {
         }
     }
 }
-#[derive(Copy, Clone)]
+
+pub type FontId = usize;
+
+#[derive(Clone)]
 pub struct Style {
     pub pad: Pad,
     pub margin: Pad,
@@ -294,7 +312,7 @@ impl<W: WidgetTrait> Container<W> {
             Size::Grow => {
                 self.widget.set_size(self.max_size);
             }
-            Size::Fit | Size::Size { .. } | Size::Ratio { .. } => {
+            Size::Fit | Size::Fixed { .. } | Size::Ratio { .. } => {
                 unimplemented!()
             }
         }
@@ -332,7 +350,7 @@ pub fn container<'a, 'b>(
 
 pub fn set_sizes(node: &mut dyn RenderableWidget) {
     let mut accumulated_size = SizeInPixels2d::new(0.0, 0.0);
-    let style = *node.style();
+    let style = node.style();
     let parallel = style.layout.parallel_index();
     let perpendicular = style.layout.perpendicular_index();
     for child in node.children_mut() {
@@ -361,8 +379,8 @@ pub fn set_positions(node: &mut dyn RenderableWidget, outer_anchor: Anchor) -> R
     // the first child has to Anchor::inside, and the next ones need to Anchor::next_to, so create an empty rect as first child
     let initial_anchor = Anchor::inside(node.rect(), node.style().layout, node.style().pad.vec2());
     let zero2d = SizeInPixels2d::default();
-    let mut previous_rect = to_rect(initial_anchor.get_top_left_pixel(zero2d), zero2d);
-    let style = *node.style();
+    let mut previous_rect = initial_anchor.get_rect(zero2d);
+    let style = node.style().clone();
     for child in node.children_mut() {
         let anchor = Anchor::next_to(previous_rect, style.layout, 0.0);
         previous_rect = set_positions(child, anchor);
@@ -416,7 +434,7 @@ mod tests {
 
     fn mock_measure(
         text: &str,
-        _font: Option<Font>,
+        _font: Option<&Font>,
         font_size: u16,
         font_scale: f32,
     ) -> TextDimensions {
@@ -431,15 +449,18 @@ mod tests {
     }
     #[test]
     fn test_basic_layout() {
-        let style = Style::default();
-        fn text(style: Style, s: &str) -> Box<Text> {
+        let style = &Style::default();
+        fn text(style: &Style, s: &str) -> Box<Text> {
             Box::new(Text::new_generic(style, s, mock_measure, render_text))
         }
         let mut panel = Panel::<Interaction>::container(
-            style,
+            style.clone(),
             vec![
                 text(style, "some text"),
-                Box::new(Button::container(style, vec![text(style, "some button")])),
+                Box::new(Button::container(
+                    style.clone(),
+                    vec![text(style, "some button")],
+                )),
             ],
         );
         set_sizes(&mut panel);

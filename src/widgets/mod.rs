@@ -60,12 +60,17 @@ pub trait Widget {
         self.set_rect(rect)
     }
 }
+
+pub type StateStyle = StateColor;
+
 #[derive(Copy, Clone)]
-pub struct StateStyle {
+pub struct StateColor {
     pub bg_color: Color,
     pub text_color: Color,
     pub border_color: Color,
 }
+
+pub type Coloring = Style;
 
 #[derive(Copy, Clone)]
 pub struct Style {

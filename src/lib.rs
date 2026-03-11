@@ -7,6 +7,15 @@ pub mod resource_loader;
 pub mod texture_loader;
 pub mod widgets;
 
+pub mod elm {
+    pub mod button;
+    pub mod container;
+    pub mod slider;
+    pub mod style;
+    pub mod text;
+    pub mod widget;
+}
+
 pub mod input {
     pub mod input_macroquad;
     pub mod input_trait;

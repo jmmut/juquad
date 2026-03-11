@@ -98,7 +98,12 @@ impl Anchor {
             y: position.y,
         }
     }
-    pub fn chain(horizontal: Horizontal, vertical: Vertical, other: Anchor, margin: SizeInPixels2d) -> Self {
+    pub fn chain(
+        horizontal: Horizontal,
+        vertical: Vertical,
+        other: Anchor,
+        margin: SizeInPixels2d,
+    ) -> Self {
         let Vec2 { x, y } = other.get_top_left_pixel(margin * 2.0);
         Self::new(horizontal, vertical, x, y)
     }
