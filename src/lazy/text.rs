@@ -6,10 +6,15 @@ use crate::widgets::text::{draw_text_v, MeasureText};
 use crate::widgets::Interaction;
 use crate::SizeInPixels2d;
 use macroquad::math::Vec2;
-use macroquad::prelude::{vec2, Font};
+use macroquad::prelude::{vec2, Font, TextDimensions};
 
 pub type Text = WidgetData<TextBase>;
 pub type RenderText = fn(widget: &Text, interaction: Interaction);
+
+/// using a wrapper because mq::measure_text is generic and lifetimes somehow prevent compilation
+pub fn mq_measure_text(text: &str, font: Option<&Font>, font_size: u16, font_scale: f32) -> TextDimensions {
+    macroquad::text::measure_text(text, font, font_size, font_scale)
+}
 
 pub struct TextBase {
     pub text: String,
@@ -18,7 +23,7 @@ pub struct TextBase {
 }
 impl Text {
     pub fn new(style: &Style, text: &str) -> Self {
-        Self::new_generic(style, text, macroquad::text::measure_text, render_text)
+        Self::new_generic(style, text, mq_measure_text, render_text)
     }
     pub fn new_generic(
         style: &Style,

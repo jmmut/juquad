@@ -4,6 +4,7 @@ use crate::PositionInPixels2d;
 use macroquad::prelude::{Color, Font, Rect, TextDimensions, Vec2};
 use macroquad::text::TextParams;
 use std::ops::AddAssign;
+use crate::lazy::text::mq_measure_text;
 
 pub type Pixels = f32;
 
@@ -72,7 +73,7 @@ impl TextRect {
             position_pixels,
             font_size,
             None,
-            macroquad::prelude::measure_text,
+            mq_measure_text,
         )
     }
 
@@ -215,7 +216,7 @@ pub fn wrap_or_hide_text(
         line_height,
         panel_width,
         panel_height,
-        &macroquad::prelude::measure_text,
+        &mq_measure_text,
     )
 }
 

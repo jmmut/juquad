@@ -1,6 +1,6 @@
 use crate::elm::style::Style;
 use crate::elm::widget::{Interactable, Renderable, RenderableWidget, Widget};
-use crate::lazy::text::size_text_generic;
+use crate::lazy::text::{mq_measure_text, size_text_generic};
 use crate::widgets::{Interaction, StateColor};
 use macroquad::math::Vec2;
 use macroquad::prelude::{Font, TextParams};
@@ -27,7 +27,7 @@ impl<I: 'static> Text<I> {
         let text = text.into();
         let size = size_text_generic(
             &text,
-            macroquad::prelude::measure_text,
+            mq_measure_text,
             style.font.as_ref(),
             style.font_size,
         );
