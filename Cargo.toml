@@ -9,5 +9,5 @@ license = "MIT"
 [dependencies]
 macroquad = "0.4.14"
 
-[patch.crates-io]
-macroquad = { path = "../macroquad" }
+#[patch.crates-io]
+#macroquad = { path = "../macroquad" }
