@@ -1,6 +1,6 @@
-use crate::lazy::{Margin, Pad, Size, DEFAULT_FONT_SIZE};
-use crate::widgets::anchor::{Horizontal, Layout, Vertical};
+use crate::lazy::{DEFAULT_FONT_SIZE, Margin, Pad, Size};
 use crate::widgets::Coloring;
+use crate::widgets::anchor::{Horizontal, Layout, Vertical};
 use macroquad::prelude::Font;
 
 #[derive(Clone)]

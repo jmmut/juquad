@@ -7,7 +7,7 @@ use crate::elm::widget::{
 use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
 use crate::lazy::{Margin, Pad};
-use crate::widgets::{interact, Interaction};
+use crate::widgets::{Interaction, interact};
 
 pub type Button<I> = Widget<ButtonBase<I>, I>;
 pub type RenderButton<I> = fn(widget: &Button<I>, interaction: Interaction);

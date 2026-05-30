@@ -2,11 +2,11 @@ use crate::draw::draw_rect;
 use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
 use crate::lazy::{
-    draw_debug_widget, Interactable, Renderable, Style, WidgetData, WidgetTrait, Widgets,
-    DEBUG_WIDGETS,
+    DEBUG_WIDGETS, Interactable, Renderable, Style, WidgetData, WidgetTrait, Widgets,
+    draw_debug_widget,
 };
 use crate::widgets::button::draw_panel_border;
-use crate::widgets::{interact, Interaction};
+use crate::widgets::{Interaction, interact};
 use std::any::Any;
 
 pub type Button = WidgetData<ButtonBase>;

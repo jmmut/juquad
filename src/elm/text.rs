@@ -25,12 +25,7 @@ impl<I: 'static> Text<I> {
     ) -> Widget<TextBase, I> {
         let style = style.into();
         let text = text.into();
-        let size = size_text_generic(
-            &text,
-            mq_measure_text,
-            style.font.as_ref(),
-            style.font_size,
-        );
+        let size = size_text_generic(&text, mq_measure_text, style.font.as_ref(), style.font_size);
 
         let custom = TextBase {
             text: text.into(),

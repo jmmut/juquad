@@ -1,16 +1,16 @@
+use juquad::SizeInPixels2d;
 use juquad::draw::to_rect;
 use juquad::elm::button::Button;
 use juquad::elm::container::Container;
 use juquad::elm::slider::Slider;
 use juquad::elm::style::Style;
 use juquad::elm::text::Text;
-use juquad::elm::widget::{compute_layout, RenderableWidget};
+use juquad::elm::widget::{RenderableWidget, compute_layout};
 use juquad::widgets::anchor::{Horizontal, Layout, Spot, Vertical};
-use juquad::SizeInPixels2d;
 use macroquad::miniquad::date::now;
 use macroquad::prelude::{
-    clear_background, is_key_pressed, is_mouse_button_pressed, load_ttf_font_from_bytes,
-    mouse_position, next_frame, screen_height, screen_width, vec2, KeyCode, MouseButton,
+    KeyCode, MouseButton, clear_background, is_key_pressed, is_mouse_button_pressed,
+    load_ttf_font_from_bytes, mouse_position, next_frame, screen_height, screen_width, vec2,
 };
 
 #[derive(Copy, Clone)]

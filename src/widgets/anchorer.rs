@@ -1,8 +1,8 @@
+use crate::PositionInPixels2d;
+use crate::widgets::Widget;
 use crate::widgets::anchor::{Anchor, Layout};
 use crate::widgets::button::Button;
 use crate::widgets::text::TextRect;
-use crate::widgets::Widget;
-use crate::PositionInPixels2d;
 use macroquad::math::Rect;
 
 pub struct Anchorer {

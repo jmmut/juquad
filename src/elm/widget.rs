@@ -1,9 +1,9 @@
 use crate::draw::to_rect;
 use crate::elm::style::Style;
-use crate::widgets::anchor::{Anchor, Layout};
 use crate::widgets::Interaction;
+use crate::widgets::anchor::{Anchor, Layout};
 use crate::{PositionInPixels2d, SizeInPixels2d};
-use macroquad::math::{vec2, Rect};
+use macroquad::math::{Rect, vec2};
 
 pub type Widgets<I> = Vec<Box<dyn RenderableWidget<I>>>;
 // pub type WidgetsViewMut<'a, 'b> = Vec<&'a mut (dyn RenderableWidget + 'b)>;

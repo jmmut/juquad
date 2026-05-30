@@ -4,16 +4,16 @@ use juquad::lazy::panel::Panel;
 use juquad::lazy::slider::Slider;
 use juquad::lazy::text::Text;
 use juquad::lazy::{
-    set_positions, set_sizes, Interactable, Pad, Renderable, RenderableWidget, Size, Style,
-    WidgetTrait, WidgetsView, WidgetsViewMut, DEBUG_WIDGETS,
+    DEBUG_WIDGETS, Interactable, Pad, Renderable, RenderableWidget, Size, Style, WidgetTrait,
+    WidgetsView, WidgetsViewMut, set_positions, set_sizes,
 };
-use juquad::widgets::anchor::{Anchor, Horizontal, Layout, Spot, Vertical};
 use juquad::widgets::Interaction;
+use juquad::widgets::anchor::{Anchor, Horizontal, Layout, Spot, Vertical};
 use juquad::{PositionInPixels2d, SizeInPixels2d};
 use macroquad::miniquad::date::now;
 use macroquad::prelude::{
-    clear_background, is_key_pressed, is_mouse_button_pressed, mouse_position, next_frame,
-    screen_height, screen_width, vec2, KeyCode, MouseButton, BLACK,
+    BLACK, KeyCode, MouseButton, clear_background, is_key_pressed, is_mouse_button_pressed,
+    mouse_position, next_frame, screen_height, screen_width, vec2,
 };
 // const COLORING: Coloring = Coloring::new();
 

@@ -1,10 +1,10 @@
+use crate::PositionInPixels2d;
+use crate::lazy::text::mq_measure_text;
 use crate::widgets::anchor::Anchor;
 use crate::widgets::{StateStyle, Style, Widget};
-use crate::PositionInPixels2d;
 use macroquad::prelude::{Color, Font, Rect, TextDimensions, Vec2};
 use macroquad::text::TextParams;
 use std::ops::AddAssign;
-use crate::lazy::text::mq_measure_text;
 
 pub type Pixels = f32;
 
@@ -68,13 +68,7 @@ impl Widget for TextRect {
 
 impl TextRect {
     pub fn new(text: &str, position_pixels: Anchor, font_size: f32) -> Self {
-        Self::new_generic(
-            text,
-            position_pixels,
-            font_size,
-            None,
-            mq_measure_text,
-        )
+        Self::new_generic(text, position_pixels, font_size, None, mq_measure_text)
     }
 
     pub fn new_generic(

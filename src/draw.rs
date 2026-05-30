@@ -2,7 +2,7 @@
 //!
 //! In Macroquad, position (0, 0) is the top left corner, so x grows to the right, and y grows down.
 
-use macroquad::prelude::{draw_rectangle, draw_rectangle_lines, Color, Rect, Vec2};
+use macroquad::prelude::{Color, Rect, Vec2, draw_rectangle, draw_rectangle_lines};
 
 /// Draws the border of a rectangle. Higher x and w goes to the right, higher y and h go down.
 pub fn draw_rect_lines(rectangle: Rect, thickness: f32, color: Color) {

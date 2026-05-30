@@ -1,18 +1,23 @@
-use crate::lazy::{
-    add_contour, draw_debug_widget, Interactable, Renderable, Style, WidgetData, WidgetTrait,
-    DEBUG_WIDGETS,
-};
-use crate::widgets::text::{draw_text_v, MeasureText};
-use crate::widgets::Interaction;
 use crate::SizeInPixels2d;
+use crate::lazy::{
+    DEBUG_WIDGETS, Interactable, Renderable, Style, WidgetData, WidgetTrait, add_contour,
+    draw_debug_widget,
+};
+use crate::widgets::Interaction;
+use crate::widgets::text::{MeasureText, draw_text_v};
 use macroquad::math::Vec2;
-use macroquad::prelude::{vec2, Font, TextDimensions};
+use macroquad::prelude::{Font, TextDimensions, vec2};
 
 pub type Text = WidgetData<TextBase>;
 pub type RenderText = fn(widget: &Text, interaction: Interaction);
 
 /// using a wrapper because mq::measure_text is generic and lifetimes somehow prevent compilation
-pub fn mq_measure_text(text: &str, font: Option<&Font>, font_size: u16, font_scale: f32) -> TextDimensions {
+pub fn mq_measure_text(
+    text: &str,
+    font: Option<&Font>,
+    font_size: u16,
+    font_scale: f32,
+) -> TextDimensions {
     macroquad::text::measure_text(text, font, font_size, font_scale)
 }
 

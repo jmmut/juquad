@@ -1,12 +1,10 @@
+use crate::SizeInPixels2d;
 use crate::draw::{draw_rect, draw_rect_lines};
 use crate::elm::style::Style;
-use crate::elm::widget::{
-    Interactable, Renderable, RenderableWidget, Widget, WidgetTrait,
-};
+use crate::elm::widget::{Interactable, Renderable, RenderableWidget, Widget, WidgetTrait};
 use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
 use crate::widgets::Interaction;
-use crate::SizeInPixels2d;
 use macroquad::input::MouseButton;
 use macroquad::math::vec2;
 use macroquad::prelude::Rect;

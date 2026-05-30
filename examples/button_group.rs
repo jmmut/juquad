@@ -6,8 +6,8 @@ use juquad::widgets::text::TextRect;
 use juquad::widgets::{Style, WHITE_BLUE_BACKGROUND};
 use macroquad::color::BLACK;
 use macroquad::math::Vec2;
-use macroquad::prelude::{clear_background, next_frame, screen_height, screen_width, Rect, RED};
-use macroquad::text::{draw_text, load_ttf_font_from_bytes, Font};
+use macroquad::prelude::{RED, Rect, clear_background, next_frame, screen_height, screen_width};
+use macroquad::text::{Font, draw_text, load_ttf_font_from_bytes};
 
 const STYLE: Style = Style::new();
 
@@ -130,17 +130,25 @@ fn create_button_group(font: Option<Font>, font_size: f32, alignment: Horizontal
         ..Default::default()
     };
 
-    let [expand, increase_font, decrease_font, change_font, toggle_borders, some_text, toggle_alignment, exit] =
-        label_group.create([
-            "some button to expand",
-            "long button to increase font size",
-            "decrease font size",
-            "CHANGE FONT",
-            "toggle borders",
-            "some text",
-            "toggle alignment",
-            "exit",
-        ]);
+    let [
+        expand,
+        increase_font,
+        decrease_font,
+        change_font,
+        toggle_borders,
+        some_text,
+        toggle_alignment,
+        exit,
+    ] = label_group.create([
+        "some button to expand",
+        "long button to increase font size",
+        "decrease font size",
+        "CHANGE FONT",
+        "toggle borders",
+        "some text",
+        "toggle alignment",
+        "exit",
+    ]);
     // let [expand, increase_font, decrease_font, change_font, toggle_borders, some_text, exit] =
     //     texts;
     Buttons {

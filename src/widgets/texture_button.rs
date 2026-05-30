@@ -1,6 +1,6 @@
 use macroquad::prelude::{
-    draw_texture_ex, is_mouse_button_down, is_mouse_button_released, mouse_position,
-    DrawTextureParams, MouseButton, Rect, Texture2D, Vec2, WHITE,
+    DrawTextureParams, MouseButton, Rect, Texture2D, Vec2, WHITE, draw_texture_ex,
+    is_mouse_button_down, is_mouse_button_released, mouse_position,
 };
 
 use crate::widgets::anchor::Anchor;

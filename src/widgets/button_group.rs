@@ -3,8 +3,8 @@ use crate::input::input_trait::InputTrait;
 use crate::widgets::anchor::{Anchor, Horizontal};
 use crate::widgets::button::Button;
 use crate::widgets::text::TextRect;
-use macroquad::math::{vec2, Vec2};
-use macroquad::prelude::{measure_text, Rect};
+use macroquad::math::{Vec2, vec2};
+use macroquad::prelude::{Rect, measure_text};
 use macroquad::text::Font;
 use std::mem::ManuallyDrop;
 

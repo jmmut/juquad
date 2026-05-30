@@ -11,14 +11,14 @@ use juquad::widgets::anchor::{Anchor, Horizontal};
 use juquad::widgets::button::Button;
 use juquad::widgets::text::TextRect;
 use juquad::widgets::{
-    Style, Widget, BLACK_BLUE_BACKGROUND, MID_BLUE_BACKGROUND, WHITE_BLUE_BACKGROUND,
-};
-use macroquad::miniquad::date::now;
-use macroquad::prelude::{
-    clear_background, draw_texture_ex, next_frame, screen_height, screen_width, DrawTextureParams,
-    Vec2, WHITE,
+    BLACK_BLUE_BACKGROUND, MID_BLUE_BACKGROUND, Style, WHITE_BLUE_BACKGROUND, Widget,
 };
 use macroquad::Error;
+use macroquad::miniquad::date::now;
+use macroquad::prelude::{
+    DrawTextureParams, Vec2, WHITE, clear_background, draw_texture_ex, next_frame, screen_height,
+    screen_width,
+};
 
 const FONT_SIZE: f32 = 32.0;
 const TEXTURE_PATH: &'static str = "assets/ferris.png";

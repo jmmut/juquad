@@ -1,5 +1,5 @@
-use macroquad::texture::{load_texture, Texture2D};
 use macroquad::Error;
+use macroquad::texture::{Texture2D, load_texture};
 use std::future::Future;
 use std::pin::Pin;
 use std::task::{Poll, RawWaker, RawWakerVTable, Waker};
@@ -99,7 +99,9 @@ where
                     let resource_fut = (self.load_func)(resource_input);
                     self.in_progress = Some(Box::pin(resource_fut));
                 } else {
-                    panic!("logic error: get_resources was probably called after producing the resources");
+                    panic!(
+                        "logic error: get_resources was probably called after producing the resources"
+                    );
                 }
             }
             Ok(None)

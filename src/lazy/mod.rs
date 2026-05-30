@@ -3,8 +3,8 @@ use crate::widgets::anchor::{Anchor, Horizontal, Layout, Vertical};
 use crate::widgets::text::Pixels;
 use crate::widgets::{Interaction, Style as Coloring};
 use crate::{PositionInPixels2d, SizeInPixels2d};
-use macroquad::color::{Color, BLACK, BLUE, ORANGE};
-use macroquad::prelude::{vec2, Font, Rect, Vec2};
+use macroquad::color::{BLACK, BLUE, Color, ORANGE};
+use macroquad::prelude::{Font, Rect, Vec2, vec2};
 use std::any::Any;
 use std::ops::{Index, IndexMut};
 
@@ -429,7 +429,7 @@ mod tests {
     use super::*;
     use crate::lazy::button::Button;
     use crate::lazy::panel::Panel;
-    use crate::lazy::text::{render_text, Text};
+    use crate::lazy::text::{Text, render_text};
     use macroquad::prelude::TextDimensions;
 
     fn mock_measure(

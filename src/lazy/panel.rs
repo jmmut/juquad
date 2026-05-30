@@ -1,6 +1,6 @@
 use crate::draw::draw_rect;
 use crate::lazy::{
-    draw_debug_widget, Interactable, Renderable, WidgetData, WidgetTrait, DEBUG_WIDGETS,
+    DEBUG_WIDGETS, Interactable, Renderable, WidgetData, WidgetTrait, draw_debug_widget,
 };
 use crate::widgets::Interaction;
 use std::any::Any;
@@ -33,12 +33,14 @@ impl<Response: 'static> Panel<Response> {
             }
         }
         assert_eq!(
-            typeds.len(), expected_elems_of_this_type,
+            typeds.len(),
+            expected_elems_of_this_type,
             "The {} widgets inside this panel didn't provide the {} expected interactions of the given type. \
             Note that this function is doing blind downcasts for convenience because I can't come up with a better set of traits.\n\
             \tHint: Check that the panel contains the desired number of widgets.\n\
             \tHint: Check that the widgets inside the panel are returning the type you expect.",
-            self.children().len(), expected_elems_of_this_type
+            self.children().len(),
+            expected_elems_of_this_type
         );
         typeds
     }

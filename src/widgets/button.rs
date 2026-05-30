@@ -3,8 +3,8 @@ use crate::input::input_macroquad::InputMacroquad;
 use crate::input::input_trait::InputTrait;
 use crate::widgets::anchor::Anchor;
 use crate::widgets::text::{MeasureText, TextRect};
-use crate::widgets::{interact, Interaction, StateStyle, Style, Widget};
-use macroquad::prelude::{draw_line, Rect};
+use crate::widgets::{Interaction, StateStyle, Style, Widget, interact};
+use macroquad::prelude::{Rect, draw_line};
 use macroquad::text::Font;
 
 pub type RenderButton = fn(interaction: Interaction, text_rect: &TextRect, style: &Style);
